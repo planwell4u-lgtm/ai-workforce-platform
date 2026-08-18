@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import unittest
+from io import BytesIO
 from pathlib import Path
 
 from livekit import api
@@ -54,9 +55,54 @@ class VoiceSandboxTokenTests(unittest.TestCase):
         self.assertTrue(response["room_ref"].startswith("local-voice-tenant-a-"))
         self.assertNotIn("secret", response)
         claims = api.TokenVerifier("devkey", "secret").verify(response["token"])
-        self.assertEqual(claims.identity, "auth0|member")
+        self.assertTrue(claims.identity.startswith("voice-"))
         self.assertEqual(claims.video.room, response["room_ref"])
         self.assertTrue(claims.video.room_join)
+
+    def test_allows_a_second_local_participant_to_join_the_same_tenant_room(self) -> None:
+        first_body = b"".join(
+            self._api()(
+                {"REQUEST_METHOD": "POST", "PATH_INFO": "/v1/voice-sandbox-token", "HTTP_AUTHORIZATION": "Bearer valid"},
+                lambda status, headers: None,
+            )
+        )
+        first = json.loads(first_body)
+        join_body = json.dumps({"room_ref": first["room_ref"]}).encode()
+        second_body = b"".join(
+            self._api()(
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                    "CONTENT_LENGTH": str(len(join_body)),
+                    "wsgi.input": BytesIO(join_body),
+                },
+                lambda status, headers: None,
+            )
+        )
+        second = json.loads(second_body)
+        first_claims = api.TokenVerifier("devkey", "secret").verify(first["token"])
+        second_claims = api.TokenVerifier("devkey", "secret").verify(second["token"])
+        self.assertEqual(second["room_ref"], first["room_ref"])
+        self.assertNotEqual(second_claims.identity, first_claims.identity)
+
+    def test_rejects_a_room_from_another_tenant(self) -> None:
+        join_body = json.dumps({"room_ref": "local-voice-tenant-b-12345678-1234-1234-1234-123456789abc"}).encode()
+        captured: dict[str, object] = {}
+        body = b"".join(
+            self._api()(
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                    "CONTENT_LENGTH": str(len(join_body)),
+                    "wsgi.input": BytesIO(join_body),
+                },
+                lambda status, headers: captured.update(status=status),
+            )
+        )
+        self.assertEqual(captured["status"], "403 Forbidden")
+        self.assertEqual(json.loads(body), {"error": "forbidden"})
 
     def test_requires_the_existing_support_permission(self) -> None:
         captured: dict[str, object] = {}

@@ -57,11 +57,17 @@ After explicit in-page consent and browser permission, LiveKit recorded a
 microphone track using echo cancellation, noise suppression, and auto-gain;
 it received 565 RTP packets over about 11.5 seconds with no packet loss. The
 user selected Stop and LiveKit recorded a clean client-requested disconnect.
-Remote-track playback is implemented, but has not yet been exercised because
-this single-participant rehearsal had no remote audio publisher.
+
+The two-participant playback rehearsal passed on 2026-08-18. The host browser
+joined with its microphone after explicit consent. A second browser session for
+the same signed-in user supplied the displayed tenant-scoped room code and
+joined as a listener, without sharing a microphone. The token service assigned
+each session a distinct temporary participant identity, preventing the listener
+from displacing the host. LiveKit confirmed that the listener subscribed to the
+host audio track and started forwarding RTP. The owner confirmed audible
+playback in the listener browser.
 
 ## Next Evaluation Step
 
-Use a second local browser participant to verify remote-audio playback, then
-exercise the permission-denied recovery path. Do not add recording, Twilio, or
+Exercise the permission-denied recovery path. Do not add recording, Twilio, or
 cloud resources without a separate approved decision.

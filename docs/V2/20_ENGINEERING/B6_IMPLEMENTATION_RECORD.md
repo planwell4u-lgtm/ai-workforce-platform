@@ -24,5 +24,13 @@ connection-failure, and sign-out cleanup paths. Stop unpublishes the track,
 stops the browser microphone, removes playback elements, and disconnects.
 No recording is enabled.
 
+The local two-participant playback rehearsal passed. The host joined with a
+consented microphone and exposed a tenant-scoped room code. A second same-user
+browser session joined that room as a listener without requesting microphone
+access. The backend validates the requested room belongs to the authenticated
+tenant and gives each token a unique temporary LiveKit participant identity.
+LiveKit recorded the listener subscription and RTP forwarding, and the owner
+confirmed audible playback.
+
 No participant media track, recording, LiveKit Cloud project, Twilio account,
 PSTN/SIP route, phone number, or live telephony effect is enabled.

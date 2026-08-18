@@ -36,6 +36,8 @@ export default function Home() {
   const [voiceConsentPending, setVoiceConsentPending] = useState(false);
   const [voiceConnecting, setVoiceConnecting] = useState(false);
   const [voiceConnected, setVoiceConnected] = useState(false);
+  const [voiceRoomCode, setVoiceRoomCode] = useState("");
+  const [joinVoiceRoomRef, setJoinVoiceRoomRef] = useState("");
   const voiceRoomRef = useRef<Room>();
   const voiceMicrophoneRef = useRef<MediaStreamTrack>();
   const voicePlaybackElementsRef = useRef<HTMLMediaElement[]>([]);
@@ -172,21 +174,24 @@ export default function Home() {
     await room?.disconnect();
     voiceRoomRef.current = undefined;
     voiceMicrophoneRef.current = undefined;
+    setVoiceRoomCode("");
     setVoiceConnected(false);
     setVoiceConnecting(false);
     setVoiceConsentPending(false);
     setVoiceSandboxStatus(notice);
   }
-  async function startVoiceSession() {
+  async function startVoiceSession(shareMicrophone = true) {
     if (!auth || !signedIn) return;
     setVoiceConsentPending(false);
     setVoiceConnecting(true);
     setVoiceSandboxStatus("Connecting your private voice room…");
     try {
       const token = await auth.getTokenSilently();
+      const requestedRoomRef = joinVoiceRoomRef.trim();
       const response = await fetch(`${apiBaseUrl}/v1/voice-sandbox-token`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: requestedRoomRef ? JSON.stringify({ room_ref: requestedRoomRef }) : undefined,
       });
       const result = await response.json();
       if (!response.ok || typeof result.url !== "string" || typeof result.token !== "string") throw new Error("token_request_failed");
@@ -201,6 +206,13 @@ export default function Home() {
         voicePlaybackElementsRef.current.push(playback);
       });
       await room.connect(result.url, result.token);
+      if (!shareMicrophone) {
+        setVoiceConnected(true);
+        setVoiceConnecting(false);
+        setVoiceRoomCode(result.room_ref);
+        setVoiceSandboxStatus("Connected as a listener. Audio from other participants will play automatically; your microphone is not shared.");
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         video: false,
@@ -214,6 +226,7 @@ export default function Home() {
       });
       setVoiceConnected(true);
       setVoiceConnecting(false);
+      setVoiceRoomCode(result.room_ref);
       setVoiceSandboxStatus("Voice is live. Your microphone is shared only in this room; audio from other participants will play automatically.");
     } catch (error) {
       const denied = error instanceof DOMException && error.name === "NotAllowedError";
@@ -226,5 +239,5 @@ export default function Home() {
     if (voiceRoomRef.current) await stopVoiceSession("Voice session ended before signing out.");
     await auth?.logout({ logoutParams: { returnTo: window.location.origin } });
   }
-  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceConsentPending && <div className="notice"><p>Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled.</p><button onClick={() => void startVoiceSession()}>Enable microphone</button><button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
+  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceRoomCode && <p className="notice">Voice room code: <code>{voiceRoomCode}</code></p>}{voiceConsentPending && <div className="notice"><p>Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled.</p><label>Join an existing local room (optional)<input value={joinVoiceRoomRef} onChange={(event) => setJoinVoiceRoomRef(event.target.value)} placeholder="Paste a voice room code" aria-label="Voice room code"/></label><button onClick={() => void startVoiceSession()}>Enable microphone</button>{joinVoiceRoomRef.trim() && <button className="secondary" onClick={() => void startVoiceSession(false)}>Join without microphone</button>}<button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
 }

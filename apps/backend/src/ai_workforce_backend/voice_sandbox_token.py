@@ -64,11 +64,11 @@ class VoiceSandboxTokenApi:
                 or self.required_permission not in identity.granted_permissions
             ):
                 raise AuthorizationError("insufficient_permission")
-            room_ref = f"local-voice-{membership.tenant_ref}-{uuid.uuid4()}"
+            room_ref = self._room_ref(environ, membership.tenant_ref)
             token = (
                 api.AccessToken(self._api_key, self._api_secret)
                 .with_ttl(timedelta(minutes=5))
-                .with_identity(identity.principal_ref)
+                .with_identity(f"voice-{uuid.uuid4()}")
                 .with_name("Planwell local voice test")
                 .with_grants(api.VideoGrants(room_join=True, room=room_ref))
                 .to_jwt()
@@ -76,7 +76,7 @@ class VoiceSandboxTokenApi:
         except AuthenticationError as error:
             self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
             return self._respond(start_response, "401 Unauthorized", headers, {"error": "unauthorized"})
-        except AuthorizationError as error:
+        except (AuthorizationError, TypeError, ValueError) as error:
             self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
             return self._respond(start_response, "403 Forbidden", headers, {"error": "forbidden"})
         self._audit_sink.record(
@@ -95,6 +95,22 @@ class VoiceSandboxTokenApi:
             headers,
             {"url": self._url, "token": token, "room_ref": room_ref, "correlation_ref": correlation_ref},
         )
+
+    @staticmethod
+    def _room_ref(environ: Mapping[str, object], tenant_ref: str) -> str:
+        content_length = int(cast(str, environ.get("CONTENT_LENGTH", "0")))
+        if content_length == 0:
+            return f"local-voice-{tenant_ref}-{uuid.uuid4()}"
+        raw = environ.get("wsgi.input")
+        if not hasattr(raw, "read"):
+            raise TypeError("invalid_request")
+        payload = json.loads(raw.read(content_length).decode("utf-8"))
+        room_ref = payload.get("room_ref") if isinstance(payload, dict) else None
+        expected_prefix = f"local-voice-{tenant_ref}-"
+        if not isinstance(room_ref, str) or not room_ref.startswith(expected_prefix):
+            raise ValueError("invalid_room_ref")
+        uuid.UUID(room_ref.removeprefix(expected_prefix))
+        return room_ref
 
     @staticmethod
     def _respond(
