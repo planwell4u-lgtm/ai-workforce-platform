@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.7  
+**Version:** 2.8  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -39,6 +39,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The Admin escalation control now gives immediate progress feedback: it shows `Creating Jira ticket…` and prevents a second click until the request completes.
 - The updated escalation feedback was visually verified in the local Docker rehearsal; a fresh conversation created Jira ticket `CS-14`, persisted the reference, and returned to the completed disabled state.
 - Updated release candidate published from revision `7f7d2195dea1c5fff8da80aebe26b4aa4b4e72b1`; its backend and frontend image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
+- Local GitHub Container Registry read access is verified. The exact updated signed backend and frontend image digests were pulled and started locally; backend health and frontend runtime-configuration checks both returned `200`.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -48,13 +49,14 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Enable local read access to the GitHub Container Registry package, then pull and rehearse the updated exact signed image digests.
+Complete the signed-image browser rehearsal: Auth0 sign-in, chat response, Admin history, and persisted ticket-state check.
 
 # Session Checkpoint
 
 The local backend and frontend rehearsal containers are running on ports `8080`
-and `3000`; the full support-to-Jira flow is verified. The updated signed
-release candidate includes the runtime-configuration and escalation-feedback fixes.
+and `3000` from the exact updated signed image digests; their health and runtime
+configuration are verified. Complete the signed-image browser rehearsal before
+considering this local release validation closed.
 
 # Delivery Guardrails
 
@@ -74,6 +76,7 @@ release candidate includes the runtime-configuration and escalation-feedback fix
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.8 | 2026-08-18 | Enabled local GHCR package read access and verified the exact updated signed images start locally with healthy backend and frontend runtime configuration. |
 | 2.7 | 2026-08-18 | Published, keylessly signed, and verified the updated release candidate containing the runtime-configuration and escalation-feedback fixes. |
 | 2.6 | 2026-08-18 | Visually verified the escalation feedback and completed ticket state in a fresh local Docker conversation (Jira CS-14). |
 | 2.5 | 2026-08-18 | Added visible in-progress feedback and repeat-click suppression while a Jira ticket escalation is being created. |
