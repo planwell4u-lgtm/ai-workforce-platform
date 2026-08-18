@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.7
+**Version:** 3.8
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -60,8 +60,11 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Retain the completed local LiveKit evidence and await an explicit provider or
-deployment decision. Keep Twilio PSTN/SIP and cloud deployment deferred.
+Prepare a bounded LiveKit Cloud inbound-phone rehearsal: account/project,
+one US inbound number, a least-privilege dispatch rule, and a call from the
+owner's phone. Do not create the account, rent a number, enable routing, or
+place a real call until each external step is explicitly authorized. Keep
+Twilio deferred.
 
 # Session Checkpoint
 
@@ -69,6 +72,11 @@ The local backend and frontend rehearsal containers are running on ports `8080`
 and `3000`; their runtime configuration, protected browser flow, consent-based
 microphone publishing, and two-participant playback are verified. Cloud
 deployment remains deferred.
+
+The owner approved the recommended sequence to evaluate a LiveKit-managed
+inbound phone number before considering Twilio. Preparation is authorized;
+LiveKit Cloud account creation, number rental, routing, and telephone calls
+remain separately gated external actions.
 
 # Delivery Guardrails
 
@@ -88,6 +96,7 @@ deployment remains deferred.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.8 | 2026-08-18 | Approved the sequence for a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio evaluation; recorded account, number, routing, and calling as separately gated external actions. |
 | 3.7 | 2026-08-18 | Verified denied-microphone recovery: denial shared nothing and returned to a retryable state; restoring browser permission started a new live session. Local LiveKit evaluation is complete. |
 | 3.6 | 2026-08-18 | Verified two-participant local voice playback: a listener joined the tenant-scoped room without microphone access, LiveKit forwarded the host audio, and the owner confirmed playback. Denied-microphone recovery is next. |
 | 3.5 | 2026-08-18 | Implemented and verified consent-based microphone publishing and explicit recovery/cleanup; recorded playback as the remaining two-participant local test. |

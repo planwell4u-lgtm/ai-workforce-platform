@@ -75,6 +75,10 @@ microphone session connected successfully.
 
 ## Next Evaluation Step
 
-The bounded local evaluation is complete. Retain this evidence and await an
-explicit provider-selection or deployment decision. Do not add recording,
-Twilio, or cloud resources without a separate approved decision.
+The bounded local evaluation is complete. The owner approved the sequence for
+a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio
+evaluation. Prepare the setup plan for one US inbound number, a least-privilege
+dispatch rule, and a call from the owner’s phone. Account creation, number
+rental, dispatch-rule activation, and any telephone call remain separately
+gated external actions. Do not add recording or Twilio resources without a
+separate approved decision.
