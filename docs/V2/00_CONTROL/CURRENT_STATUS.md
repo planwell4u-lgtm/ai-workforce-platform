@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.2  
+**Version:** 2.3  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -34,6 +34,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - First GitHub Container Registry release candidate published from revision `432b6c12febbf09237d3ab74aed7267aaea4b7a2`; both immutable image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 - Local Docker rehearsal confirmed backend health (`200 OK`) using the locally built source-equivalent image, runtime configuration, and a read-only mount of the approved FAQ source. The temporary test container was removed after the check.
 - Local container configuration is now runtime-configurable: the frontend reads Auth0 and API settings from its `/runtime-config` endpoint at launch. Local backend health and frontend delivery were revalidated on ports `8080` and `3000` respectively.
+- Auth0 sign-in through the local frontend was verified after the runtime-configuration change. The protected backend restored conversation history and returned Admin history successfully (`200` responses).
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -43,13 +44,14 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Complete the local browser flow (login, chat, Admin history, and Jira escalation), then publish a new signed release candidate containing the runtime-configuration fix.
+Optionally repeat a local support-message and ticket-escalation check, then publish a new signed release candidate containing the runtime-configuration fix.
 
 # Session Checkpoint
 
 The local backend and frontend rehearsal containers are running on ports `8080`
-and `3000`. Resume with the browser flow; do not treat the previous signed
-release candidate as containing the runtime-configuration fix.
+and `3000`; protected sign-in, conversation restoration, and Admin history are
+verified. Do not treat the previous signed release candidate as containing the
+runtime-configuration fix.
 
 # Delivery Guardrails
 
@@ -69,6 +71,7 @@ release candidate as containing the runtime-configuration fix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.3 | 2026-08-18 | Verified local container Auth0 sign-in, protected conversation restoration, and Admin history after the runtime-configuration fix. |
 | 2.2 | 2026-08-18 | Added runtime-configurable frontend container settings, validated local backend/frontend delivery, and recorded the owner-approved pgAdmin container removal. |
 | 2.1 | 2026-08-18 | Recorded local Docker backend-health rehearsal result and the three gaps blocking full signed-image browser verification. |
 | 2.0 | 2026-08-18 | Added end-of-session checkpoint: release candidate evidence is pushed and the controlled deployment rehearsal is the restart point. |
