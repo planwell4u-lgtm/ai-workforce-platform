@@ -12,6 +12,7 @@ COPY packages/agent/python/src ./packages/agent/python/src
 COPY packages/conversation/python/src ./packages/conversation/python/src
 COPY packages/data/python/src ./packages/data/python/src
 COPY packages/integration/python/src ./packages/integration/python/src
+COPY packages/voice/python/src ./packages/voice/python/src
 
 RUN python -m pip install --upgrade pip \
     && python -m pip install .

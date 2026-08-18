@@ -55,6 +55,8 @@ The first implementation plan proves one authorized tenant can use one approved 
 - `B4_B5_STAGING_VERIFICATION_RECORD.md` — configured-staging evidence for
   Web Chat persistence, Admin history, saved Jira ticket state, and repeat
   escalation suppression.
+- `LIVEKIT_LOCAL_SANDBOX_EVALUATION_RECORD.md` — bounded local LiveKit
+  realtime-media evaluation evidence; it excludes Twilio and cloud deployment.
 
 It excludes broad multi-tenant administration, additional channels, unbounded integrations, autonomous changes, direct provider/database access, and unrelated infrastructure expansion.
 

@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.0  
+**Version:** 3.2  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -44,6 +44,8 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Local GitHub Container Registry read access is verified. The exact updated signed backend and frontend image digests were pulled and started locally; backend health and frontend runtime-configuration checks both returned `200`.
 - The signed-image browser rehearsal is complete: Auth0 sign-in, conversation restoration, a protected support-answer request, and Admin-history loading all completed successfully against the exact signed images.
 - B9 local release-readiness evidence is complete: immutable signed images, provenance, exact-digest local rehearsal, health/configuration checks, and protected browser-flow evidence are retained.
+- LiveKit local realtime-media sandbox is running and reachable on ports `7880` and `7881` for the approved provider evaluation; Twilio and cloud deployment remain out of scope.
+- A test-only LiveKit adapter now connects to the local sandbox through the provider-neutral Voice boundary and preserves `uncertain` turn outcome on disconnect; focused tests and the backend container build pass.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -53,9 +55,9 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Record and approve the next Voice-provider decision: retain the completed local
-Voice simulation as the baseline, select a LiveKit sandbox for realtime media
-evaluation, and decide separately whether/when Twilio PSTN/SIP is in scope.
+Evaluate a browser media client and synthetic local audio track through the
+LiveKit sandbox while preserving provider-neutral Voice and canonical
+Conversation boundaries. Keep Twilio PSTN/SIP and cloud deployment deferred.
 
 # Session Checkpoint
 
@@ -82,6 +84,8 @@ deferred.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.2 | 2026-08-18 | Implemented and tested the local LiveKit sandbox adapter; connection/disconnection preserves canonical uncertain-turn safety and the backend image builds with the Voice package. |
+| 3.1 | 2026-08-18 | Started and recorded the bounded local LiveKit realtime-media sandbox evaluation; Twilio and cloud deployment remain deferred. |
 | 3.0 | 2026-08-18 | Reconciled B6 Voice, B8 operator journey, and B9 local release-readiness completion; marked local release gaps resolved and set the next provider-selection decision. |
 | 2.9 | 2026-08-18 | Completed the exact signed-image local browser rehearsal: Auth0 sign-in, restored conversation, protected support request, and Admin history all succeeded. |
 | 2.8 | 2026-08-18 | Enabled local GHCR package read access and verified the exact updated signed images start locally with healthy backend and frontend runtime configuration. |

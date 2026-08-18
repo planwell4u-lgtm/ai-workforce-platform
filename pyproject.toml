@@ -8,6 +8,8 @@ version = "0.1.0"
 description = "Engineering foundation for the AI Workforce Platform"
 requires-python = ">=3.12"
 dependencies = [
+  "livekit>=1.1.14,<2",
+  "livekit-api>=1.2.0,<2",
   "psycopg[binary]>=3.2,<4",
   "PyJWT[crypto]>=2.10,<3",
 ]
@@ -19,8 +21,8 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["apps/backend/src", "packages/agent/python/src", "packages/conversation/python/src", "packages/data/python/src", "packages/integration/python/src"]
-include = ["ai_workforce_agent*", "ai_workforce_backend*", "ai_workforce_conversation*", "ai_workforce_data*", "ai_workforce_integration*"]
+where = ["apps/backend/src", "packages/agent/python/src", "packages/conversation/python/src", "packages/data/python/src", "packages/integration/python/src", "packages/voice/python/src"]
+include = ["ai_workforce_agent*", "ai_workforce_backend*", "ai_workforce_conversation*", "ai_workforce_data*", "ai_workforce_integration*", "ai_workforce_voice*"]
 
 [tool.unittest]
 start-directory = "tests"
