@@ -37,6 +37,14 @@
 - The complete local container flow was subsequently verified with Auth0 sign-in,
   an approved FAQ answer, Jira ticket `CS-13`, Admin-history restoration, and
   repeat-escalation suppression.
+- Release-candidate run [`32161644475`](https://github.com/planwell4u-lgtm/ai-workforce-platform/actions/runs/32161644475)
+  completed successfully for source revision
+  `7f7d2195dea1c5fff8da80aebe26b4aa4b4e72b1`, which includes the runtime
+  configuration and escalation-progress changes.
+- The run published, keylessly signed, and verified these immutable image
+  references:
+  - `ghcr.io/planwell4u-lgtm/ai-workforce-backend@sha256:89af42bedecba3f28c999ffdf2146111913f797a64b98aebe652824303d3da28`
+  - `ghcr.io/planwell4u-lgtm/ai-workforce-frontend@sha256:3ae28e93d2f5cfc35f271ce95d2edcc030bb90961da11ae37af96be16acc853b`
 
 ## Signing boundary
 

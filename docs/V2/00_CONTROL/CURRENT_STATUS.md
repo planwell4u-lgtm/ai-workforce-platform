@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.6  
+**Version:** 2.7  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -38,6 +38,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The full local Docker user flow is verified: approved order-tracking response, Jira escalation (`CS-13`), Admin-history restoration, persisted Jira reference, and repeat-escalation suppression.
 - The Admin escalation control now gives immediate progress feedback: it shows `Creating Jira ticket…` and prevents a second click until the request completes.
 - The updated escalation feedback was visually verified in the local Docker rehearsal; a fresh conversation created Jira ticket `CS-14`, persisted the reference, and returned to the completed disabled state.
+- Updated release candidate published from revision `7f7d2195dea1c5fff8da80aebe26b4aa4b4e72b1`; its backend and frontend image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -47,13 +48,13 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Publish a new signed release candidate containing the runtime-configuration and progress-feedback fixes, then enable local read access to its GitHub Container Registry package for exact-digest rehearsal.
+Enable local read access to the GitHub Container Registry package, then pull and rehearse the updated exact signed image digests.
 
 # Session Checkpoint
 
 The local backend and frontend rehearsal containers are running on ports `8080`
-and `3000`; the full support-to-Jira flow is verified. Do not treat the
-previous signed release candidate as containing the runtime-configuration fix.
+and `3000`; the full support-to-Jira flow is verified. The updated signed
+release candidate includes the runtime-configuration and escalation-feedback fixes.
 
 # Delivery Guardrails
 
@@ -73,6 +74,7 @@ previous signed release candidate as containing the runtime-configuration fix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.7 | 2026-08-18 | Published, keylessly signed, and verified the updated release candidate containing the runtime-configuration and escalation-feedback fixes. |
 | 2.6 | 2026-08-18 | Visually verified the escalation feedback and completed ticket state in a fresh local Docker conversation (Jira CS-14). |
 | 2.5 | 2026-08-18 | Added visible in-progress feedback and repeat-click suppression while a Jira ticket escalation is being created. |
 | 2.4 | 2026-08-18 | Verified the complete local Docker support flow: approved answer, Jira ticket CS-13, Admin restoration, persisted ticket state, and repeat-escalation suppression. |
