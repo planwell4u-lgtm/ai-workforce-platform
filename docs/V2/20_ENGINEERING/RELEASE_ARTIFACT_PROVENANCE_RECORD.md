@@ -34,6 +34,9 @@
 - The runtime-configuration change was built and locally validated after that
   candidate; it requires a subsequent release-candidate run before it is
   represented by a signed registry digest.
+- The complete local container flow was subsequently verified with Auth0 sign-in,
+  an approved FAQ answer, Jira ticket `CS-13`, Admin-history restoration, and
+  repeat-escalation suppression.
 
 ## Signing boundary
 

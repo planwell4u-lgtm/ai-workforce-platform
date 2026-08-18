@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.3  
+**Version:** 2.4  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -35,6 +35,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Local Docker rehearsal confirmed backend health (`200 OK`) using the locally built source-equivalent image, runtime configuration, and a read-only mount of the approved FAQ source. The temporary test container was removed after the check.
 - Local container configuration is now runtime-configurable: the frontend reads Auth0 and API settings from its `/runtime-config` endpoint at launch. Local backend health and frontend delivery were revalidated on ports `8080` and `3000` respectively.
 - Auth0 sign-in through the local frontend was verified after the runtime-configuration change. The protected backend restored conversation history and returned Admin history successfully (`200` responses).
+- The full local Docker user flow is verified: approved order-tracking response, Jira escalation (`CS-13`), Admin-history restoration, persisted Jira reference, and repeat-escalation suppression.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -44,14 +45,13 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Optionally repeat a local support-message and ticket-escalation check, then publish a new signed release candidate containing the runtime-configuration fix.
+Publish a new signed release candidate containing the runtime-configuration fix, then enable local read access to its GitHub Container Registry package for exact-digest rehearsal.
 
 # Session Checkpoint
 
 The local backend and frontend rehearsal containers are running on ports `8080`
-and `3000`; protected sign-in, conversation restoration, and Admin history are
-verified. Do not treat the previous signed release candidate as containing the
-runtime-configuration fix.
+and `3000`; the full support-to-Jira flow is verified. Do not treat the
+previous signed release candidate as containing the runtime-configuration fix.
 
 # Delivery Guardrails
 
@@ -71,6 +71,7 @@ runtime-configuration fix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.4 | 2026-08-18 | Verified the complete local Docker support flow: approved answer, Jira ticket CS-13, Admin restoration, persisted ticket state, and repeat-escalation suppression. |
 | 2.3 | 2026-08-18 | Verified local container Auth0 sign-in, protected conversation restoration, and Admin history after the runtime-configuration fix. |
 | 2.2 | 2026-08-18 | Added runtime-configurable frontend container settings, validated local backend/frontend delivery, and recorded the owner-approved pgAdmin container removal. |
 | 2.1 | 2026-08-18 | Recorded local Docker backend-health rehearsal result and the three gaps blocking full signed-image browser verification. |
