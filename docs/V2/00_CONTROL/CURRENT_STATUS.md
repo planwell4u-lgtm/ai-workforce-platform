@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.0  
+**Version:** 2.1  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -32,17 +32,23 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Configured-staging chat, persistence refresh, Admin history, Jira reference restoration, and repeat-escalation suppression were verified on 2026-08-18.
 - Backend and frontend Linux container builds are validated locally and in GitHub Actions; a release-candidate workflow produces image archives, checksums, and source/workflow provenance metadata.
 - First GitHub Container Registry release candidate published from revision `432b6c12febbf09237d3ab74aed7267aaea4b7a2`; both immutable image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
+- Local Docker rehearsal confirmed backend health (`200 OK`) using the locally built source-equivalent image, runtime configuration, and a read-only mount of the approved FAQ source. The temporary test container was removed after the check.
+
+# Rehearsal Gaps
+
+- Local pull access to the signed GitHub Container Registry image returned `403 Forbidden`; the package needs a permitted local read identity before exact-digest testing can occur.
+- The published frontend image has no runtime configuration path for its Auth0 settings, and its API target is fixed to `http://localhost:8080`.
+- Local port `8080` is already used by the existing pgAdmin container, so the full browser flow cannot be exercised without an explicit local port/configuration solution.
 
 # Next Action
 
-Use the verified immutable image digests from the release-provenance record for the first controlled deployment rehearsal.
+Close the three recorded local-rehearsal gaps, then repeat the full signed-image browser flow (login, chat, Admin history, and Jira escalation).
 
 # Session Checkpoint
 
-This session closed with a clean, pushed `main` branch at commit `d9e27eb`.
-When work resumes, begin with the controlled deployment rehearsal; start local
-services only if the rehearsal needs them and re-check their health endpoints
-before testing.
+The prior release-candidate evidence is pushed. The local backend health check
+has been completed; resume by addressing the recorded rehearsal gaps before
+attempting the full browser flow.
 
 # Delivery Guardrails
 
@@ -62,6 +68,7 @@ before testing.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.1 | 2026-08-18 | Recorded local Docker backend-health rehearsal result and the three gaps blocking full signed-image browser verification. |
 | 2.0 | 2026-08-18 | Added end-of-session checkpoint: release candidate evidence is pushed and the controlled deployment rehearsal is the restart point. |
 | 1.9 | 2026-08-18 | Published, signed, and verified the first GitHub Container Registry release candidate; recorded exact immutable image digests and provenance evidence. |
 | 1.8 | 2026-08-18 | Configured keyless Sigstore/Cosign GitHub OIDC signing for versioned GitHub Container Registry release candidates. |
