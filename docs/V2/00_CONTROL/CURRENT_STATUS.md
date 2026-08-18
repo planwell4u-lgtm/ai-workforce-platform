@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.2  
+**Version:** 3.4
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -46,6 +46,8 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - B9 local release-readiness evidence is complete: immutable signed images, provenance, exact-digest local rehearsal, health/configuration checks, and protected browser-flow evidence are retained.
 - LiveKit local realtime-media sandbox is running and reachable on ports `7880` and `7881` for the approved provider evaluation; Twilio and cloud deployment remain out of scope.
 - A test-only LiveKit adapter now connects to the local sandbox through the provider-neutral Voice boundary and preserves `uncertain` turn outcome on disconnect; focused tests and the backend container build pass.
+- A signed-in local browser voice test is implemented: the backend issues a five-minute, room-bound LiveKit token after tenant and support-read authorization; the browser publishes a brief synthetic tone without requesting microphone access or receiving a provider secret.
+- The signed-in LiveKit browser rehearsal passed: the browser published synthetic local audio, LiveKit received 76 RTP packets over about 1.5 seconds, and the room closed cleanly. Docker Desktop local media requires `7882/udp` exposed with LiveKit advertising `127.0.0.1`.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -55,9 +57,10 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Evaluate a browser media client and synthetic local audio track through the
-LiveKit sandbox while preserving provider-neutral Voice and canonical
-Conversation boundaries. Keep Twilio PSTN/SIP and cloud deployment deferred.
+Decide whether the next approved voice scope is a user-facing microphone and
+playback design with consent/recovery rules, or to retain the successful
+LiveKit result as provider-evaluation evidence. Keep Twilio PSTN/SIP and cloud
+deployment deferred.
 
 # Session Checkpoint
 
@@ -84,6 +87,8 @@ deferred.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.4 | 2026-08-18 | Verified the signed-in browser synthetic-audio rehearsal end to end; recorded the required local Docker UDP and advertised-address settings. |
+| 3.3 | 2026-08-18 | Implemented the secure local browser LiveKit test path: five-minute room token, synthetic audio only, no microphone capture or provider-secret exposure. |
 | 3.2 | 2026-08-18 | Implemented and tested the local LiveKit sandbox adapter; connection/disconnection preserves canonical uncertain-turn safety and the backend image builds with the Voice package. |
 | 3.1 | 2026-08-18 | Started and recorded the bounded local LiveKit realtime-media sandbox evaluation; Twilio and cloud deployment remain deferred. |
 | 3.0 | 2026-08-18 | Reconciled B6 Voice, B8 operator journey, and B9 local release-readiness completion; marked local release gaps resolved and set the next provider-selection decision. |

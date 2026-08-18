@@ -32,6 +32,7 @@ from .runtime import (
 )
 from .support_answer import SupportAnswerApi
 from .ticket_flow import SupportTicketApi
+from .voice_sandbox_token import VoiceSandboxTokenApi
 
 
 class BackendApplication:
@@ -43,12 +44,14 @@ class BackendApplication:
         support_ticket_api: SupportTicketApi,
         support_answer_api: SupportAnswerApi,
         admin_conversations_api: AdminConversationsApi,
+        voice_sandbox_token_api: VoiceSandboxTokenApi | None,
         tenant_store: TenantStore,
     ) -> None:
         self.api = api
         self.support_ticket_api = support_ticket_api
         self.support_answer_api = support_answer_api
         self.admin_conversations_api = admin_conversations_api
+        self.voice_sandbox_token_api = voice_sandbox_token_api
         self.tenant_store = tenant_store
 
     @property
@@ -62,7 +65,7 @@ class BackendApplication:
         self, environ: Mapping[str, str], start_response: Callable[..., object]
     ) -> list[bytes]:
         origin = environ.get("HTTP_ORIGIN")
-        if environ.get("REQUEST_METHOD") == "OPTIONS" and environ.get("PATH_INFO") in {"/v1/support-answers", "/v1/admin/conversations", "/v1/support-tickets"}:
+        if environ.get("REQUEST_METHOD") == "OPTIONS" and environ.get("PATH_INFO") in {"/v1/support-answers", "/v1/admin/conversations", "/v1/support-tickets", "/v1/voice-sandbox-token"}:
             if origin != "http://localhost:3000":
                 start_response("403 Forbidden", [("Content-Length", "0")])
                 return [b""]
@@ -103,6 +106,16 @@ class BackendApplication:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
             return self.admin_conversations_api(environ, admin_start)
+        if (
+            self.voice_sandbox_token_api is not None
+            and environ.get("REQUEST_METHOD") == "POST"
+            and environ.get("PATH_INFO") == "/v1/voice-sandbox-token"
+        ):
+            def voice_token_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == "http://localhost:3000":
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+            return self.voice_sandbox_token_api(environ, voice_token_start)
         return self.api(environ, start_response)
 
 
@@ -113,6 +126,9 @@ def create_app() -> BackendApplication:
     environment_ref = os.environ.get("APP_ENV")
     faq_path = os.environ.get("SUPPORT_FAQ_PATH")
     support_tenant_ref = os.environ.get("SUPPORT_TENANT_REF")
+    livekit_url = os.environ.get("LIVEKIT_SANDBOX_URL")
+    livekit_api_key = os.environ.get("LIVEKIT_API_KEY")
+    livekit_api_secret = os.environ.get("LIVEKIT_API_SECRET")
     missing = [
         name
         for name, value in (
@@ -126,6 +142,9 @@ def create_app() -> BackendApplication:
     ]
     if missing:
         raise RuntimeError(f"missing required backend configuration: {', '.join(missing)}")
+    livekit_values = (livekit_url, livekit_api_key, livekit_api_secret)
+    if any(livekit_values) and not all(livekit_values):
+        raise RuntimeError("LIVEKIT_SANDBOX_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET must be set together")
     tenant_store = create_tenant_store(environment_ref, os.environ)
     verifier = Auth0JwtVerifier(domain, audience, environment_ref)
     memberships = PostgresMembershipDirectory(cast(PostgresTenantStore, tenant_store))
@@ -176,5 +195,13 @@ def create_app() -> BackendApplication:
             ),
         ),
         AdminConversationsApi(verifier, memberships, audit_sink, tenant_store, cast(str, environment_ref)),
+        VoiceSandboxTokenApi(
+            verifier,
+            memberships,
+            audit_sink,
+            url=cast(str, livekit_url),
+            api_key=cast(str, livekit_api_key),
+            api_secret=cast(str, livekit_api_secret),
+        ) if all(livekit_values) else None,
         tenant_store,
     )

@@ -1,6 +1,7 @@
 "use client";
 
 import { createAuth0Client, type Auth0Client } from "@auth0/auth0-spa-js";
+import { Room, Track } from "livekit-client";
 import { FormEvent, useEffect, useState } from "react";
 import { loadRuntimeConfig } from "./runtime-config";
 
@@ -31,6 +32,8 @@ export default function Home() {
   const [ticketNotice, setTicketNotice] = useState("");
   const [apiBaseUrl, setApiBaseUrl] = useState("http://localhost:8080");
   const [escalatingConversationRef, setEscalatingConversationRef] = useState<string | null>(null);
+  const [voiceSandboxStatus, setVoiceSandboxStatus] = useState("");
+  const [testingVoiceSandbox, setTestingVoiceSandbox] = useState(false);
   useEffect(() => {
     void loadRuntimeConfig().then(async (config) => {
       const client = await createAuth0Client({
@@ -151,5 +154,49 @@ export default function Home() {
     setSequence(1);
     setMessages([{ sender: "support", text: "Hello. I can help with approved Planwell support information." }]);
   }
-  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn ? <button onClick={() => auth?.logout({ logoutParams: { returnTo: window.location.origin } })}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
+  async function testVoiceSandbox() {
+    if (!auth || !signedIn) return;
+    setTestingVoiceSandbox(true);
+    setVoiceSandboxStatus("Requesting a local test room…");
+    let room: Room | undefined;
+    let audioTrack: MediaStreamTrack | undefined;
+    let audioContext: AudioContext | undefined;
+    try {
+      const token = await auth.getTokenSilently();
+      const response = await fetch(`${apiBaseUrl}/v1/voice-sandbox-token`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (!response.ok || typeof result.url !== "string" || typeof result.token !== "string") throw new Error("token_request_failed");
+      room = new Room();
+      await room.connect(result.url, result.token);
+      setVoiceSandboxStatus("Connected to the local voice room; publishing a synthetic tone…");
+      audioContext = new AudioContext();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const destination = audioContext.createMediaStreamDestination();
+      oscillator.frequency.value = 440;
+      gain.gain.value = 0.05;
+      oscillator.connect(gain).connect(destination);
+      oscillator.start();
+      audioTrack = destination.stream.getAudioTracks()[0];
+      if (!audioTrack) throw new Error("synthetic_track_unavailable");
+      await room.localParticipant.publishTrack(audioTrack, {
+        name: "local-synthetic-tone",
+        source: Track.Source.Microphone,
+      });
+      await new Promise((resolve) => window.setTimeout(resolve, 1500));
+      setVoiceSandboxStatus("Local voice test passed. A synthetic tone was sent; no microphone was used.");
+    } catch {
+      setVoiceSandboxStatus("The local voice test could not connect. Confirm the local sandbox and backend settings are running.");
+    } finally {
+      if (room && audioTrack) room.localParticipant.unpublishTrack(audioTrack);
+      audioTrack?.stop();
+      await audioContext?.close();
+      await room?.disconnect();
+      setTestingVoiceSandbox(false);
+    }
+  }
+  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn ? <button className="secondary" disabled={testingVoiceSandbox} onClick={() => void testVoiceSandbox()}>{testingVoiceSandbox ? "Testing voice…" : "Test local voice"}</button> : null}{signedIn ? <button onClick={() => auth?.logout({ logoutParams: { returnTo: window.location.origin } })}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
 }

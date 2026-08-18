@@ -17,7 +17,10 @@ Conversation ownership remain unchanged.
   credentials.
 - Local signaling endpoint: `ws://localhost:7880`
 - Local media TCP endpoint: `localhost:7881`
-- Both endpoints were reachable on 2026-08-18.
+- Local media UDP endpoint: `localhost:7882/udp`
+- Docker Desktop run uses `--node-ip 127.0.0.1` so the local server advertises
+  a browser-reachable media address instead of its internal container address.
+- All three endpoints were reachable on 2026-08-18.
 
 ## Scope and Boundaries
 
@@ -37,8 +40,21 @@ existing Voice boundary and proves connection/disconnection evidence does not
 create a competing or falsely successful Conversation turn. The backend image
 also builds with the LiveKit dependency and Voice package included.
 
+The signed-in browser evaluation path is now implemented for the local
+sandbox. The backend issues an authorization-checked, room-bound LiveKit token
+that expires after five minutes; the browser receives only that token and the
+local signaling URL, never the LiveKit API secret. The browser test publishes a
+brief oscillator-generated audio track and explicitly does not request or use a
+microphone.
+
+The signed-in browser rehearsal passed on 2026-08-18. LiveKit recorded the
+room join, the published audio track, 76 received RTP packets over roughly
+1.5 seconds, and a clean client-requested disconnect. The browser displayed:
+`Local voice test passed. A synthetic tone was sent; no microphone was used.`
+
 ## Next Evaluation Step
 
-Evaluate a browser media client and synthetic local audio track through the
-same provider-neutral Voice boundary. Do not add recording, external
-participants, Twilio, or cloud resources without a separate approved decision.
+Decide the next product requirement for voice: retain this as a provider proof,
+or separately approve a user-facing microphone/playback design with explicit
+consent and recovery behavior. Do not add recording, external participants,
+Twilio, or cloud resources without a separate approved decision.
