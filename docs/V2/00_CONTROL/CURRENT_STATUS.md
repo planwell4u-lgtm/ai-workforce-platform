@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.4
+**Version:** 3.5
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -48,6 +48,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - A test-only LiveKit adapter now connects to the local sandbox through the provider-neutral Voice boundary and preserves `uncertain` turn outcome on disconnect; focused tests and the backend container build pass.
 - A signed-in local browser voice test is implemented: the backend issues a five-minute, room-bound LiveKit token after tenant and support-read authorization; the browser publishes a brief synthetic tone without requesting microphone access or receiving a provider secret.
 - The signed-in LiveKit browser rehearsal passed: the browser published synthetic local audio, LiveKit received 76 RTP packets over about 1.5 seconds, and the room closed cleanly. Docker Desktop local media requires `7882/udp` exposed with LiveKit advertising `127.0.0.1`.
+- The approved user-facing microphone design is implemented and locally verified: explicit consent precedes browser permission; microphone audio uses echo cancellation, noise suppression, and auto-gain; Stop, Cancel, denied/failure, and sign-out cleanup release the microphone and disconnect. LiveKit received 565 microphone RTP packets without loss, followed by a clean user-requested stop. Remote-audio playback is implemented but awaits a two-participant rehearsal.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -57,10 +58,9 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Decide whether the next approved voice scope is a user-facing microphone and
-playback design with consent/recovery rules, or to retain the successful
-LiveKit result as provider-evaluation evidence. Keep Twilio PSTN/SIP and cloud
-deployment deferred.
+Use a second local browser participant to verify remote-audio playback, then
+exercise denied-microphone recovery. Keep Twilio PSTN/SIP and cloud deployment
+deferred.
 
 # Session Checkpoint
 
@@ -87,6 +87,7 @@ deferred.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.5 | 2026-08-18 | Implemented and verified consent-based microphone publishing and explicit recovery/cleanup; recorded playback as the remaining two-participant local test. |
 | 3.4 | 2026-08-18 | Verified the signed-in browser synthetic-audio rehearsal end to end; recorded the required local Docker UDP and advertised-address settings. |
 | 3.3 | 2026-08-18 | Implemented the secure local browser LiveKit test path: five-minute room token, synthetic audio only, no microphone capture or provider-secret exposure. |
 | 3.2 | 2026-08-18 | Implemented and tested the local LiveKit sandbox adapter; connection/disconnection preserves canonical uncertain-turn safety and the backend image builds with the Voice package. |

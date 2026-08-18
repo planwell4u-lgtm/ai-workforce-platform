@@ -52,9 +52,16 @@ room join, the published audio track, 76 received RTP packets over roughly
 1.5 seconds, and a clean client-requested disconnect. The browser displayed:
 `Local voice test passed. A synthetic tone was sent; no microphone was used.`
 
+The approved microphone and recovery rehearsal also passed on 2026-08-18.
+After explicit in-page consent and browser permission, LiveKit recorded a
+microphone track using echo cancellation, noise suppression, and auto-gain;
+it received 565 RTP packets over about 11.5 seconds with no packet loss. The
+user selected Stop and LiveKit recorded a clean client-requested disconnect.
+Remote-track playback is implemented, but has not yet been exercised because
+this single-participant rehearsal had no remote audio publisher.
+
 ## Next Evaluation Step
 
-Decide the next product requirement for voice: retain this as a provider proof,
-or separately approve a user-facing microphone/playback design with explicit
-consent and recovery behavior. Do not add recording, external participants,
-Twilio, or cloud resources without a separate approved decision.
+Use a second local browser participant to verify remote-audio playback, then
+exercise the permission-denied recovery path. Do not add recording, Twilio, or
+cloud resources without a separate approved decision.

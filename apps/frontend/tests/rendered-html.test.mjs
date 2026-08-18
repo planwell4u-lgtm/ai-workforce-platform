@@ -25,12 +25,14 @@ test("server-renders the Planwell support chat", async () => {
   assert.match(html, /Sign in/);
 });
 
-test("keeps the local voice test synthetic and credential-free in browser code", async () => {
+test("keeps voice consent, playback, and recovery explicit in browser code", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /Test local voice/);
-  assert.match(page, /createOscillator\(\)/);
-  assert.match(page, /createMediaStreamDestination\(\)/);
+  assert.match(page, /Start voice/);
+  assert.match(page, /Enable microphone/);
+  assert.match(page, /Stop voice/);
+  assert.match(page, /getUserMedia/);
+  assert.match(page, /TrackSubscribed/);
+  assert.match(page, /Nothing was shared/);
   assert.match(page, /voice-sandbox-token/);
-  assert.doesNotMatch(page, /getUserMedia/);
   assert.doesNotMatch(page, /LIVEKIT_API_SECRET/);
 });
