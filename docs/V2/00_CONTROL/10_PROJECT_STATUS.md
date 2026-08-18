@@ -1,6 +1,6 @@
 # 10_PROJECT_STATUS
 
-**Version:** 3.7
+**Version:** 3.8
 
 **Status:** Approved
 
@@ -30,7 +30,7 @@ This document represents the current reality of the project.
 |---|---|
 | Project | AI Workforce Platform |
 | Documentation Version | v2 |
-| Last Updated | 2026-08-09 |
+| Last Updated | 2026-08-18 |
 | Updated By | Architecture Owner |
 | Review Frequency | Milestone Based |
 
@@ -54,9 +54,9 @@ This document exists to:
 
 | Item | Status |
 |---|---|
-| Project Phase | Implementation Readiness & First Vertical Slice |
+| Project Phase | First Vertical Slice — local release baseline |
 | Project Status | Active |
-| Development Status | B0 complete; B1 ready to begin |
+| Development Status | B0–B9 locally implemented and verified; cloud deployment deferred |
 | Architecture Status | Approved; visual-review finalization remains |
 | Documentation Status | Complete; diagram finalization remains |
 
@@ -87,9 +87,9 @@ Goals:
 
 Current focus areas:
 
-- Create the engineering foundation and CI baseline for the first slice.
-- Confirm the first Voice/Digital Channel adapters, Integration action, Knowledge source, Memory use case, and operator role.
-- Begin tenant-aware entry, shared contracts, and canonical Conversation implementation.
+- Preserve the verified, exact-digest signed local release baseline.
+- Record the next Voice-provider decision: LiveKit sandbox evaluation first, with
+  Twilio PSTN/SIP considered separately when phone calling is in scope.
 - Finalize diagram PNG exports and reviewer metadata.
 
 ---
@@ -119,7 +119,7 @@ Current focus areas:
 | Frontend Platform Architecture Documentation | Completed | Frontend Platform Owner |
 | Platform Architecture Documentation | Completed; diagram finalization pending | Architecture Owner |
 | Implementation Preparation | Completed | Engineering Owner |
-| Coding Phase | In Progress: B0 complete, B1 next | Engineering Owner |
+| Coding Phase | B0–B9 local slice complete; provider expansion next | Engineering Owner |
 
 ---
 
@@ -485,6 +485,7 @@ Change Management
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.8 | 2026-08-18 | Reconciled the detailed status with B0–B9 local completion, signed exact-digest rehearsal, deferred cloud deployment, and the next Voice-provider decision. |
 | 2.0 | 2026-08-03 | Initial project status structure. |
 | 2.1 | 2026-08-03 | Added update procedure, milestones tracking, and status history. |
 | 2.2 | 2026-08-03 | Added metadata, current focus, blockers, milestone ownership, and health definitions. |

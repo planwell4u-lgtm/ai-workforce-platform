@@ -1,6 +1,6 @@
 ﻿# 02_PROJECT_ROADMAP
 
-**Version:** 2.5
+**Version:** 2.6
 
 **Status:** Approved
 
@@ -64,9 +64,17 @@ Every platform module follows this workflow independently.
 
 # Current Execution State
 
-The approved V2 architecture, Operations, Deployment, Observability, Testing, Examples, and Engineering implementation-planning sets are complete. The initial Architecture Diagrams set has editable Draw.io sources and SVG review exports; PNG exports and reviewer metadata remain finalization work.
+The approved V2 architecture, Operations, Deployment, Observability, Testing,
+Examples, and Engineering implementation-planning sets are complete. The initial
+Architecture Diagrams set has editable Draw.io sources and SVG review exports;
+PNG exports and reviewer metadata remain finalization work.
 
-Coding has not started. The next delivery action is to establish the engineering foundation for the approved first vertical slice: tenant-aware entry, one governed agent, canonical Conversation, one Voice path, one Digital Channel path, one bounded Integration action, one authorized operator journey, and the required Security, Data, Operations, Deployment, Observability, and Testing evidence.
+The first vertical slice is implemented and locally verified: tenant-aware entry,
+governed FAQ agent, canonical Conversation, local Voice simulation, Web Chat,
+Jira integration, authorized operator journey, and signed release evidence. The
+exact signed images passed a local Docker browser rehearsal. Cloud deployment is
+deferred. The next delivery action is a provider-selection decision for a
+LiveKit sandbox and, separately, Twilio PSTN/SIP scope.
 
 ---
 
@@ -444,6 +452,7 @@ The roadmap is considered complete when:
 
 | Version | Date | Changes |
 |---------|------|----------|
+| 2.6 | 2026-08-18 | Reconciled roadmap execution state with the locally verified first vertical slice, signed exact-digest rehearsal, deferred cloud deployment, and next Voice-provider decision. |
 | 2.0 | 2026-08-03 | Initial implementation roadmap for the AI Workforce Platform. |
 | 2.1 | 2026-08-06 | Added the strategic product capability track for guided onboarding, synchronized knowledge, multi-channel delivery, actions, experience, continuous improvement, ecosystem interfaces, and enterprise operation. |
 | 2.2 | 2026-08-06 | Elevated the product capability track to an active working target with outcome-based completion criteria and independent-design guardrails. |

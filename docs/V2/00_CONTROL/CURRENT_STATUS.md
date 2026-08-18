@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.9  
+**Version:** 3.0  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -28,7 +28,9 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - B7 Jira Service Management ticket creation, including authenticated Supabase-to-Jira verification.
 - B4 canonical conversation control with PostgreSQL-backed persistence, duplicate protection, and refresh restoration.
 - B5 Auth0-protected web chat and tenant-scoped Admin conversation history.
+- B6 local Voice adapter simulation with canonical Conversation correlation and safe interrupted/disconnected turn handling.
 - Admin-to-Jira escalation verified; backend idempotency is active. The Admin view reloads the saved Jira reference from the tenant-scoped action record and disables repeat escalation.
+- B8 tenant-scoped operator status and controlled escalation journey with separate view/escalation permissions.
 - Configured-staging chat, persistence refresh, Admin history, Jira reference restoration, and repeat-escalation suppression were verified on 2026-08-18.
 - Backend and frontend Linux container builds are validated locally and in GitHub Actions; a release-candidate workflow produces image archives, checksums, and source/workflow provenance metadata.
 - First GitHub Container Registry release candidate published from revision `432b6c12febbf09237d3ab74aed7267aaea4b7a2`; both immutable image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
@@ -41,16 +43,19 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Updated release candidate published from revision `7f7d2195dea1c5fff8da80aebe26b4aa4b4e72b1`; its backend and frontend image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 - Local GitHub Container Registry read access is verified. The exact updated signed backend and frontend image digests were pulled and started locally; backend health and frontend runtime-configuration checks both returned `200`.
 - The signed-image browser rehearsal is complete: Auth0 sign-in, conversation restoration, a protected support-answer request, and Admin-history loading all completed successfully against the exact signed images.
+- B9 local release-readiness evidence is complete: immutable signed images, provenance, exact-digest local rehearsal, health/configuration checks, and protected browser-flow evidence are retained.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
-# Rehearsal Gaps
+# Deployment Decision
 
-- Local pull access to the signed GitHub Container Registry image returned `403 Forbidden`; the package needs a permitted local read identity before exact-digest testing can occur.
-- The already-published signed frontend image predates the runtime-configuration fix. A new release candidate is required after local browser verification.
+There are no active local-release gaps. Cloud deployment remains intentionally
+deferred until explicitly authorized.
 
 # Next Action
 
-Keep the signed-image evidence as the local release baseline; cloud deployment remains deferred until explicitly authorized.
+Record and approve the next Voice-provider decision: retain the completed local
+Voice simulation as the baseline, select a LiveKit sandbox for realtime media
+evaluation, and decide separately whether/when Twilio PSTN/SIP is in scope.
 
 # Session Checkpoint
 
@@ -77,6 +82,7 @@ deferred.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.0 | 2026-08-18 | Reconciled B6 Voice, B8 operator journey, and B9 local release-readiness completion; marked local release gaps resolved and set the next provider-selection decision. |
 | 2.9 | 2026-08-18 | Completed the exact signed-image local browser rehearsal: Auth0 sign-in, restored conversation, protected support request, and Admin history all succeeded. |
 | 2.8 | 2026-08-18 | Enabled local GHCR package read access and verified the exact updated signed images start locally with healthy backend and frontend runtime configuration. |
 | 2.7 | 2026-08-18 | Published, keylessly signed, and verified the updated release candidate containing the runtime-configuration and escalation-feedback fixes. |

@@ -1,6 +1,6 @@
 # 20_ENGINEERING
 
-**Version:** 1.3  
+**Version:** 1.4  
 **Status:** Approved  
 **Owner:** Engineering Owner  
 **Phase:** Implementation Planning
@@ -67,7 +67,7 @@ It excludes broad multi-tenant administration, additional channels, unbounded in
 
 # Current Status
 
-The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0 Engineering Foundation is complete: the repository now has safe configuration, module-boundary scaffolding, structural assurance, formatter/lint/type checks, and CI. B1 tenant-aware identity and protected API entry is next.
+The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0–B9 are implemented and locally verified, including signed exact-digest container rehearsal. Cloud deployment remains deferred. The next Engineering action is the Voice-provider decision: evaluate LiveKit in a bounded sandbox and decide separately whether/when Twilio PSTN/SIP is in scope.
 
 # Related Documents
 
@@ -84,6 +84,7 @@ The Engineering implementation-planning set is complete. Documents 01–04 defin
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.4 | 2026-08-18 | Reconciled the Engineering status with completed B0–B9 local slice evidence and the next Voice-provider decision. |
 | 1.2 | 2026-08-09 | Completed the initial Engineering document set (02–04) and confirmed the pre-coding planning boundary. |
 | 1.0 | 2026-08-09 | Created the Engineering implementation-planning entry point. |
 | 1.1 | 2026-08-09 | Finalized after architecture-boundary and maintainability review. |
