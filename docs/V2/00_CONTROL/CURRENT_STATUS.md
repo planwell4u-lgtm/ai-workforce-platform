@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 1.9  
+**Version:** 2.0  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -37,6 +37,13 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 Use the verified immutable image digests from the release-provenance record for the first controlled deployment rehearsal.
 
+# Session Checkpoint
+
+This session closed with a clean, pushed `main` branch at commit `d9e27eb`.
+When work resumes, begin with the controlled deployment rehearsal; start local
+services only if the rehearsal needs them and re-check their health endpoints
+before testing.
+
 # Delivery Guardrails
 
 - Preserve tenant, identity, authorization, data, contract, and recovery boundaries.
@@ -55,6 +62,7 @@ Use the verified immutable image digests from the release-provenance record for 
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.0 | 2026-08-18 | Added end-of-session checkpoint: release candidate evidence is pushed and the controlled deployment rehearsal is the restart point. |
 | 1.9 | 2026-08-18 | Published, signed, and verified the first GitHub Container Registry release candidate; recorded exact immutable image digests and provenance evidence. |
 | 1.8 | 2026-08-18 | Configured keyless Sigstore/Cosign GitHub OIDC signing for versioned GitHub Container Registry release candidates. |
 | 1.7 | 2026-08-18 | Validated backend and frontend container builds locally and in GitHub Actions; release-candidate packaging workflow added. |
