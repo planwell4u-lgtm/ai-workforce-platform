@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.8
+**Version:** 3.9
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -51,6 +51,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The approved user-facing microphone design is implemented and locally verified: explicit consent precedes browser permission; microphone audio uses echo cancellation, noise suppression, and auto-gain; Stop, Cancel, denied/failure, and sign-out cleanup release the microphone and disconnect. LiveKit received 565 microphone RTP packets without loss, followed by a clean user-requested stop.
 - The two-participant local voice rehearsal passed: a host joined with microphone consent and a second, same-user browser session joined the tenant-scoped room as a listener without microphone access. LiveKit confirmed the listener subscribed to the host track and forwarded RTP; the owner confirmed audible playback. Each token uses a distinct temporary participant identity so the second session does not displace the first.
 - The denied-microphone recovery rehearsal passed: browser-level microphone denial produced the explicit "nothing was shared" state and returned the control to Start voice; after permission was restored, a new microphone session connected successfully.
+- The local scripted browser-agent rehearsal passed: an explicitly requested `local-agent-...` room admitted a separate programmatic LiveKit participant, which published an offline synthesized greeting that the owner heard in the browser. This proves the independent agent participant and playback path only; it does not process support data, record audio, or call an AI service.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -60,11 +61,11 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Prepare a bounded LiveKit Cloud inbound-phone rehearsal: account/project,
-one US inbound number, a least-privilege dispatch rule, and a call from the
-owner's phone. Do not create the account, rent a number, enable routing, or
-place a real call until each external step is explicitly authorized. Keep
-Twilio deferred.
+Choose and authorize the credentials for a browser-only LiveKit conversational
+agent rehearsal: LiveKit Cloud project plus managed inference, or separately
+approved speech-to-text, language-model, and text-to-speech providers. Do not
+create an account, enable billing, use external AI services, rent a number, or
+place a phone call until explicitly authorized. Keep Twilio deferred.
 
 # Session Checkpoint
 
@@ -74,9 +75,11 @@ microphone publishing, and two-participant playback are verified. Cloud
 deployment remains deferred.
 
 The owner approved the recommended sequence to evaluate a LiveKit-managed
-inbound phone number before considering Twilio. Preparation is authorized;
-LiveKit Cloud account creation, number rental, routing, and telephone calls
-remain separately gated external actions.
+inbound phone number before considering Twilio. Before telephony, the local
+scripted browser-agent proof is complete and the next gated step is a real
+browser conversational-agent rehearsal. LiveKit Cloud account creation, model
+service use, number rental, routing, and telephone calls remain separately
+gated external actions.
 
 # Delivery Guardrails
 
@@ -96,6 +99,7 @@ remain separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 3.9 | 2026-08-19 | Verified a separate local scripted LiveKit participant publishes an offline browser-playable greeting; set the credential and provider decision for the real browser conversational-agent rehearsal as next. |
 | 3.8 | 2026-08-18 | Approved the sequence for a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio evaluation; recorded account, number, routing, and calling as separately gated external actions. |
 | 3.7 | 2026-08-18 | Verified denied-microphone recovery: denial shared nothing and returned to a retryable state; restoring browser permission started a new live session. Local LiveKit evaluation is complete. |
 | 3.6 | 2026-08-18 | Verified two-participant local voice playback: a listener joined the tenant-scoped room without microphone access, LiveKit forwarded the host audio, and the owner confirmed playback. Denied-microphone recovery is next. |

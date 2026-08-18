@@ -73,12 +73,20 @@ that microphone permission was not granted and that nothing was shared; the
 voice control returned to Start. After browser permission was restored, a new
 microphone session connected successfully.
 
+The scripted browser-agent rehearsal passed on 2026-08-19. An explicit
+agent-test request creates a `local-agent-...` room. A separate local worker
+discovers only those rooms, joins as its own LiveKit participant, publishes one
+offline synthesized greeting, and disconnects. The owner heard the greeting in
+the browser. The worker has no support-data access, recording, cloud
+credentials, or AI-model integration; the robotic offline voice is intentional
+for this transport and lifecycle proof.
+
 ## Next Evaluation Step
 
-The bounded local evaluation is complete. The owner approved the sequence for
-a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio
-evaluation. Prepare the setup plan for one US inbound number, a least-privilege
-dispatch rule, and a call from the owner’s phone. Account creation, number
-rental, dispatch-rule activation, and any telephone call remain separately
-gated external actions. Do not add recording or Twilio resources without a
-separate approved decision.
+The bounded local media and scripted-agent evaluations are complete. Before
+telephony, choose and authorize the LiveKit Cloud project and managed inference
+option, or separately approved STT, LLM, and TTS providers, for a browser-only
+conversational-agent rehearsal. Account creation, billing, external AI use,
+number rental, dispatch-rule activation, and any telephone call remain
+separately gated external actions. Do not add recording or Twilio resources
+without a separate approved decision.

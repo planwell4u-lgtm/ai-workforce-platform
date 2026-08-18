@@ -105,11 +105,19 @@ class VoiceSandboxTokenApi:
         if not hasattr(raw, "read"):
             raise TypeError("invalid_request")
         payload = json.loads(raw.read(content_length).decode("utf-8"))
-        room_ref = payload.get("room_ref") if isinstance(payload, dict) else None
-        expected_prefix = f"local-voice-{tenant_ref}-"
-        if not isinstance(room_ref, str) or not room_ref.startswith(expected_prefix):
+        if not isinstance(payload, dict):
             raise ValueError("invalid_room_ref")
-        uuid.UUID(room_ref.removeprefix(expected_prefix))
+        if payload.get("agent_test") is True and payload.get("room_ref") is None:
+            return f"local-agent-{tenant_ref}-{uuid.uuid4()}"
+        room_ref = payload.get("room_ref")
+        expected_prefixes = (f"local-voice-{tenant_ref}-", f"local-agent-{tenant_ref}-")
+        if not isinstance(room_ref, str) or not room_ref.startswith(expected_prefixes):
+            raise ValueError("invalid_room_ref")
+        for prefix in expected_prefixes:
+            if room_ref.startswith(prefix):
+                uuid.UUID(room_ref.removeprefix(prefix))
+                return room_ref
+        raise ValueError("invalid_room_ref")
         return room_ref
 
     @staticmethod

@@ -86,6 +86,25 @@ class VoiceSandboxTokenTests(unittest.TestCase):
         self.assertEqual(second["room_ref"], first["room_ref"])
         self.assertNotEqual(second_claims.identity, first_claims.identity)
 
+    def test_issues_an_explicit_local_agent_test_room(self) -> None:
+        request_body = json.dumps({"agent_test": True}).encode()
+        body = b"".join(
+            self._api()(
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                    "CONTENT_LENGTH": str(len(request_body)),
+                    "wsgi.input": BytesIO(request_body),
+                },
+                lambda status, headers: None,
+            )
+        )
+        response = json.loads(body)
+        self.assertTrue(response["room_ref"].startswith("local-agent-tenant-a-"))
+        claims = api.TokenVerifier("devkey", "secret").verify(response["token"])
+        self.assertEqual(claims.video.room, response["room_ref"])
+
     def test_rejects_a_room_from_another_tenant(self) -> None:
         join_body = json.dumps({"room_ref": "local-voice-tenant-b-12345678-1234-1234-1234-123456789abc"}).encode()
         captured: dict[str, object] = {}

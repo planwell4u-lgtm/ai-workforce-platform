@@ -34,6 +34,8 @@ test("keeps voice consent, playback, and recovery explicit in browser code", asy
   assert.match(page, /TrackSubscribed/);
   assert.match(page, /Join an existing local room/);
   assert.match(page, /Join without microphone/);
+  assert.match(page, /Test voice agent/);
+  assert.match(page, /local scripted voice agent/);
   assert.match(page, /Voice room code/);
   assert.match(page, /Nothing was shared/);
   assert.match(page, /voice-sandbox-token/);
