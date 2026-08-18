@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.1  
+**Version:** 2.2  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -33,22 +33,23 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Backend and frontend Linux container builds are validated locally and in GitHub Actions; a release-candidate workflow produces image archives, checksums, and source/workflow provenance metadata.
 - First GitHub Container Registry release candidate published from revision `432b6c12febbf09237d3ab74aed7267aaea4b7a2`; both immutable image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 - Local Docker rehearsal confirmed backend health (`200 OK`) using the locally built source-equivalent image, runtime configuration, and a read-only mount of the approved FAQ source. The temporary test container was removed after the check.
+- Local container configuration is now runtime-configurable: the frontend reads Auth0 and API settings from its `/runtime-config` endpoint at launch. Local backend health and frontend delivery were revalidated on ports `8080` and `3000` respectively.
+- The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
 
 - Local pull access to the signed GitHub Container Registry image returned `403 Forbidden`; the package needs a permitted local read identity before exact-digest testing can occur.
-- The published frontend image has no runtime configuration path for its Auth0 settings, and its API target is fixed to `http://localhost:8080`.
-- Local port `8080` is already used by the existing pgAdmin container, so the full browser flow cannot be exercised without an explicit local port/configuration solution.
+- The already-published signed frontend image predates the runtime-configuration fix. A new release candidate is required after local browser verification.
 
 # Next Action
 
-Close the three recorded local-rehearsal gaps, then repeat the full signed-image browser flow (login, chat, Admin history, and Jira escalation).
+Complete the local browser flow (login, chat, Admin history, and Jira escalation), then publish a new signed release candidate containing the runtime-configuration fix.
 
 # Session Checkpoint
 
-The prior release-candidate evidence is pushed. The local backend health check
-has been completed; resume by addressing the recorded rehearsal gaps before
-attempting the full browser flow.
+The local backend and frontend rehearsal containers are running on ports `8080`
+and `3000`. Resume with the browser flow; do not treat the previous signed
+release candidate as containing the runtime-configuration fix.
 
 # Delivery Guardrails
 
@@ -68,6 +69,7 @@ attempting the full browser flow.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.2 | 2026-08-18 | Added runtime-configurable frontend container settings, validated local backend/frontend delivery, and recorded the owner-approved pgAdmin container removal. |
 | 2.1 | 2026-08-18 | Recorded local Docker backend-health rehearsal result and the three gaps blocking full signed-image browser verification. |
 | 2.0 | 2026-08-18 | Added end-of-session checkpoint: release candidate evidence is pushed and the controlled deployment rehearsal is the restart point. |
 | 1.9 | 2026-08-18 | Published, signed, and verified the first GitHub Container Registry release candidate; recorded exact immutable image digests and provenance evidence. |

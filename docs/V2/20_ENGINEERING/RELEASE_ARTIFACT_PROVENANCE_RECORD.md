@@ -12,6 +12,9 @@
   GitHub Container Registry, signs their immutable digests through keyless
   Sigstore/Cosign GitHub OIDC, verifies each signature, and uploads a
   source/workflow provenance manifest for a version tag or manual run.
+- The frontend container exposes a runtime `/runtime-config` endpoint so its
+  Auth0 settings and backend API base URL are supplied when the container
+  starts rather than baked into the image.
 
 ## Validation
 
@@ -28,6 +31,9 @@
   - `ghcr.io/planwell4u-lgtm/ai-workforce-frontend@sha256:c9faed6eea868ab652736382846e2ec63d09d2f3f8ca1bf97ce1d47954129135`
 - The signed provenance manifest is retained as the run artifact
   `ai-workforce-release-432b6c12febbf09237d3ab74aed7267aaea4b7a2`.
+- The runtime-configuration change was built and locally validated after that
+  candidate; it requires a subsequent release-candidate run before it is
+  represented by a signed registry digest.
 
 ## Signing boundary
 

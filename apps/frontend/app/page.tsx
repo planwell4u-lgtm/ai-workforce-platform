@@ -2,6 +2,7 @@
 
 import { createAuth0Client, type Auth0Client } from "@auth0/auth0-spa-js";
 import { FormEvent, useEffect, useState } from "react";
+import { loadRuntimeConfig } from "./runtime-config";
 
 type ChatMessage = { sender: "support" | "you"; text: string };
 type AdminConversation = {
@@ -28,20 +29,23 @@ export default function Home() {
   const [sending, setSending] = useState(false);
   const [adminConversations, setAdminConversations] = useState<AdminConversation[] | null>(null);
   const [ticketNotice, setTicketNotice] = useState("");
+  const [apiBaseUrl, setApiBaseUrl] = useState("http://localhost:8080");
   useEffect(() => {
-    createAuth0Client({
-      domain: import.meta.env.VITE_AUTH0_DOMAIN,
-      clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
-      authorizationParams: {
-        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        redirect_uri: window.location.origin,
-        scope: "openid profile agent.context.read operator.status.read integration.support-ticket.create",
-      },
-    }).then(async (client) => {
+    void loadRuntimeConfig().then(async (config) => {
+      const client = await createAuth0Client({
+        domain: config.auth0Domain,
+        clientId: config.auth0ClientId,
+        authorizationParams: {
+          audience: config.auth0Audience,
+          redirect_uri: window.location.origin,
+          scope: "openid profile agent.context.read operator.status.read integration.support-ticket.create",
+        },
+      });
       if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
         await client.handleRedirectCallback();
         window.history.replaceState({}, document.title, window.location.pathname);
       }
+      setApiBaseUrl(config.apiBaseUrl);
       setAuth(client);
       setSignedIn(await client.isAuthenticated());
     });
@@ -51,7 +55,7 @@ export default function Home() {
     async function restoreHistory() {
       try {
         const token = await auth.getTokenSilently();
-        const response = await fetch(`http://localhost:8080/v1/support-answers?session_ref=${encodeURIComponent(sessionRef)}`, {
+        const response = await fetch(`${apiBaseUrl}/v1/support-answers?session_ref=${encodeURIComponent(sessionRef)}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const result = await response.json();
@@ -68,7 +72,7 @@ export default function Home() {
       } catch { /* The normal empty chat remains available. */ }
     }
     void restoreHistory();
-  }, [auth, sessionRef, signedIn]);
+  }, [apiBaseUrl, auth, sessionRef, signedIn]);
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!question.trim() || !auth || !signedIn) return;
@@ -78,7 +82,7 @@ export default function Home() {
     setSending(true);
     try {
       const token = await auth.getTokenSilently();
-      const response = await fetch("http://localhost:8080/v1/support-answers", {
+      const response = await fetch(`${apiBaseUrl}/v1/support-answers`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ agent_ref: "support-agent", session_ref: sessionRef, event_ref: crypto.randomUUID(), sequence, question: text }),
@@ -96,7 +100,7 @@ export default function Home() {
     if (!auth || !signedIn) return;
     try {
       const token = await auth.getTokenSilently();
-      const response = await fetch("http://localhost:8080/v1/admin/conversations", { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(`${apiBaseUrl}/v1/admin/conversations`, { headers: { Authorization: `Bearer ${token}` } });
       const result = await response.json();
       setAdminConversations(response.ok ? result.conversations : []);
     } catch {
@@ -112,7 +116,7 @@ export default function Home() {
     try {
       const token = await auth.getTokenSilently();
       const summary = conversation.messages.map((message) => `${message.sender}: ${message.text}`).join(" ");
-      const response = await fetch("http://localhost:8080/v1/support-tickets", {
+      const response = await fetch(`${apiBaseUrl}/v1/support-tickets`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ conversation_ref: conversation.conversation_ref, idempotency_ref: conversation.conversation_ref, summary }),
