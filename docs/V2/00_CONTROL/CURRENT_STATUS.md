@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.8  
+**Version:** 2.9  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -40,6 +40,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The updated escalation feedback was visually verified in the local Docker rehearsal; a fresh conversation created Jira ticket `CS-14`, persisted the reference, and returned to the completed disabled state.
 - Updated release candidate published from revision `7f7d2195dea1c5fff8da80aebe26b4aa4b4e72b1`; its backend and frontend image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 - Local GitHub Container Registry read access is verified. The exact updated signed backend and frontend image digests were pulled and started locally; backend health and frontend runtime-configuration checks both returned `200`.
+- The signed-image browser rehearsal is complete: Auth0 sign-in, conversation restoration, a protected support-answer request, and Admin-history loading all completed successfully against the exact signed images.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -49,14 +50,14 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Complete the signed-image browser rehearsal: Auth0 sign-in, chat response, Admin history, and persisted ticket-state check.
+Keep the signed-image evidence as the local release baseline; cloud deployment remains deferred until explicitly authorized.
 
 # Session Checkpoint
 
 The local backend and frontend rehearsal containers are running on ports `8080`
 and `3000` from the exact updated signed image digests; their health and runtime
-configuration are verified. Complete the signed-image browser rehearsal before
-considering this local release validation closed.
+configuration and protected browser flow are verified. Cloud deployment remains
+deferred.
 
 # Delivery Guardrails
 
@@ -76,6 +77,7 @@ considering this local release validation closed.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.9 | 2026-08-18 | Completed the exact signed-image local browser rehearsal: Auth0 sign-in, restored conversation, protected support request, and Admin history all succeeded. |
 | 2.8 | 2026-08-18 | Enabled local GHCR package read access and verified the exact updated signed images start locally with healthy backend and frontend runtime configuration. |
 | 2.7 | 2026-08-18 | Published, keylessly signed, and verified the updated release candidate containing the runtime-configuration and escalation-feedback fixes. |
 | 2.6 | 2026-08-18 | Visually verified the escalation feedback and completed ticket state in a fresh local Docker conversation (Jira CS-14). |
