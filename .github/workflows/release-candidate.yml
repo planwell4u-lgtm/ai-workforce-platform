@@ -1,0 +1,38 @@
+name: Release Candidate Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build release-candidate images
+        run: |
+          mkdir -p release
+          docker buildx build --platform linux/amd64 --file apps/backend/Dockerfile --output type=docker,dest=release/backend.tar .
+          docker buildx build --platform linux/amd64 --file apps/frontend/Dockerfile --output type=docker,dest=release/frontend.tar .
+      - name: Record checksums and source provenance
+        run: |
+          sha256sum release/*.tar > release/SHA256SUMS
+          jq -n \
+            --arg source_revision "$GITHUB_SHA" \
+            --arg source_repository "$GITHUB_REPOSITORY" \
+            --arg workflow_run "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --arg created_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{source_revision: $source_revision, source_repository: $source_repository, workflow_run: $workflow_run, created_at: $created_at, artifacts: ["backend.tar", "frontend.tar", "SHA256SUMS"]}' \
+            > release/provenance.json
+      - name: Upload release-candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-workforce-release-${{ github.sha }}
+          path: release/
+          if-no-files-found: error
+          retention-days: 30

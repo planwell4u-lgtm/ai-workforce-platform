@@ -30,3 +30,4 @@ coverage.xml
 *.egg-info/
 staging-support-answer-result.json
 data/staging-flow-result-*.json
+release/
