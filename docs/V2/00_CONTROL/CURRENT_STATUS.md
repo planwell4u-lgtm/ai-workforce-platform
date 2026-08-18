@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 1.8  
+**Version:** 1.9  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -31,11 +31,11 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Admin-to-Jira escalation verified; backend idempotency is active. The Admin view reloads the saved Jira reference from the tenant-scoped action record and disables repeat escalation.
 - Configured-staging chat, persistence refresh, Admin history, Jira reference restoration, and repeat-escalation suppression were verified on 2026-08-18.
 - Backend and frontend Linux container builds are validated locally and in GitHub Actions; a release-candidate workflow produces image archives, checksums, and source/workflow provenance metadata.
-- Keyless Sigstore/Cosign signing through GitHub OIDC is configured for versioned GitHub Container Registry release candidates; the first publishing workflow has not yet been dispatched.
+- First GitHub Container Registry release candidate published from revision `432b6c12febbf09237d3ab74aed7267aaea4b7a2`; both immutable image digests were keylessly signed and verified through Sigstore/Cosign GitHub OIDC.
 
 # Next Action
 
-Approve and run the first versioned release-candidate workflow to publish, sign, and verify the backend and frontend image digests.
+Use the verified immutable image digests from the release-provenance record for the first controlled deployment rehearsal.
 
 # Delivery Guardrails
 
@@ -55,6 +55,7 @@ Approve and run the first versioned release-candidate workflow to publish, sign,
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.9 | 2026-08-18 | Published, signed, and verified the first GitHub Container Registry release candidate; recorded exact immutable image digests and provenance evidence. |
 | 1.8 | 2026-08-18 | Configured keyless Sigstore/Cosign GitHub OIDC signing for versioned GitHub Container Registry release candidates. |
 | 1.7 | 2026-08-18 | Validated backend and frontend container builds locally and in GitHub Actions; release-candidate packaging workflow added. |
 | 1.6 | 2026-08-18 | Verified the configured-staging chat, persistence, Admin, Jira-reference, and repeat-escalation flow. |
