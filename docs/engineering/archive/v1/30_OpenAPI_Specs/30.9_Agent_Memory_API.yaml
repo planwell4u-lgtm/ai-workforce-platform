@@ -1,0 +1,836 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Agent Memory API
+
+  description: >
+    API for AI agent short-term memory,
+    long-term memory, semantic retrieval,
+    and customer context management.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Memory
+
+  - name: Retrieval
+
+  - name: Customer Context
+
+  - name: Management
+
+
+
+
+
+paths:
+
+
+
+  /memory:
+
+
+
+    post:
+
+
+      tags:
+
+        - Memory
+
+
+      summary: Store agent memory
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateMemoryRequest'
+
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Memory stored
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Memory'
+
+
+
+
+
+
+
+  /memory/search:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Retrieval
+
+
+
+      summary: Semantic memory search
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SearchMemoryRequest'
+
+
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Matching memories
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                type: array
+
+
+
+                items:
+
+
+
+                  $ref: '#/components/schemas/Memory'
+
+
+
+
+
+
+
+  /memory/{memoryId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Memory
+
+
+
+      summary: Get memory item
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/MemoryId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Memory details
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Memory'
+
+
+
+
+
+
+
+    delete:
+
+
+
+      tags:
+
+
+
+        - Management
+
+
+
+      summary: Delete memory item
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/MemoryId'
+
+
+
+      responses:
+
+
+
+        "204":
+
+
+
+          description: Memory deleted
+
+
+
+
+
+
+  /customers/{customerId}/context:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Customer Context
+
+
+
+      summary: Build customer context for agent
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CustomerId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Customer context
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/CustomerContext'
+
+
+
+
+
+
+
+  /conversations/{conversationId}/memory:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Memory
+
+
+
+      summary: Extract memories from conversation
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Memory extraction completed
+
+
+
+
+
+
+components:
+
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    MemoryId:
+
+
+
+      name: memoryId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+    CustomerId:
+
+
+
+      name: customerId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+    ConversationId:
+
+
+
+      name: conversationId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateMemoryRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - content
+
+        - memoryType
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        memoryType:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - short_term
+
+            - long_term
+
+            - preference
+
+            - fact
+
+            - summary
+
+
+
+        content:
+
+
+
+          type: string
+
+
+
+        importance:
+
+
+
+          type: number
+
+
+
+          minimum: 0
+
+
+
+          maximum: 1
+
+
+
+        metadata:
+
+
+
+          type: object
+
+
+
+
+
+    Memory:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        memoryType:
+
+
+
+          type: string
+
+
+
+        content:
+
+
+
+          type: string
+
+
+
+        embedding:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: number
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+    SearchMemoryRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - query
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        query:
+
+
+
+          type: string
+
+
+
+        limit:
+
+
+
+          type: integer
+
+
+
+          default: 5
+
+
+
+        threshold:
+
+
+
+          type: number
+
+
+
+          default: 0.75
+
+
+
+
+
+
+    CustomerContext:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        profile:
+
+
+
+          type: object
+
+
+
+        recentConversation:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+        memories:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            $ref: '#/components/schemas/Memory'

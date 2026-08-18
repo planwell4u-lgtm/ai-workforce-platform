@@ -1,0 +1,83 @@
+responses:
+
+  Unauthorized:
+
+    description: Authentication required
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"
+
+
+
+  Forbidden:
+
+    description: Permission denied
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"
+
+
+
+  NotFound:
+
+    description: Resource not found
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"
+
+
+
+  ValidationError:
+
+    description: Validation failed
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"
+
+
+
+  Conflict:
+
+    description: Conflict with current resource state
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"
+
+
+
+  RateLimited:
+
+    description: Too many requests
+
+    content:
+
+      application/json:
+
+        schema:
+
+          $ref: "./common.yaml#/ErrorResponse"

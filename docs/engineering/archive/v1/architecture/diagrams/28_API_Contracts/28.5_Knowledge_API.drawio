@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1471" dy="753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n    actor Admin as Tenant Admin\n    participant FE as Next.js Dashboard\n    participant GW as API Gateway\n    participant KB as Knowledge Service\n    participant Vector as Vector DB (pgvector)\n    participant Storage as Document Storage (S3)\n\n    Admin-&gt;&gt;FE: Upload company FAQ PDF\n    FE-&gt;&gt;GW: POST /api/v1/knowledge/upload\n    GW-&gt;&gt;KB: Forward upload stream\n    KB-&gt;&gt;Storage: Store raw PDF document\n    KB-&gt;&gt;KB: Parse PDF and split into text chunks\n    KB-&gt;&gt;KB: Generate embeddings (LLM API call)\n    KB-&gt;&gt;Vector: Insert vectors &amp; chunk metadata\n    KB--&gt;&gt;GW: HTTP 202 Accepted (Ingestion task started)\n    GW--&gt;&gt;FE: Return task status\n    FE--&gt;&gt;Admin: Show progress bar / Processing status&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-898">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,726 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Agent Tools API
+
+  description: >
+    API for AI agent tool registration,
+    discovery, execution and auditing.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Tools
+
+  - name: Execution
+
+  - name: Registry
+
+  - name: Audit
+
+
+
+
+
+paths:
+
+
+
+  /tools:
+
+
+
+    get:
+
+
+      tags:
+
+        - Registry
+
+
+      summary: List available tools
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+        - name: category
+
+          in: query
+
+          schema:
+
+            type: string
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Available tools
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: '#/components/schemas/Tool'
+
+
+
+
+
+
+  /tools/{toolId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+        - Registry
+
+
+
+      summary: Get tool definition
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/ToolId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tool details
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Tool'
+
+
+
+
+
+
+  /tools/execute:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Execution
+
+
+
+      summary: Execute AI agent tool
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+        - $ref: '#/components/parameters/RequestId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ToolExecutionRequest'
+
+
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tool execution result
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/ToolExecutionResponse'
+
+
+
+
+
+
+  /tools/{toolId}/logs:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Audit
+
+
+
+      summary: Get tool execution history
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/ToolId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Execution logs
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                type: array
+
+
+
+                items:
+
+
+
+                  $ref: '#/components/schemas/ToolLog'
+
+
+
+
+
+components:
+
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    RequestId:
+
+
+
+      name: X-Request-ID
+
+
+
+      in: header
+
+
+
+      required: false
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+    ToolId:
+
+
+
+      name: toolId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    Tool:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+            calendar_booking
+
+
+
+        description:
+
+
+
+          type: string
+
+
+
+        category:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - calendar
+
+            - crm
+
+            - messaging
+
+            - knowledge
+
+            - payment
+
+            - transfer
+
+            - custom
+
+
+
+        provider:
+
+
+
+          type: string
+
+
+
+        enabled:
+
+
+
+          type: boolean
+
+
+
+        inputSchema:
+
+
+
+          type: object
+
+
+
+        outputSchema:
+
+
+
+          type: object
+
+
+
+        permissions:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    ToolExecutionRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - toolName
+
+        - arguments
+
+
+
+      properties:
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        agentSessionId:
+
+
+
+          type: string
+
+
+
+        toolName:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            calendar.bookAppointment
+
+
+
+        arguments:
+
+
+
+          type: object
+
+
+
+        timeoutMs:
+
+
+
+          type: integer
+
+
+
+          default: 5000
+
+
+
+
+
+    ToolExecutionResponse:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        success:
+
+
+
+          type: boolean
+
+
+
+        result:
+
+
+
+          type: object
+
+
+
+        error:
+
+
+
+          type: string
+
+
+
+        executionTimeMs:
+
+
+
+          type: integer
+
+
+
+
+
+
+    ToolLog:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        toolName:
+
+
+
+          type: string
+
+
+
+        agentSessionId:
+
+
+
+          type: string
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - success
+
+            - failed
+
+            - timeout
+
+
+
+        executedAt:
+
+
+
+          type: string
+
+
+
+          format: date-time

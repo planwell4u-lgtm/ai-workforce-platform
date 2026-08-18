@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+config/local.env
+
+# Node and editor files
+node_modules/
+.next/
+.idea/
+.vscode/
+
+# Build and coverage output
+build/
+dist/
+htmlcov/
+coverage.xml
+
+# Local runtime and packaging output
+*.log
+*.egg-info/
+staging-support-answer-result.json
+data/staging-flow-result-*.json

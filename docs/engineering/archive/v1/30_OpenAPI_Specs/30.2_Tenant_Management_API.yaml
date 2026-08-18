@@ -1,0 +1,743 @@
+openapi: 3.1.0
+
+info:
+
+  title: Voice Agent SaaS Tenant Management API
+
+  description: |
+    Multi-tenant organization management API.
+
+    Handles:
+    - Company accounts
+    - Tenant settings
+    - Members
+    - Invitations
+    - Roles
+    - Tenant lifecycle
+
+  version: 1.0.0
+
+
+servers:
+
+  - url: https://api.voice-agent-saas.com/v1
+
+  - url: http://localhost:8000/api/v1
+
+
+
+tags:
+
+  - name: Tenant
+
+  - name: Members
+
+  - name: Invitations
+
+
+
+paths:
+
+
+  /tenants:
+
+
+    post:
+
+      tags:
+
+        - Tenant
+
+
+      summary: Create tenant
+
+
+      description: |
+        Creates a new company workspace.
+
+        Normally created during first user registration.
+
+
+      security:
+
+        - bearerAuth: []
+
+
+      operationId: createTenant
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/CreateTenantRequest"
+
+
+
+      responses:
+
+
+        "201":
+
+          description: Tenant created
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/Tenant"
+
+
+
+
+  /tenants/current:
+
+
+    get:
+
+
+      tags:
+
+
+        - Tenant
+
+
+
+      summary: Get current tenant
+
+
+
+      description:
+
+        Returns tenant information for authenticated user.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getCurrentTenant
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Tenant details
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/Tenant"
+
+
+
+
+    patch:
+
+
+      tags:
+
+
+        - Tenant
+
+
+
+      summary: Update tenant settings
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateTenant
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/UpdateTenantRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Tenant updated
+
+
+
+
+  /tenants/current/members:
+
+
+    get:
+
+
+      tags:
+
+
+        - Members
+
+
+
+      summary: List tenant members
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: listMembers
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Member list
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "#/components/schemas/Member"
+
+
+
+
+
+  /tenants/current/members/{user_id}:
+
+
+    delete:
+
+
+      tags:
+
+
+        - Members
+
+
+
+      summary: Remove tenant member
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: removeMember
+
+
+
+      parameters:
+
+
+        - name: user_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "204":
+
+
+          description: Member removed
+
+
+
+
+
+  /tenants/current/invitations:
+
+
+    post:
+
+
+      tags:
+
+
+        - Invitations
+
+
+
+      summary: Invite user to tenant
+
+
+
+      description:
+
+        Sends invitation email to new tenant member.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: inviteMember
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/InvitationRequest"
+
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Invitation created
+
+
+
+
+
+  /tenants/current/invitations/{invitation_id}/accept:
+
+
+    post:
+
+
+      tags:
+
+
+        - Invitations
+
+
+
+      summary: Accept invitation
+
+
+
+      operationId: acceptInvitation
+
+
+
+      parameters:
+
+
+        - name: invitation_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+            format: uuid
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Invitation accepted
+
+
+
+
+
+
+
+components:
+
+
+  securitySchemes:
+
+
+    bearerAuth:
+
+
+      type: http
+
+
+      scheme: bearer
+
+
+      bearerFormat: JWT
+
+
+
+
+
+  schemas:
+
+
+
+
+    Tenant:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        company_name:
+
+
+          type: string
+
+
+
+        slug:
+
+
+          type: string
+
+
+
+        status:
+
+
+          type: string
+
+
+          enum:
+
+
+            - active
+
+            - suspended
+
+            - cancelled
+
+
+
+        timezone:
+
+
+          type: string
+
+
+
+        created_at:
+
+
+          type: string
+
+
+          format: date-time
+
+
+
+
+
+    CreateTenantRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - company_name
+
+
+
+      properties:
+
+
+        company_name:
+
+
+          type: string
+
+
+
+        timezone:
+
+
+          type: string
+
+
+          example: Asia/Karachi
+
+
+
+
+
+    UpdateTenantRequest:
+
+
+      type: object
+
+
+      properties:
+
+
+        company_name:
+
+
+          type: string
+
+
+
+        timezone:
+
+
+          type: string
+
+
+
+        logo_url:
+
+
+          type: string
+
+
+
+        settings:
+
+
+          type: object
+
+
+
+
+
+    Member:
+
+
+      type: object
+
+
+      properties:
+
+
+        user_id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        email:
+
+
+          type: string
+
+
+          format: email
+
+
+
+        role:
+
+
+          type: string
+
+
+          enum:
+
+
+            - owner
+
+            - admin
+
+            - manager
+
+            - agent
+
+            - viewer
+
+
+
+        status:
+
+
+          type: string
+
+
+
+
+    InvitationRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - email
+
+        - role
+
+
+
+      properties:
+
+
+        email:
+
+
+          type: string
+
+
+          format: email
+
+
+
+        role:
+
+
+          type: string
+
+
+          enum:
+
+
+            - admin
+
+            - manager
+
+            - agent
+
+            - viewer
+
+
+
+        message:
+
+
+          type: string

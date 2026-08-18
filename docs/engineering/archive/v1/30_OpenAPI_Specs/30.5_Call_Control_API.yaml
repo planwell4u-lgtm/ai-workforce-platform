@@ -1,0 +1,1528 @@
+openapi: 3.1.0
+
+info:
+
+  title: Voice Agent SaaS - Call Control API
+
+  version: 1.0.0
+
+  description: |
+    Call Control API manages the complete lifecycle of AI voice calls.
+
+    Responsibilities:
+
+    - Inbound PSTN calls
+    - Outbound calls
+    - Call state management
+    - LiveKit room lifecycle
+    - Agent assignment
+    - Call transfer
+    - Recording control
+    - Call events
+
+
+
+servers:
+
+  - url: https://api.voice-agent-saas.com/api/v1
+
+    description: Production
+
+
+  - url: https://staging-api.voice-agent-saas.com/api/v1
+
+    description: Staging
+
+
+  - url: http://localhost:8000/api/v1
+
+    description: Development
+
+
+
+security:
+
+  - bearerAuth: []
+
+
+
+tags:
+
+  - name: Calls
+
+    description: Call lifecycle operations
+
+
+  - name: Recording
+
+    description: Call recording operations
+
+
+  - name: Transfer
+
+    description: Call transfer operations
+
+
+  - name: LiveKit
+
+    description: LiveKit voice room operations
+
+
+  - name: Events
+
+    description: Call event history
+
+
+
+paths:
+
+
+##################################################
+# LIST CALLS
+##################################################
+
+
+  /calls:
+
+
+    get:
+
+      tags:
+
+        - Calls
+
+
+      summary: List calls
+
+
+      operationId: listCalls
+
+
+      parameters:
+
+
+        - name: page
+
+          in: query
+
+          schema:
+
+            type: integer
+
+            default: 1
+
+
+        - name: page_size
+
+          in: query
+
+          schema:
+
+            type: integer
+
+            default: 25
+
+
+        - name: status
+
+          in: query
+
+          schema:
+
+            type: string
+
+
+
+      responses:
+
+
+        "200":
+
+          description: Call list returned
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: object
+
+
+                properties:
+
+
+                  items:
+
+                    type: array
+
+                    items:
+
+                      $ref: "./components/call.yaml#/Call"
+
+
+                  pagination:
+
+                    $ref: "./components/pagination.yaml#/Pagination"
+
+
+
+
+
+##################################################
+# INBOUND CALL
+##################################################
+
+
+  /calls/inbound:
+
+
+    post:
+
+
+      tags:
+
+        - Calls
+
+
+      summary: Create inbound call
+
+
+      operationId: createInboundCall
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              properties:
+
+
+                provider:
+
+                  type: string
+
+                  example: twilio
+
+
+                provider_call_id:
+
+                  type: string
+
+
+                from_number:
+
+                  type: string
+
+
+                to_number:
+
+                  type: string
+
+
+
+      responses:
+
+
+        "201":
+
+          description: Call created
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# OUTBOUND CALL
+##################################################
+
+
+  /calls/outbound:
+
+
+    post:
+
+
+      tags:
+
+        - Calls
+
+
+      summary: Create outbound call
+
+
+      operationId: createOutboundCall
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              required:
+
+
+                - agent_id
+
+                - destination_number
+
+
+
+              properties:
+
+
+                agent_id:
+
+
+                  type: string
+
+                  format: uuid
+
+
+                destination_number:
+
+
+                  type: string
+
+
+                record_call:
+
+
+                  type: boolean
+
+                  default: true
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Outbound call started
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# GET CALL
+##################################################
+
+
+  /calls/{call_id}:
+
+
+    get:
+
+
+      tags:
+
+        - Calls
+
+
+      summary: Get call details
+
+
+      operationId: getCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+          description: Call details
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+##################################################
+# ANSWER CALL
+##################################################
+
+  /calls/{call_id}/answer:
+
+    post:
+
+      tags:
+
+        - Calls
+
+      summary: Answer a call
+
+      operationId: answerCall
+
+
+      parameters:
+
+        - $ref: "#/components/parameters/CallId"
+
+
+      responses:
+
+        "200":
+
+          description: Call answered
+
+
+          content:
+
+            application/json:
+
+              schema:
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+##################################################
+# HANGUP CALL
+##################################################
+
+  /calls/{call_id}/hangup:
+
+
+    post:
+
+
+      tags:
+
+
+        - Calls
+
+
+      summary: Hang up a call
+
+
+      operationId: hangupCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      requestBody:
+
+
+        required: false
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              properties:
+
+
+                reason:
+
+
+                  type: string
+
+
+                  example: caller_disconnected
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Call terminated
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# HOLD CALL
+##################################################
+
+  /calls/{call_id}/hold:
+
+
+    post:
+
+
+      tags:
+
+
+        - Calls
+
+
+      summary: Put call on hold
+
+
+      operationId: holdCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Call placed on hold
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# RESUME CALL
+##################################################
+
+  /calls/{call_id}/resume:
+
+
+    post:
+
+
+      tags:
+
+
+        - Calls
+
+
+      summary: Resume held call
+
+
+      operationId: resumeCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Call resumed
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# MUTE CALL
+##################################################
+
+  /calls/{call_id}/mute:
+
+
+    post:
+
+
+      tags:
+
+
+        - Calls
+
+
+      summary: Mute AI agent audio
+
+
+      operationId: muteCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Audio muted
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# UNMUTE CALL
+##################################################
+
+  /calls/{call_id}/unmute:
+
+
+    post:
+
+
+      tags:
+
+
+        - Calls
+
+
+      summary: Unmute AI agent audio
+
+
+      operationId: unmuteCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Audio restored
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+##################################################
+# CALL TRANSFER
+##################################################
+
+  /calls/{call_id}/transfer:
+
+
+    post:
+
+
+      tags:
+
+
+        - Transfer
+
+
+
+      summary: Transfer active call
+
+
+
+      operationId: transferCall
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "./components/call.yaml#/CallTransfer"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Transfer initiated
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+
+
+##################################################
+# START RECORDING
+##################################################
+
+  /calls/{call_id}/recording/start:
+
+
+    post:
+
+
+      tags:
+
+
+        - Recording
+
+
+
+      summary: Start call recording
+
+
+
+      operationId: startRecording
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Recording started
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/CallRecording"
+
+
+
+
+
+##################################################
+# STOP RECORDING
+##################################################
+
+  /calls/{call_id}/recording/stop:
+
+
+    post:
+
+
+      tags:
+
+
+        - Recording
+
+
+
+      summary: Stop call recording
+
+
+
+      operationId: stopRecording
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Recording stopped
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/CallRecording"
+
+
+
+
+
+##################################################
+# LIST RECORDINGS
+##################################################
+
+  /calls/{call_id}/recordings:
+
+
+    get:
+
+
+      tags:
+
+
+        - Recording
+
+
+
+      summary: List call recordings
+
+
+
+      operationId: listCallRecordings
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Recording list
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "./components/call.yaml#/CallRecording"
+
+
+
+
+
+##################################################
+# LIVEKIT ROOM
+##################################################
+
+  /calls/{call_id}/room:
+
+
+    get:
+
+
+      tags:
+
+
+        - LiveKit
+
+
+
+      summary: Get LiveKit room information
+
+
+
+      operationId: getLiveKitRoom
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: LiveKit room details
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/LiveKitRoom"
+
+
+
+
+
+##################################################
+# CHANGE AGENT
+##################################################
+
+  /calls/{call_id}/agent:
+
+
+    patch:
+
+
+      tags:
+
+
+        - Calls
+
+
+
+      summary: Reassign AI agent
+
+
+
+      operationId: updateCallAgent
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              required:
+
+
+                - agent_id
+
+
+
+              properties:
+
+
+                agent_id:
+
+
+                  type: string
+
+
+                  format: uuid
+
+
+
+                reason:
+
+
+                  type: string
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent updated
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "./components/call.yaml#/Call"
+
+
+
+##################################################
+# CALL EVENTS
+##################################################
+
+  /calls/{call_id}/events:
+
+
+    get:
+
+
+      tags:
+
+
+        - Events
+
+
+
+      summary: Get call event history
+
+
+
+      operationId: getCallEvents
+
+
+
+      parameters:
+
+
+        - $ref: "#/components/parameters/CallId"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Call events
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "./components/call.yaml#/CallEvent"
+
+
+
+
+
+##################################################
+# WEBHOOK REGISTRATION
+##################################################
+
+  /calls/webhooks:
+
+
+    get:
+
+
+      tags:
+
+
+        - Events
+
+
+
+      summary: List call webhooks
+
+
+
+      operationId: listCallWebhooks
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Webhook list
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "#/components/schemas/Webhook"
+
+
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Events
+
+
+
+      summary: Register call webhook
+
+
+
+      operationId: createCallWebhook
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/WebhookCreateRequest"
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Webhook created
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/Webhook"
+
+##################################################
+# COMPONENTS
+##################################################
+
+components:
+
+  schemas:
+    ##################################################
+    # WEBHOOK SCHEMAS
+    ##################################################
+
+
+    WebhookCreateRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - url
+
+        - events
+
+
+
+      properties:
+
+
+        url:
+
+
+          type: string
+
+
+          format: uri
+
+
+
+        events:
+
+
+          type: array
+
+
+          items:
+
+
+            type: string
+
+
+            enum:
+
+
+              - call.created
+              - call.ringing
+              - call.connected
+              - call.completed
+              - call.failed
+              - recording.completed
+              - transfer.completed
+
+
+
+        secret:
+
+
+          type: string
+
+
+
+
+    Webhook:
+
+
+      allOf:
+
+
+        - $ref: "#/components/schemas/WebhookCreateRequest"
+
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        active:
+
+
+          type: boolean
+
+
+          default: true
+
+
+
+        created_at:
+
+
+          type: string
+
+
+          format: date-time
+
+
+
+  securitySchemes:
+
+
+    bearerAuth:
+
+
+      $ref: "./components/security.yaml#/securitySchemes/bearerAuth"
+
+
+components:
+
+  parameters:
+
+    RequestId:
+
+      name: X-Request-ID
+
+      in: header
+
+      required: false
+
+      schema:
+
+        type: string
+
+
+    CorrelationId:
+
+      name: X-Correlation-ID
+
+      in: header
+
+      required: false
+
+      schema:
+
+        type: string
+
+
+    IdempotencyKey:
+
+      name: Idempotency-Key
+
+      in: header
+
+      required: false
+
+      schema:
+
+        type: string
+
+
+    CallId:
+
+      name: call_id
+
+      in: path
+
+      required: true
+
+      schema:
+
+        type: string
+
+        format: uuid

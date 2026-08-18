@@ -1,0 +1,720 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Integration API
+
+  description: >
+    API for managing external service integrations,
+    credentials, connections, webhooks and automation.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Integrations
+
+  - name: Connections
+
+  - name: Credentials
+
+  - name: Webhooks
+
+  - name: Health
+
+
+
+
+paths:
+
+
+
+  /integrations:
+
+
+
+    get:
+
+
+      tags:
+
+
+        - Integrations
+
+
+      summary: List available integrations
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Available integrations
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Integrations
+
+
+      summary: Register tenant integration
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/CreateIntegrationRequest'
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Integration created
+
+
+
+
+
+
+  /integrations/{integrationId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Integrations
+
+
+
+      summary: Get integration details
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Integration details
+
+
+
+
+
+
+
+    delete:
+
+
+
+      tags:
+
+
+
+        - Integrations
+
+
+
+      summary: Remove integration
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      responses:
+
+
+
+        "204":
+
+
+
+          description: Integration removed
+
+
+
+
+
+
+
+  /integrations/{integrationId}/connect:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Connections
+
+
+
+      summary: Connect external service
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ConnectionRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Connection established
+
+
+
+
+
+
+
+  /integrations/{integrationId}/credentials:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Credentials
+
+
+
+      summary: Update integration credentials
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CredentialRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Credentials stored
+
+
+
+
+
+
+
+  /integrations/{integrationId}/webhooks:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Webhooks
+
+
+
+      summary: Create outbound webhook
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/WebhookRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Webhook created
+
+
+
+
+
+
+
+  /integrations/{integrationId}/health:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Health
+
+
+
+      summary: Check integration health
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/IntegrationId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Health status
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    IntegrationId:
+
+
+
+      name: integrationId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateIntegrationRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - provider
+
+
+
+        - category
+
+
+
+      properties:
+
+
+
+        provider:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            salesforce
+
+
+
+        category:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - crm
+
+            - calendar
+
+            - messaging
+
+            - payment
+
+            - storage
+
+            - analytics
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+
+
+
+    ConnectionRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        authType:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - oauth2
+
+            - api_key
+
+            - webhook
+
+
+
+        configuration:
+
+
+
+          type: object
+
+
+
+
+
+
+    CredentialRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        apiKey:
+
+
+
+          type: string
+
+
+
+        accessToken:
+
+
+
+          type: string
+
+
+
+        refreshToken:
+
+
+
+          type: string
+
+
+
+        expiresAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    WebhookRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        url:
+
+
+
+          type: string
+
+
+
+        events:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+            example:
+
+
+
+              conversation.completed
+
+
+
+        secret:
+
+
+
+          type: string

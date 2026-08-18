@@ -1,0 +1,39 @@
+ErrorResponse:
+
+  type: object
+
+  required:
+
+    - code
+    - message
+
+
+  properties:
+
+
+    code:
+
+      type: string
+
+      example: CALL_NOT_FOUND
+
+
+    message:
+
+      type: string
+
+      example: Call does not exist
+
+
+    request_id:
+
+      type: string
+
+      example: req_01HXYZ123
+
+
+    timestamp:
+
+      type: string
+
+      format: date-time

@@ -1,0 +1,99 @@
+# tenant.yaml
+components:
+  schemas:
+    Tenant:
+      type: object
+      required:
+        - id
+        - company_name
+        - slug
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        company_name:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum:
+            - active
+            - suspended
+            - cancelled
+        timezone:
+          type: string
+          example: Asia/Karachi
+        created_at:
+          type: string
+          format: date-time
+
+    CreateTenantRequest:
+      type: object
+      required:
+        - company_name
+      properties:
+        company_name:
+          type: string
+        timezone:
+          type: string
+          example: Asia/Karachi
+
+    UpdateTenantRequest:
+      type: object
+      properties:
+        company_name:
+          type: string
+        timezone:
+          type: string
+        logo_url:
+          type: string
+        settings:
+          type: object
+
+    Member:
+      type: object
+      required:
+        - user_id
+        - email
+        - role
+        - status
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum:
+            - owner
+            - admin
+            - manager
+            - agent
+            - viewer
+        status:
+          type: string
+          example: active
+
+    InvitationRequest:
+      type: object
+      required:
+        - email
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum:
+            - admin
+            - manager
+            - agent
+            - viewer
+        message:
+          type: string

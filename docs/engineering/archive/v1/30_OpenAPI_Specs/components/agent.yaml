@@ -1,0 +1,94 @@
+# agent.yaml
+components:
+  schemas:
+    Agent:
+      type: object
+      required:
+        - id
+        - tenant_id
+        - name
+        - agent_type
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        agent_type:
+          type: string
+          enum:
+            - receptionist
+            - sales
+            - support
+            - booking
+            - medical
+            - custom
+        status:
+          type: string
+          enum:
+            - draft
+            - active
+            - paused
+            - archived
+        created_at:
+          type: string
+          format: date-time
+
+    CreateAgentRequest:
+      type: object
+      required:
+        - name
+        - agent_type
+      properties:
+        name:
+          type: string
+        agent_type:
+          type: string
+        description:
+          type: string
+        prompt:
+          type: string
+        voice:
+          $ref: '#/components/schemas/VoiceConfig'
+        model:
+          $ref: '#/components/schemas/ModelConfig'
+
+    UpdateAgentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        prompt:
+          type: string
+        status:
+          type: string
+
+    VoiceConfig:
+      type: object
+      properties:
+        provider:
+          type: string
+          example: elevenlabs
+        voice_id:
+          type: string
+        language:
+          type: string
+          example: en-US
+
+    ModelConfig:
+      type: object
+      properties:
+        provider:
+          type: string
+          example: openai
+        model:
+          type: string
+          example: gpt-4.1-mini
+        temperature:
+          type: number
+          example: 0.7

@@ -1,0 +1,784 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Webhook Event API
+
+  description: >
+    API for managing platform events,
+    webhook subscriptions, event delivery,
+    retries and event history.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Events
+
+  - name: Webhooks
+
+  - name: Deliveries
+
+  - name: Replay
+
+
+
+
+
+paths:
+
+
+
+  /events:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Events
+
+
+
+      summary: Publish platform event
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/EventPublishRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Event accepted
+
+
+
+
+
+
+
+  /events/{eventId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Events
+
+
+
+      summary: Get event details
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/EventId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Event information
+
+
+
+
+
+
+
+  /webhooks/subscriptions:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Webhooks
+
+
+
+      summary: Create webhook subscription
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/WebhookSubscriptionRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Subscription created
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Webhooks
+
+
+
+      summary: List webhook subscriptions
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Subscription list
+
+
+
+
+
+
+
+  /webhooks/subscriptions/{subscriptionId}:
+
+
+
+    delete:
+
+
+
+      tags:
+
+
+
+        - Webhooks
+
+
+
+      summary: Remove webhook subscription
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/SubscriptionId'
+
+
+
+      responses:
+
+
+
+        "204":
+
+
+
+          description: Subscription removed
+
+
+
+
+
+
+
+  /webhooks/deliveries:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Deliveries
+
+
+
+      summary: View webhook delivery history
+
+
+
+      parameters:
+
+
+
+        - name: eventId
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Delivery history
+
+
+
+
+
+
+
+  /events/{eventId}/replay:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Replay
+
+
+
+      summary: Replay event
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/EventId'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Replay scheduled
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    EventId:
+
+
+
+      name: eventId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    SubscriptionId:
+
+
+
+      name: subscriptionId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    EventPublishRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - eventType
+
+
+
+      properties:
+
+
+
+        eventType:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            conversation.completed
+
+
+
+        source:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            conversation-service
+
+
+
+        payload:
+
+
+
+          type: object
+
+
+
+        metadata:
+
+
+
+          type: object
+
+
+
+
+
+
+    Event:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        eventType:
+
+
+
+          type: string
+
+
+
+        source:
+
+
+
+          type: string
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+
+    WebhookSubscriptionRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - url
+
+        - events
+
+
+
+      properties:
+
+
+
+        url:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            https://customer.com/webhooks/events
+
+
+
+        events:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+            example:
+
+
+
+              call.completed
+
+
+
+        secret:
+
+
+
+          type: string
+
+
+
+        active:
+
+
+
+          type: boolean
+
+
+
+          default: true
+
+
+
+
+
+
+
+    WebhookDelivery:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        eventId:
+
+
+
+          type: string
+
+
+
+        subscriptionId:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - pending
+
+            - delivered
+
+            - failed
+
+            - retrying
+
+
+
+        attempts:
+
+
+
+          type: integer
+
+
+
+        deliveredAt:
+
+
+
+          type: string
+
+
+
+          format: date-time

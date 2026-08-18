@@ -1,0 +1,786 @@
+openapi: 3.1.0
+
+info:
+  title: Voice Agent SaaS Authentication API
+  description: |
+    Authentication and authorization API for the multi-tenant Voice Agent SaaS platform.
+
+    Responsibilities:
+    - User registration
+    - User authentication
+    - JWT token management
+    - Refresh token lifecycle
+    - Session management
+    - Role-based access control foundation
+
+  version: 1.0.0
+
+servers:
+  - url: https://api.voice-agent-saas.com/v1
+    description: Production Server
+
+  - url: http://localhost:8000/api/v1
+    description: Local Development Server
+
+
+tags:
+
+  - name: Authentication
+    description: User authentication operations
+
+  - name: Users
+    description: Current user information
+
+
+paths:
+
+  /auth/register:
+
+    post:
+
+      tags:
+        - Authentication
+
+      summary: Register new user
+
+      description: |
+        Creates a new user account.
+
+        The first registered user becomes the tenant owner.
+        Additional users are invited by tenant administrators.
+
+      operationId: registerUser
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+
+              $ref: "#/components/schemas/RegisterRequest"
+
+
+      responses:
+
+        "201":
+
+          description: User successfully created
+
+          content:
+
+            application/json:
+
+              schema:
+
+                $ref: "#/components/schemas/AuthResponse"
+
+
+        "400":
+
+          $ref: "#/components/responses/BadRequest"
+
+
+        "409":
+
+          description: Email already exists
+
+
+
+  /auth/login:
+
+
+    post:
+
+      tags:
+
+        - Authentication
+
+
+      summary: Login user
+
+
+      description: |
+        Authenticates user credentials and returns JWT tokens.
+
+
+      operationId: loginUser
+
+
+      requestBody:
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/LoginRequest"
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Login successful
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/AuthResponse"
+
+
+
+        "401":
+
+
+          description: Invalid credentials
+
+
+
+
+  /auth/refresh:
+
+
+    post:
+
+
+      tags:
+
+
+        - Authentication
+
+
+
+      summary: Refresh access token
+
+
+
+      description: |
+        Generates a new access token using a valid refresh token.
+
+
+
+      operationId: refreshToken
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/RefreshTokenRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: New access token generated
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/AuthResponse"
+
+
+
+
+
+  /auth/logout:
+
+
+    post:
+
+
+      tags:
+
+
+        - Authentication
+
+
+
+      summary: Logout user
+
+
+
+      description: |
+        Invalidates the refresh token and terminates the session.
+
+
+
+      security:
+
+        - bearerAuth: []
+
+
+
+      operationId: logoutUser
+
+
+
+      responses:
+
+
+        "204":
+
+          description: Successfully logged out
+
+
+
+
+
+  /auth/me:
+
+
+    get:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Get current user profile
+
+
+
+      description: |
+        Returns authenticated user information including tenant and role.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getCurrentUser
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Current user profile
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/User"
+
+
+
+        "401":
+
+
+          $ref: "#/components/responses/Unauthorized"
+
+
+
+
+
+  /auth/password-reset/request:
+
+
+    post:
+
+
+      tags:
+
+
+        - Authentication
+
+
+
+      summary: Request password reset
+
+
+
+      operationId: requestPasswordReset
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              properties:
+
+
+                email:
+
+
+                  type: string
+
+
+                  format: email
+
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Reset email request accepted
+
+
+
+
+
+
+  /auth/password-reset/confirm:
+
+
+    post:
+
+
+      tags:
+
+
+        - Authentication
+
+
+
+      summary: Confirm password reset
+
+
+
+      operationId: confirmPasswordReset
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              properties:
+
+
+                token:
+
+
+                  type: string
+
+
+                new_password:
+
+
+                  type: string
+
+
+                  minLength: 8
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Password updated
+
+
+
+
+
+components:
+
+
+  securitySchemes:
+
+
+    bearerAuth:
+
+
+      type: http
+
+      scheme: bearer
+
+      bearerFormat: JWT
+
+
+
+
+
+  schemas:
+
+
+
+
+    RegisterRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - email
+
+        - password
+
+        - company_name
+
+
+
+      properties:
+
+
+        email:
+
+
+          type: string
+
+          format: email
+
+
+
+        password:
+
+
+          type: string
+
+          minLength: 8
+
+
+
+        first_name:
+
+
+          type: string
+
+
+
+        last_name:
+
+
+          type: string
+
+
+
+        company_name:
+
+
+          type: string
+
+
+
+
+
+    LoginRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - email
+
+        - password
+
+
+
+      properties:
+
+
+        email:
+
+
+          type: string
+
+          format: email
+
+
+
+        password:
+
+
+          type: string
+
+
+
+
+
+    RefreshTokenRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - refresh_token
+
+
+
+      properties:
+
+
+        refresh_token:
+
+
+          type: string
+
+
+
+
+
+    AuthResponse:
+
+
+      type: object
+
+
+      properties:
+
+
+        access_token:
+
+
+          type: string
+
+
+
+        refresh_token:
+
+
+          type: string
+
+
+
+        token_type:
+
+
+          type: string
+
+          example: bearer
+
+
+
+        expires_in:
+
+
+          type: integer
+
+          example: 3600
+
+
+
+        user:
+
+
+          $ref: "#/components/schemas/User"
+
+
+
+
+
+    User:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+          format: uuid
+
+
+
+        tenant_id:
+
+
+          type: string
+
+          format: uuid
+
+
+
+        email:
+
+
+          type: string
+
+          format: email
+
+
+
+        first_name:
+
+
+          type: string
+
+
+
+        last_name:
+
+
+          type: string
+
+
+
+        role:
+
+
+          type: string
+
+
+          enum:
+
+
+            - owner
+
+            - admin
+
+            - manager
+
+            - agent
+
+            - viewer
+
+
+
+        status:
+
+
+          type: string
+
+
+          enum:
+
+
+            - active
+
+            - inactive
+
+            - suspended
+
+
+
+        created_at:
+
+
+          type: string
+
+          format: date-time
+
+
+
+
+
+
+  responses:
+
+
+    Unauthorized:
+
+
+      description: Authentication required
+
+
+
+    BadRequest:
+
+
+      description: Invalid request payload

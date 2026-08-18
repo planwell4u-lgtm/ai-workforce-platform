@@ -1,0 +1,927 @@
+openapi: 3.1.0
+
+info:
+
+  title: Voice Agent SaaS User Management API
+
+  description: |
+    User management API for the multi-tenant Voice Agent SaaS platform.
+
+    Responsibilities:
+    - User profiles
+    - Team member management
+    - Roles and permissions
+    - User preferences
+    - Account status management
+
+  version: 1.0.0
+
+
+servers:
+
+  - url: https://api.voice-agent-saas.com/v1
+
+  - url: http://localhost:8000/api/v1
+
+
+
+tags:
+
+  - name: Users
+
+  - name: Roles
+
+  - name: Permissions
+
+
+
+paths:
+
+
+
+  /users/me:
+
+
+    get:
+
+
+      tags:
+
+        - Users
+
+
+      summary: Get current user profile
+
+
+      security:
+
+        - bearerAuth: []
+
+
+      operationId: getMyProfile
+
+
+      responses:
+
+
+        "200":
+
+          description: User profile returned
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/User"
+
+
+
+
+
+    patch:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Update current user profile
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateMyProfile
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/UpdateUserRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Profile updated
+
+
+
+
+
+  /users/me/preferences:
+
+
+    get:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Get user preferences
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getUserPreferences
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Preferences returned
+
+
+
+
+
+    patch:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Update user preferences
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateUserPreferences
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              additionalProperties: true
+
+
+
+
+
+
+  /users/{user_id}:
+
+
+    get:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Get tenant user details
+
+
+
+      description:
+
+        Requires tenant admin privileges.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getUserById
+
+
+
+      parameters:
+
+
+        - name: user_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: User details
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/User"
+
+
+
+
+
+
+    patch:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Update tenant user
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateTenantUser
+
+
+
+      parameters:
+
+
+        - name: user_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/AdminUpdateUserRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: User updated
+
+
+
+
+
+    delete:
+
+
+      tags:
+
+
+        - Users
+
+
+
+      summary: Deactivate user
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: deactivateUser
+
+
+
+      parameters:
+
+
+        - name: user_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "204":
+
+
+          description: User deactivated
+
+
+
+
+
+
+  /users/{user_id}/role:
+
+
+    patch:
+
+
+      tags:
+
+
+        - Roles
+
+
+
+      summary: Change user role
+
+
+
+      description:
+
+        Updates role within the tenant.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateUserRole
+
+
+
+      parameters:
+
+
+        - name: user_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/RoleUpdateRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Role updated
+
+
+
+
+
+
+  /roles:
+
+
+    get:
+
+
+      tags:
+
+
+        - Roles
+
+
+
+      summary: List available roles
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: listRoles
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Roles list
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "#/components/schemas/Role"
+
+
+
+
+
+
+  /permissions/check:
+
+
+    post:
+
+
+      tags:
+
+
+        - Permissions
+
+
+
+      summary: Check user permission
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: checkPermission
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              type: object
+
+
+              properties:
+
+
+                permission:
+
+
+                  type: string
+
+
+                  example: agent.create
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Permission result
+
+
+
+
+
+
+components:
+
+
+
+  securitySchemes:
+
+
+
+    bearerAuth:
+
+
+      type: http
+
+
+      scheme: bearer
+
+
+      bearerFormat: JWT
+
+
+
+
+
+  schemas:
+
+
+
+
+    User:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        tenant_id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        email:
+
+
+          type: string
+
+
+          format: email
+
+
+
+        first_name:
+
+
+          type: string
+
+
+
+        last_name:
+
+
+          type: string
+
+
+
+        role:
+
+
+          type: string
+
+
+
+        status:
+
+
+          type: string
+
+
+
+        avatar_url:
+
+
+          type: string
+
+
+
+        created_at:
+
+
+          type: string
+
+
+          format: date-time
+
+
+
+
+
+
+    UpdateUserRequest:
+
+
+      type: object
+
+
+      properties:
+
+
+        first_name:
+
+
+          type: string
+
+
+
+        last_name:
+
+
+          type: string
+
+
+
+        avatar_url:
+
+
+          type: string
+
+
+
+
+
+
+    AdminUpdateUserRequest:
+
+
+      type: object
+
+
+      properties:
+
+
+        status:
+
+
+          type: string
+
+
+          enum:
+
+
+            - active
+
+            - inactive
+
+            - suspended
+
+
+
+
+
+
+    RoleUpdateRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - role
+
+
+
+      properties:
+
+
+        role:
+
+
+          type: string
+
+
+          enum:
+
+
+            - owner
+
+            - admin
+
+            - manager
+
+            - agent
+
+            - viewer
+
+
+
+
+
+    Role:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+
+          format: uuid
+
+
+
+        name:
+
+
+          type: string
+
+
+
+        permissions:
+
+
+          type: array
+
+
+          items:
+
+
+            type: string

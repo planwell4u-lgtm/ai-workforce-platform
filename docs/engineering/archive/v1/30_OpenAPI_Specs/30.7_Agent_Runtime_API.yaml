@@ -1,0 +1,766 @@
+openapi: 3.0.3
+
+info:
+
+  title: Agent Runtime API
+
+  description: >
+    API for managing AI agent execution,
+    workflows, tools, memory and runtime state.
+
+  version: 1.0.0
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+tags:
+
+  - name: Agent Runtime
+  - name: Execution
+  - name: Tools
+  - name: Memory
+
+
+
+paths:
+
+
+
+  /agents/{agentId}/start:
+
+
+    post:
+
+      tags:
+
+        - Agent Runtime
+
+
+      summary: Start AI agent session
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+        - $ref: '#/components/parameters/RequestId'
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/StartAgentRequest'
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Agent started
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: '#/components/schemas/AgentSession'
+
+
+
+
+  /agent-sessions/{sessionId}:
+
+
+
+    get:
+
+
+      tags:
+
+
+        - Agent Runtime
+
+
+      summary: Get agent runtime status
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent state
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: '#/components/schemas/AgentSession'
+
+
+
+
+
+
+  /agent-sessions/{sessionId}/execute:
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Execution
+
+
+
+      summary: Execute agent workflow step
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/ExecutionRequest'
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent response
+
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: '#/components/schemas/ExecutionResponse'
+
+
+
+
+
+
+  /agent-sessions/{sessionId}/tools:
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Tools
+
+
+
+      summary: Execute agent tool
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      requestBody:
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/ToolRequest'
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Tool result
+
+
+
+
+
+
+  /agent-sessions/{sessionId}/memory:
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Memory
+
+
+
+      summary: Store agent memory
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      requestBody:
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/MemoryRequest'
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Memory stored
+
+
+
+
+
+
+  /agent-sessions/{sessionId}/stop:
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Agent Runtime
+
+
+
+      summary: Stop agent session
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent stopped
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+      name: X-Tenant-ID
+
+
+      in: header
+
+
+      required: true
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+    RequestId:
+
+
+      name: X-Request-ID
+
+
+      in: header
+
+
+      required: false
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+    AgentId:
+
+
+      name: agentId
+
+
+      in: path
+
+
+      required: true
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+    SessionId:
+
+
+      name: sessionId
+
+
+      in: path
+
+
+      required: true
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    StartAgentRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+        - conversationId
+
+
+
+      properties:
+
+
+
+        conversationId:
+
+
+          type: string
+
+
+
+        roomName:
+
+
+          type: string
+
+
+
+        workflow:
+
+
+          type: string
+
+
+
+          example:
+
+
+            customer_support_flow
+
+
+
+        metadata:
+
+
+          type: object
+
+
+
+
+
+
+    AgentSession:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+          type: string
+
+
+
+        agentId:
+
+
+          type: string
+
+
+
+        conversationId:
+
+
+          type: string
+
+
+
+        status:
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - initializing
+
+            - running
+
+            - paused
+
+            - stopped
+
+
+
+        currentNode:
+
+
+          type: string
+
+
+
+        startedAt:
+
+
+          type: string
+
+
+          format: date-time
+
+
+
+
+
+
+    ExecutionRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        input:
+
+
+          type: string
+
+
+
+        eventType:
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - user_message
+
+            - tool_result
+
+            - system_event
+
+
+
+        context:
+
+
+          type: object
+
+
+
+
+
+
+    ExecutionResponse:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        output:
+
+
+          type: string
+
+
+
+        nextAction:
+
+
+          type: string
+
+
+
+        toolRequired:
+
+
+          type: boolean
+
+
+
+        tool:
+
+
+          type: string
+
+
+
+        state:
+
+
+          type: object
+
+
+
+
+
+
+    ToolRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - toolName
+
+
+
+      properties:
+
+
+
+        toolName:
+
+
+          type: string
+
+
+
+        arguments:
+
+
+          type: object
+
+
+
+
+
+
+    MemoryRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        type:
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - short_term
+
+            - long_term
+
+
+
+        key:
+
+
+          type: string
+
+
+
+        value:
+
+
+          type: string

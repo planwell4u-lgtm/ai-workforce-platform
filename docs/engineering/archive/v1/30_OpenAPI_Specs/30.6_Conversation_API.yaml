@@ -1,0 +1,607 @@
+openapi: 3.0.3
+
+info:
+  title: Conversation API
+  description: >
+    API for managing AI voice conversations, sessions,
+    transcripts, events, summaries, and analytics.
+  version: 1.0.0
+
+
+servers:
+
+  - url: https://api.example.com/v1
+    description: Production
+
+
+tags:
+
+  - name: Conversations
+  - name: Messages
+  - name: Events
+  - name: Analytics
+
+
+paths:
+
+
+  /conversations:
+
+    post:
+
+      tags:
+        - Conversations
+
+      summary: Create conversation session
+
+      operationId: createConversation
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/TenantId'
+
+        - $ref: '#/components/parameters/RequestId'
+
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+
+              $ref: '#/components/schemas/CreateConversationRequest'
+
+
+      responses:
+
+        "201":
+
+          description: Conversation created
+
+          content:
+
+            application/json:
+
+              schema:
+
+                $ref: '#/components/schemas/Conversation'
+
+
+
+  /conversations/{conversationId}:
+
+
+    get:
+
+      tags:
+        - Conversations
+
+      summary: Get conversation details
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      responses:
+
+        "200":
+
+          description: Conversation details
+
+          content:
+
+            application/json:
+
+              schema:
+
+                $ref: '#/components/schemas/Conversation'
+
+
+
+  /conversations/{conversationId}/messages:
+
+
+    post:
+
+      tags:
+        - Messages
+
+      summary: Add conversation message
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+
+              $ref: '#/components/schemas/CreateMessageRequest'
+
+
+      responses:
+
+        "201":
+
+          description: Message stored
+
+
+
+    get:
+
+      tags:
+        - Messages
+
+      summary: List conversation messages
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      responses:
+
+        "200":
+
+          description: Message list
+
+          content:
+
+            application/json:
+
+              schema:
+
+                type: array
+
+                items:
+
+                  $ref: '#/components/schemas/Message'
+
+
+
+
+  /conversations/{conversationId}/events:
+
+
+    post:
+
+      tags:
+        - Events
+
+      summary: Record conversation timeline event
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      requestBody:
+
+        required: true
+
+        content:
+
+          application/json:
+
+            schema:
+
+              $ref: '#/components/schemas/EventRequest'
+
+
+      responses:
+
+        "201":
+
+          description: Event recorded
+
+
+
+
+  /conversations/{conversationId}/summary:
+
+
+    post:
+
+      tags:
+        - Analytics
+
+      summary: Generate conversation summary
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      responses:
+
+        "200":
+
+          description: Summary generated
+
+          content:
+
+            application/json:
+
+              schema:
+
+                $ref: '#/components/schemas/Summary'
+
+
+
+
+  /conversations/{conversationId}/transfer:
+
+
+    post:
+
+      tags:
+        - Conversations
+
+      summary: Transfer AI conversation to human
+
+
+      parameters:
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+      requestBody:
+
+        content:
+
+          application/json:
+
+            schema:
+
+              type: object
+
+              properties:
+
+
+                reason:
+
+                  type: string
+
+
+                department:
+
+                  type: string
+
+
+                priority:
+
+                  type: string
+
+                  enum:
+
+                    - low
+                    - normal
+                    - high
+
+
+
+      responses:
+
+        "200":
+
+          description: Transfer initiated
+
+
+
+
+
+components:
+
+
+  parameters:
+
+
+    TenantId:
+
+      name: X-Tenant-ID
+
+      in: header
+
+      required: true
+
+      schema:
+
+        type: string
+
+
+
+    RequestId:
+
+      name: X-Request-ID
+
+      in: header
+
+      required: false
+
+      schema:
+
+        type: string
+
+
+
+    ConversationId:
+
+      name: conversationId
+
+      in: path
+
+      required: true
+
+      schema:
+
+        type: string
+
+
+
+
+  schemas:
+
+
+
+    CreateConversationRequest:
+
+
+      type: object
+
+
+      required:
+
+        - agentId
+        - channel
+
+
+      properties:
+
+
+        agentId:
+
+          type: string
+
+
+        customerId:
+
+          type: string
+
+
+        channel:
+
+          type: string
+
+          enum:
+
+            - voice
+            - web
+            - sms
+
+
+        externalCallId:
+
+          type: string
+
+
+        metadata:
+
+          type: object
+
+
+
+
+    Conversation:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+          type: string
+
+
+        tenantId:
+
+          type: string
+
+
+        agentId:
+
+          type: string
+
+
+        customerId:
+
+          type: string
+
+
+        status:
+
+          type: string
+
+          enum:
+
+            - initiated
+            - active
+            - completed
+            - transferred
+
+
+        channel:
+
+          type: string
+
+
+        startedAt:
+
+          type: string
+
+          format: date-time
+
+
+        endedAt:
+
+          type: string
+
+          format: date-time
+
+
+
+
+    CreateMessageRequest:
+
+
+      type: object
+
+
+      required:
+
+        - role
+        - content
+
+
+      properties:
+
+
+        role:
+
+          type: string
+
+          enum:
+
+            - user
+            - assistant
+            - system
+            - tool
+
+
+        content:
+
+          type: string
+
+
+        timestamp:
+
+          type: string
+
+          format: date-time
+
+
+
+
+    Message:
+
+
+      allOf:
+
+        - $ref: '#/components/schemas/CreateMessageRequest'
+
+
+      properties:
+
+
+        id:
+
+          type: string
+
+
+
+    EventRequest:
+
+
+      type: object
+
+
+      properties:
+
+
+        eventType:
+
+          type: string
+
+          enum:
+
+            - call_started
+            - agent_joined
+            - user_spoke
+            - tool_called
+            - transfer_started
+            - call_completed
+
+
+        payload:
+
+          type: object
+
+
+        timestamp:
+
+          type: string
+
+          format: date-time
+
+
+
+
+    Summary:
+
+
+      type: object
+
+
+      properties:
+
+
+        conversationId:
+
+          type: string
+
+
+        summary:
+
+          type: string
+
+
+        sentiment:
+
+          type: string
+
+
+          enum:
+
+            - positive
+            - neutral
+            - negative
+
+
+        resolution:
+
+          type: string
+
+
+        nextAction:
+
+          type: string

@@ -1,0 +1,741 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Notification API
+
+  description: >
+    API for managing platform notifications,
+    templates, preferences and delivery tracking.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Notifications
+
+  - name: Templates
+
+  - name: Preferences
+
+  - name: Delivery
+
+
+
+
+paths:
+
+
+
+  /notifications:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Notifications
+
+
+
+      summary: Send notification
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateNotificationRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Notification queued
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Notifications
+
+
+
+      summary: List notifications
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Notification list
+
+
+
+
+
+
+
+  /notifications/{notificationId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Delivery
+
+
+
+      summary: Get notification status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/NotificationId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Notification status
+
+
+
+
+
+
+
+  /notification-templates:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Templates
+
+
+
+      summary: Create notification template
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/TemplateRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Template created
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Templates
+
+
+
+      summary: List templates
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Templates list
+
+
+
+
+
+
+
+  /notification-preferences:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Preferences
+
+
+
+      summary: Get notification preferences
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/UserId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Preferences
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Preferences
+
+
+
+      summary: Update preferences
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/UserId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/PreferenceRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Preferences updated
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    NotificationId:
+
+
+
+      name: notificationId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    UserId:
+
+
+
+      name: userId
+
+
+
+      in: query
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateNotificationRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - channel
+
+        - recipient
+
+        - message
+
+
+
+      properties:
+
+
+
+        channel:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - email
+
+            - sms
+
+            - in_app
+
+
+
+        recipient:
+
+
+
+          type: string
+
+
+
+        templateId:
+
+
+
+          type: string
+
+
+
+        message:
+
+
+
+          type: string
+
+
+
+        priority:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - low
+
+            - normal
+
+            - high
+
+            - critical
+
+
+
+        metadata:
+
+
+
+          type: object
+
+
+
+
+
+
+    Notification:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        channel:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - queued
+
+            - sent
+
+            - delivered
+
+            - failed
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+
+    TemplateRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        channel:
+
+
+
+          type: string
+
+
+
+        subject:
+
+
+
+          type: string
+
+
+
+        body:
+
+
+
+          type: string
+
+
+
+
+
+
+    PreferenceRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        email:
+
+
+
+          type: boolean
+
+
+
+        sms:
+
+
+
+          type: boolean
+
+
+
+        inApp:
+
+
+
+          type: boolean
+
+
+
+        alerts:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string

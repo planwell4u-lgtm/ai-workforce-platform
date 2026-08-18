@@ -1,0 +1,627 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: System Configuration API
+
+  description: >
+    API for managing platform configuration,
+    feature flags, runtime settings,
+    tenant overrides and system policies.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Configuration
+
+  - name: Feature Flags
+
+  - name: Tenant Overrides
+
+  - name: Policies
+
+  - name: Versions
+
+
+
+
+
+paths:
+
+
+
+  /configuration:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Get system configuration
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Configuration data
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Update system configuration
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ConfigurationRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Configuration updated
+
+
+
+
+
+
+
+  /configuration/features:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Feature Flags
+
+
+
+      summary: List feature flags
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Feature flags
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Feature Flags
+
+
+
+      summary: Update feature flag
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/FeatureFlagRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Feature updated
+
+
+
+
+
+
+
+  /configuration/tenants/{tenantId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Tenant Overrides
+
+
+
+      summary: Get tenant configuration
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tenant configuration
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Tenant Overrides
+
+
+
+      summary: Update tenant configuration
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/TenantConfigurationRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tenant configuration updated
+
+
+
+
+
+
+
+  /configuration/policies:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Policies
+
+
+
+      summary: Get system policies
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Policy list
+
+
+
+
+
+
+
+  /configuration/versions:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Versions
+
+
+
+      summary: Configuration history
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Configuration versions
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: tenantId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    ConfigurationRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        defaultLanguage:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            en-US
+
+
+
+        defaultTimezone:
+
+
+
+          type: string
+
+
+
+        maxConcurrentCalls:
+
+
+
+          type: integer
+
+
+
+        defaultModelProvider:
+
+
+
+          type: string
+
+
+
+
+
+
+    FeatureFlagRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            advanced_memory
+
+
+
+        enabled:
+
+
+
+          type: boolean
+
+
+
+        rolloutPercentage:
+
+
+
+          type: integer
+
+
+
+
+
+
+    TenantConfigurationRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        voiceProvider:
+
+
+
+          type: string
+
+
+
+        maxAgents:
+
+
+
+          type: integer
+
+
+
+        storageLimitGb:
+
+
+
+          type: integer
+
+
+
+        enabledFeatures:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    Policy:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        value:
+
+
+
+          type: object
+
+
+
+        updatedAt:
+
+
+
+          type: string
+
+
+
+          format: date-time

@@ -1,0 +1,788 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Admin Control API
+
+  description: >
+    Internal API for platform administration,
+    tenant management, monitoring, auditing,
+    and system operations.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://admin-api.example.com/v1
+
+
+
+tags:
+
+  - name: Tenants
+
+  - name: Users
+
+  - name: Monitoring
+
+  - name: Audit
+
+  - name: Configuration
+
+
+
+
+
+paths:
+
+
+
+  /admin/tenants:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Tenants
+
+
+
+      summary: List all tenants
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tenant list
+
+
+
+
+
+
+
+  /admin/tenants/{tenantId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Tenants
+
+
+
+      summary: Get tenant details
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tenant information
+
+
+
+
+
+
+
+    patch:
+
+
+
+      tags:
+
+
+
+        - Tenants
+
+
+
+      summary: Update tenant status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/TenantUpdateRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tenant updated
+
+
+
+
+
+
+
+  /admin/users:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Users
+
+
+
+      summary: List platform users
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Users list
+
+
+
+
+
+
+
+  /admin/calls/active:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Monitoring
+
+
+
+      summary: View active calls
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Active call sessions
+
+
+
+
+
+
+
+  /admin/agents/status:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Monitoring
+
+
+
+      summary: Agent runtime status
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Agent health
+
+
+
+
+
+
+
+  /admin/system/health:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Monitoring
+
+
+
+      summary: Platform health check
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: System status
+
+
+
+
+
+
+
+  /admin/audit-logs:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Audit
+
+
+
+      summary: Search audit logs
+
+
+
+      parameters:
+
+
+
+        - name: tenantId
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+        - name: event
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Audit events
+
+
+
+
+
+
+
+  /admin/configuration/features:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: List feature flags
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Feature configuration
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Update feature flags
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              type: object
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Feature flags updated
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: tenantId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    TenantUpdateRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - active
+
+            - suspended
+
+            - trial
+
+            - cancelled
+
+
+
+        plan:
+
+
+
+          type: string
+
+
+
+        limits:
+
+
+
+          type: object
+
+
+
+
+
+
+
+    Tenant:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+
+    AgentStatus:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        agentId:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - running
+
+            - idle
+
+            - failed
+
+
+
+        activeSessions:
+
+
+
+          type: integer
+
+
+
+
+
+
+
+    SystemHealth:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - healthy
+
+            - degraded
+
+            - unavailable
+
+
+
+        latencyMs:
+
+
+
+          type: number
+
+
+
+
+
+
+
+    AuditLog:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        actor:
+
+
+
+          type: string
+
+
+
+        action:
+
+
+
+          type: string
+
+
+
+        timestamp:
+
+
+
+          type: string
+
+
+
+          format: date-time

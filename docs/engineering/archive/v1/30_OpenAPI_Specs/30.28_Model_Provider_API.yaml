@@ -1,0 +1,623 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Model Provider API
+
+  description: >
+    API for managing AI providers,
+    models, routing policies, usage,
+    health checks and fallback strategies.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Providers
+
+  - name: Models
+
+  - name: Routing
+
+  - name: Usage
+
+  - name: Health
+
+
+
+
+
+paths:
+
+
+
+  /models/providers:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Providers
+
+
+
+      summary: List AI providers
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Provider list
+
+
+
+
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Providers
+
+
+
+      summary: Register AI provider
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateProviderRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Provider registered
+
+
+
+
+
+
+
+  /models:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Models
+
+
+
+      summary: List available models
+
+
+
+      parameters:
+
+
+
+        - name: type
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+            enum:
+
+
+
+              - llm
+
+              - stt
+
+              - tts
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Model list
+
+
+
+
+
+
+
+  /models/routing:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Routing
+
+
+
+      summary: Configure model routing policy
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/RoutingPolicyRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Routing updated
+
+
+
+
+
+
+
+  /models/health:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Health
+
+
+
+      summary: Check provider health
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Provider health
+
+
+
+
+
+
+
+  /models/usage:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Usage
+
+
+
+      summary: Get model usage metrics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Usage statistics
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateProviderRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+        - type
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            OpenAI
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - llm
+
+            - stt
+
+            - tts
+
+
+
+        endpoint:
+
+
+
+          type: string
+
+
+
+        credentialsReference:
+
+
+
+          type: string
+
+
+
+          description: Secret manager reference
+
+
+
+
+
+
+
+    Model:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        provider:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+        capabilities:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    RoutingPolicyRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        primaryModel:
+
+
+
+          type: string
+
+
+
+        fallbackModels:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+        maxCostPerMinute:
+
+
+
+          type: number
+
+
+
+        latencyPriority:
+
+
+
+          type: boolean
+
+
+
+
+
+
+    UsageMetrics:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        model:
+
+
+
+          type: string
+
+
+
+        inputTokens:
+
+
+
+          type: integer
+
+
+
+        outputTokens:
+
+
+
+          type: integer
+
+
+
+        audioMinutes:
+
+
+
+          type: number
+
+
+
+        estimatedCost:
+
+
+
+          type: number

@@ -1,0 +1,481 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1373" dy="703" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n\n    actor Customer\n\n    participant Agent as Voice Agent\n    participant Graph as LangGraph\n    participant Memory\n    participant DB as Customer Database\n    participant Router as Tool Router\n    participant Auth as Permission Service\n    participant Calendar\n    participant CRM\n    participant Notify as Notification Service\n    participant Events as Event Bus\n    participant Billing\n\n\n    Customer-&gt;&gt;Agent: Request appointment\n\n    Agent-&gt;&gt;Graph: Process booking intent\n\n\n    Graph-&gt;&gt;Memory: Retrieve conversation context\n\n    Memory--&gt;&gt;Graph: Customer preferences\n\n\n    Graph-&gt;&gt;DB: Retrieve customer profile\n\n    DB--&gt;&gt;Graph: Customer information\n\n\n    Graph-&gt;&gt;Router: Request calendar tool\n\n\n    Router-&gt;&gt;Auth: Validate permissions\n\n    Auth--&gt;&gt;Router: Approved\n\n\n    Router-&gt;&gt;Calendar: Check availability\n\n    Calendar--&gt;&gt;Router: Available slots\n\n\n    Router--&gt;&gt;Graph: Available appointments\n\n\n    Graph-&gt;&gt;Agent: Ask customer to select slot\n\n    Agent--&gt;&gt;Customer: Present available times\n\n\n    Customer-&gt;&gt;Agent: Select appointment time\n\n\n    Agent-&gt;&gt;Graph: Confirm booking request\n\n\n    Graph-&gt;&gt;Router: Create appointment\n\n\n    Router-&gt;&gt;Calendar: Create calendar event\n\n    Calendar--&gt;&gt;Router: Booking confirmation\n\n\n    Router-&gt;&gt;CRM: Update customer record\n\n    CRM--&gt;&gt;Router: CRM updated\n\n\n    Router-&gt;&gt;Events: Publish AppointmentCreated\n\n\n    Router--&gt;&gt;Graph: Booking completed\n\n\n    Graph-&gt;&gt;Memory: Store appointment context\n\n\n    Graph-&gt;&gt;Notify: Send confirmation\n\n    Notify--&gt;&gt;Customer: SMS / Email confirmation\n\n\n    Events-&gt;&gt;Billing: Record usage\n\n\n    Graph--&gt;&gt;Agent: Generate final response\n\n    Agent--&gt;&gt;Customer: Appointment confirmed&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-1260">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Customer" mermaidId="n:Customer" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);participant=seqActorStick;verticalAlign=bottom;align=center;spacingBottom=4;size=90;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Customer" id="ySirkflwYDD05Z-J9VoX-1261">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);participant=seqActorStick;verticalAlign=bottom;align=center;spacingBottom=4;size=90;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1451" width="150" x="40" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Voice Agent" mermaidId="n:Agent" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Voice Agent" id="ySirkflwYDD05Z-J9VoX-1262">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="268" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="LangGraph" mermaidId="n:Graph" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="LangGraph" id="ySirkflwYDD05Z-J9VoX-1263">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="512" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Memory" mermaidId="n:Memory" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Memory" id="ySirkflwYDD05Z-J9VoX-1264">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="777" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Customer Database" mermaidId="n:DB" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Customer Database" id="ySirkflwYDD05Z-J9VoX-1265">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="977" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Tool Router" mermaidId="n:Router" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Tool Router" id="ySirkflwYDD05Z-J9VoX-1266">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="1177" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Permission Service" mermaidId="n:Auth" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Permission Service" id="ySirkflwYDD05Z-J9VoX-1267">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="1377" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Calendar" mermaidId="n:Calendar" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Calendar" id="ySirkflwYDD05Z-J9VoX-1268">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="1577" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="CRM" mermaidId="n:CRM" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="CRM" id="ySirkflwYDD05Z-J9VoX-1269">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="1777" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Notification Service" mermaidId="n:Notify" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Notification Service" id="ySirkflwYDD05Z-J9VoX-1270">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="1977" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Event Bus" mermaidId="n:Events" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Event Bus" id="ySirkflwYDD05Z-J9VoX-1271">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="2177" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Billing" mermaidId="n:Billing" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="Billing" id="ySirkflwYDD05Z-J9VoX-1272">
+          <mxCell parent="ySirkflwYDD05Z-J9VoX-1260" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+            <mxGeometry height="1426" width="150" x="2377" y="40" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Request appointment" mermaidId="e:Customer-&gt;Agent#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Request appointment" id="ySirkflwYDD05Z-J9VoX-1273">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1261" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1262">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="229" y="149" />
+              </Array>
+              <mxPoint x="115" y="149" as="sourcePoint" />
+              <mxPoint x="343" y="149" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1274" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="1" vertex="1">
+          <mxGeometry height="20" width="20" x="105" y="139" as="geometry" />
+        </mxCell>
+        <UserObject label="Process booking intent" mermaidId="e:Agent-&gt;Graph#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Process booking intent" id="ySirkflwYDD05Z-J9VoX-1275">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1262" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="465" y="193" />
+              </Array>
+              <mxPoint x="343" y="193" as="sourcePoint" />
+              <mxPoint x="587" y="193" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1276" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="2" vertex="1">
+          <mxGeometry height="20" width="20" x="333" y="183" as="geometry" />
+        </mxCell>
+        <UserObject label="Retrieve conversation context" mermaidId="e:Graph-&gt;Memory#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Retrieve conversation context" id="ySirkflwYDD05Z-J9VoX-1277">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1264">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="720" y="237" />
+              </Array>
+              <mxPoint x="587" y="237" as="sourcePoint" />
+              <mxPoint x="852" y="237" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1278" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="3" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="227" as="geometry" />
+        </mxCell>
+        <UserObject label="Customer preferences" mermaidId="e:Memory-&gt;Graph#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Customer preferences" id="ySirkflwYDD05Z-J9VoX-1279">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1264" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="720" y="281" />
+              </Array>
+              <mxPoint x="852" y="281" as="sourcePoint" />
+              <mxPoint x="587" y="281" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1280" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="4" vertex="1">
+          <mxGeometry height="20" width="20" x="842" y="271" as="geometry" />
+        </mxCell>
+        <UserObject label="Retrieve customer profile" mermaidId="e:Graph-&gt;DB#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Retrieve customer profile" id="ySirkflwYDD05Z-J9VoX-1281">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1265">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="820" y="325" />
+              </Array>
+              <mxPoint x="587" y="325" as="sourcePoint" />
+              <mxPoint x="1052" y="325" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1282" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="5" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="315" as="geometry" />
+        </mxCell>
+        <UserObject label="Customer information" mermaidId="e:DB-&gt;Graph#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Customer information" id="ySirkflwYDD05Z-J9VoX-1283">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1265" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="820" y="369" />
+              </Array>
+              <mxPoint x="1052" y="369" as="sourcePoint" />
+              <mxPoint x="587" y="369" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1284" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="6" vertex="1">
+          <mxGeometry height="20" width="20" x="1042" y="359" as="geometry" />
+        </mxCell>
+        <UserObject label="Request calendar tool" mermaidId="e:Graph-&gt;Router#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Request calendar tool" id="ySirkflwYDD05Z-J9VoX-1285">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="920" y="413" />
+              </Array>
+              <mxPoint x="587" y="413" as="sourcePoint" />
+              <mxPoint x="1252" y="413" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1286" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="7" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="403" as="geometry" />
+        </mxCell>
+        <UserObject label="Validate permissions" mermaidId="e:Router-&gt;Auth#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Validate permissions" id="ySirkflwYDD05Z-J9VoX-1287">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1267">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1352" y="457" />
+              </Array>
+              <mxPoint x="1252" y="457" as="sourcePoint" />
+              <mxPoint x="1452" y="457" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1288" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="8" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="447" as="geometry" />
+        </mxCell>
+        <UserObject label="Approved" mermaidId="e:Auth-&gt;Router#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Approved" id="ySirkflwYDD05Z-J9VoX-1289">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1267" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1352" y="501" />
+              </Array>
+              <mxPoint x="1452" y="501" as="sourcePoint" />
+              <mxPoint x="1252" y="501" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1290" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="9" vertex="1">
+          <mxGeometry height="20" width="20" x="1442" y="491" as="geometry" />
+        </mxCell>
+        <UserObject label="Check availability" mermaidId="e:Router-&gt;Calendar#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Check availability" id="ySirkflwYDD05Z-J9VoX-1291">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1268">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1452" y="545" />
+              </Array>
+              <mxPoint x="1252" y="545" as="sourcePoint" />
+              <mxPoint x="1652" y="545" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1292" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="10" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="535" as="geometry" />
+        </mxCell>
+        <UserObject label="Available slots" mermaidId="e:Calendar-&gt;Router#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Available slots" id="ySirkflwYDD05Z-J9VoX-1293">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1268" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1452" y="589" />
+              </Array>
+              <mxPoint x="1652" y="589" as="sourcePoint" />
+              <mxPoint x="1252" y="589" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1294" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="11" vertex="1">
+          <mxGeometry height="20" width="20" x="1642" y="579" as="geometry" />
+        </mxCell>
+        <UserObject label="Available appointments" mermaidId="e:Router-&gt;Graph#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Available appointments" id="ySirkflwYDD05Z-J9VoX-1295">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="920" y="633" />
+              </Array>
+              <mxPoint x="1252" y="633" as="sourcePoint" />
+              <mxPoint x="587" y="633" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1296" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="12" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="623" as="geometry" />
+        </mxCell>
+        <UserObject label="Ask customer to select slot" mermaidId="e:Graph-&gt;Agent#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Ask customer to select slot" id="ySirkflwYDD05Z-J9VoX-1297">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1262">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="465" y="677" />
+              </Array>
+              <mxPoint x="587" y="677" as="sourcePoint" />
+              <mxPoint x="343" y="677" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1298" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="13" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="667" as="geometry" />
+        </mxCell>
+        <UserObject label="Present available times" mermaidId="e:Agent-&gt;Customer#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Present available times" id="ySirkflwYDD05Z-J9VoX-1299">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1262" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1261">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="229" y="721" />
+              </Array>
+              <mxPoint x="343" y="721" as="sourcePoint" />
+              <mxPoint x="115" y="721" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1300" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="14" vertex="1">
+          <mxGeometry height="20" width="20" x="333" y="711" as="geometry" />
+        </mxCell>
+        <UserObject label="Select appointment time" mermaidId="e:Customer-&gt;Agent#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Select appointment time" id="ySirkflwYDD05Z-J9VoX-1301">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1261" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1262">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="229" y="765" />
+              </Array>
+              <mxPoint x="115" y="765" as="sourcePoint" />
+              <mxPoint x="343" y="765" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1302" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="15" vertex="1">
+          <mxGeometry height="20" width="20" x="105" y="755" as="geometry" />
+        </mxCell>
+        <UserObject label="Confirm booking request" mermaidId="e:Agent-&gt;Graph#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Confirm booking request" id="ySirkflwYDD05Z-J9VoX-1303">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1262" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="465" y="809" />
+              </Array>
+              <mxPoint x="343" y="809" as="sourcePoint" />
+              <mxPoint x="587" y="809" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1304" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="16" vertex="1">
+          <mxGeometry height="20" width="20" x="333" y="799" as="geometry" />
+        </mxCell>
+        <UserObject label="Create appointment" mermaidId="e:Graph-&gt;Router#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Create appointment" id="ySirkflwYDD05Z-J9VoX-1305">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="920" y="853" />
+              </Array>
+              <mxPoint x="587" y="853" as="sourcePoint" />
+              <mxPoint x="1252" y="853" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1306" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="17" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="843" as="geometry" />
+        </mxCell>
+        <UserObject label="Create calendar event" mermaidId="e:Router-&gt;Calendar#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Create calendar event" id="ySirkflwYDD05Z-J9VoX-1307">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1268">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1452" y="897" />
+              </Array>
+              <mxPoint x="1252" y="897" as="sourcePoint" />
+              <mxPoint x="1652" y="897" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1308" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="18" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="887" as="geometry" />
+        </mxCell>
+        <UserObject label="Booking confirmation" mermaidId="e:Calendar-&gt;Router#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Booking confirmation" id="ySirkflwYDD05Z-J9VoX-1309">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1268" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1452" y="941" />
+              </Array>
+              <mxPoint x="1652" y="941" as="sourcePoint" />
+              <mxPoint x="1252" y="941" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1310" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="19" vertex="1">
+          <mxGeometry height="20" width="20" x="1642" y="931" as="geometry" />
+        </mxCell>
+        <UserObject label="Update customer record" mermaidId="e:Router-&gt;CRM#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Update customer record" id="ySirkflwYDD05Z-J9VoX-1311">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1269">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1552" y="985" />
+              </Array>
+              <mxPoint x="1252" y="985" as="sourcePoint" />
+              <mxPoint x="1852" y="985" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1312" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="20" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="975" as="geometry" />
+        </mxCell>
+        <UserObject label="CRM updated" mermaidId="e:CRM-&gt;Router#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="CRM updated" id="ySirkflwYDD05Z-J9VoX-1313">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1269" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1266">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1552" y="1029" />
+              </Array>
+              <mxPoint x="1852" y="1029" as="sourcePoint" />
+              <mxPoint x="1252" y="1029" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1314" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="21" vertex="1">
+          <mxGeometry height="20" width="20" x="1842" y="1019" as="geometry" />
+        </mxCell>
+        <UserObject label="Publish AppointmentCreated" mermaidId="e:Router-&gt;Events#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Publish AppointmentCreated" id="ySirkflwYDD05Z-J9VoX-1315">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1271">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1752" y="1073" />
+              </Array>
+              <mxPoint x="1252" y="1073" as="sourcePoint" />
+              <mxPoint x="2252" y="1073" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1316" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="22" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="1063" as="geometry" />
+        </mxCell>
+        <UserObject label="Booking completed" mermaidId="e:Router-&gt;Graph#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Booking completed" id="ySirkflwYDD05Z-J9VoX-1317">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1266" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1263">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="920" y="1117" />
+              </Array>
+              <mxPoint x="1252" y="1117" as="sourcePoint" />
+              <mxPoint x="587" y="1117" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1318" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="23" vertex="1">
+          <mxGeometry height="20" width="20" x="1242" y="1107" as="geometry" />
+        </mxCell>
+        <UserObject label="Store appointment context" mermaidId="e:Graph-&gt;Memory#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Store appointment context" id="ySirkflwYDD05Z-J9VoX-1319">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1264">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="720" y="1161" />
+              </Array>
+              <mxPoint x="587" y="1161" as="sourcePoint" />
+              <mxPoint x="852" y="1161" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1320" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="24" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="1151" as="geometry" />
+        </mxCell>
+        <UserObject label="Send confirmation" mermaidId="e:Graph-&gt;Notify#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Send confirmation" id="ySirkflwYDD05Z-J9VoX-1321">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1270">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1320" y="1205" />
+              </Array>
+              <mxPoint x="587" y="1205" as="sourcePoint" />
+              <mxPoint x="2052" y="1205" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1322" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="25" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="1195" as="geometry" />
+        </mxCell>
+        <UserObject label="SMS / Email confirmation" mermaidId="e:Notify-&gt;Customer#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="SMS / Email confirmation" id="ySirkflwYDD05Z-J9VoX-1323">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1270" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1261">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="1084" y="1249" />
+              </Array>
+              <mxPoint x="2052" y="1249" as="sourcePoint" />
+              <mxPoint x="115" y="1249" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1324" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="26" vertex="1">
+          <mxGeometry height="20" width="20" x="2042" y="1239" as="geometry" />
+        </mxCell>
+        <UserObject label="Record usage" mermaidId="e:Events-&gt;Billing#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Record usage" id="ySirkflwYDD05Z-J9VoX-1325">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1271" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1272">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="2352" y="1293" />
+              </Array>
+              <mxPoint x="2252" y="1293" as="sourcePoint" />
+              <mxPoint x="2452" y="1293" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1326" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="27" vertex="1">
+          <mxGeometry height="20" width="20" x="2242" y="1283" as="geometry" />
+        </mxCell>
+        <UserObject label="Generate final response" mermaidId="e:Graph-&gt;Agent#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Generate final response" id="ySirkflwYDD05Z-J9VoX-1327">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1263" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1262">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="465" y="1337" />
+              </Array>
+              <mxPoint x="587" y="1337" as="sourcePoint" />
+              <mxPoint x="343" y="1337" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1328" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="28" vertex="1">
+          <mxGeometry height="20" width="20" x="577" y="1327" as="geometry" />
+        </mxCell>
+        <UserObject label="Appointment confirmed" mermaidId="e:Agent-&gt;Customer#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Appointment confirmed" id="ySirkflwYDD05Z-J9VoX-1329">
+          <mxCell edge="1" parent="ySirkflwYDD05Z-J9VoX-1260" source="ySirkflwYDD05Z-J9VoX-1262" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="ySirkflwYDD05Z-J9VoX-1261">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="229" y="1381" />
+              </Array>
+              <mxPoint x="343" y="1381" as="sourcePoint" />
+              <mxPoint x="115" y="1381" as="targetPoint" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <mxCell id="ySirkflwYDD05Z-J9VoX-1330" parent="ySirkflwYDD05Z-J9VoX-1260" style="ellipse;aspect=fixed;fillColor=light-dark(#333333,#cccccc);align=center;verticalAlign=middle;fontColor=light-dark(#FFFFFF,#333333);fontSize=12;" value="29" vertex="1">
+          <mxGeometry height="20" width="20" x="333" y="1371" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

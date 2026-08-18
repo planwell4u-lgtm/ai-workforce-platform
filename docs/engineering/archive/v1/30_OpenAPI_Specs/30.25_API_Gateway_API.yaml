@@ -1,0 +1,629 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: API Gateway API
+
+  description: >
+    API gateway management layer for routing,
+    authentication enforcement, rate limiting,
+    policies and service discovery.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Routes
+
+  - name: Rate Limits
+
+  - name: Services
+
+  - name: Policies
+
+  - name: Monitoring
+
+
+
+
+
+paths:
+
+
+
+  /gateway/routes:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Routes
+
+
+
+      summary: List API routes
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Route list
+
+
+
+
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Routes
+
+
+
+      summary: Register service route
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateRouteRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Route created
+
+
+
+
+
+
+
+  /gateway/routes/{routeId}:
+
+
+
+    delete:
+
+
+
+      tags:
+
+
+
+        - Routes
+
+
+
+      summary: Remove route
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/RouteId'
+
+
+
+      responses:
+
+
+
+        "204":
+
+
+
+          description: Route removed
+
+
+
+
+
+
+
+  /gateway/rate-limits:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Rate Limits
+
+
+
+      summary: Configure rate limits
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/RateLimitRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Rate limit updated
+
+
+
+
+
+
+
+  /gateway/services:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Services
+
+
+
+      summary: Service discovery list
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Registered services
+
+
+
+
+
+
+
+  /gateway/policies:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Policies
+
+
+
+      summary: Update gateway policies
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/GatewayPolicyRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Policy updated
+
+
+
+
+
+
+
+  /gateway/metrics:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Monitoring
+
+
+
+      summary: Gateway metrics
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Gateway statistics
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    RouteId:
+
+
+
+      name: routeId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateRouteRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - path
+
+        - service
+
+
+
+      properties:
+
+
+
+        path:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            /agents
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            agent-service
+
+
+
+        methods:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+        authenticationRequired:
+
+
+
+          type: boolean
+
+
+
+          default: true
+
+
+
+
+
+
+    RateLimitRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+        requestsPerMinute:
+
+
+
+          type: integer
+
+
+
+        burstLimit:
+
+
+
+          type: integer
+
+
+
+        tenantBased:
+
+
+
+          type: boolean
+
+
+
+
+
+
+    GatewayPolicyRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        cors:
+
+
+
+          type: object
+
+
+
+        timeoutSeconds:
+
+
+
+          type: integer
+
+
+
+        maxPayloadSizeMb:
+
+
+
+          type: integer
+
+
+
+        tracingEnabled:
+
+
+
+          type: boolean
+
+
+
+        loggingEnabled:
+
+
+
+          type: boolean
+
+
+
+
+
+
+    Service:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        endpoint:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - healthy
+
+            - degraded
+
+            - offline

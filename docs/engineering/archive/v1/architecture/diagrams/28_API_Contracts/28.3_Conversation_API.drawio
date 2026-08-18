@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1471" dy="753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n    actor Cust as Customer\n    participant Tel as Telephony Gateway (Twilio/LiveKit)\n    participant Conv as Conversation Service\n    participant Agent as Voice Agent Runtime\n    participant DB as PostgreSQL\n\n    Cust-&gt;&gt;Tel: Inbound call to active number\n    Tel-&gt;&gt;Conv: HTTP webhook (Incoming Call)\n    Conv-&gt;&gt;DB: Match number to active Agent configuration\n    DB--&gt;&gt;Conv: Agent configuration &amp; tenant info\n    Conv-&gt;&gt;Agent: Trigger Voice Agent Runtime session\n    Agent-&gt;&gt;Tel: Accept call &amp; establish audio stream\n    Note over Tel,Agent: Real-time Audio Stream Session Active\n    Cust-&gt;&gt;Tel: \&quot;Hello, I want to book...\&quot;\n    Tel-&gt;&gt;Agent: Audio packets (WebRTC/SIP)\n    Agent--&gt;&gt;Tel: TTS synthesized audio response\n    Cust-&gt;&gt;Tel: Hangs up call\n    Tel-&gt;&gt;Conv: Call disconnected event\n    Conv-&gt;&gt;Agent: Teardown session\n    Agent-&gt;&gt;DB: Persist complete call transcript &amp; metrics&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-898">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

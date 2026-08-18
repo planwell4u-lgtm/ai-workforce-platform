@@ -1,0 +1,516 @@
+Call:
+
+  type: object
+
+  required:
+
+    - id
+    - tenant_id
+    - direction
+    - status
+
+
+  properties:
+
+
+    id:
+
+      type: string
+
+      format: uuid
+
+      description: Unique call identifier
+
+
+
+    tenant_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    agent_id:
+
+      type: string
+
+      format: uuid
+
+      description: AI agent handling the call
+
+
+
+    conversation_id:
+
+      type: string
+
+      format: uuid
+
+      description: Linked conversation session
+
+
+
+    phone_number_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    direction:
+
+      type: string
+
+      enum:
+
+        - inbound
+        - outbound
+
+
+
+    status:
+
+      type: string
+
+      enum:
+
+        - initiated
+        - queued
+        - ringing
+        - answered
+        - connected
+        - on_hold
+        - transferring
+        - completed
+        - failed
+        - busy
+        - no_answer
+        - cancelled
+
+
+
+    provider:
+
+      type: string
+
+      example: twilio
+
+
+
+    provider_call_id:
+
+      type: string
+
+      description: External provider call identifier
+
+
+
+    sip_call_id:
+
+      type: string
+
+
+
+    from_number:
+
+      type: string
+
+      example: "+15551234567"
+
+
+
+    to_number:
+
+      type: string
+
+      example: "+15559876543"
+
+
+
+    livekit_room_name:
+
+      type: string
+
+
+
+    recording_enabled:
+
+      type: boolean
+
+      default: false
+
+
+
+    started_at:
+
+      type: string
+
+      format: date-time
+
+
+
+    answered_at:
+
+      type: string
+
+      format: date-time
+
+
+
+    ended_at:
+
+      type: string
+
+      format: date-time
+
+
+
+    duration_seconds:
+
+      type: integer
+
+
+
+    disconnect_reason:
+
+      type: string
+
+
+
+    created_at:
+
+      type: string
+
+      format: date-time
+
+
+
+    updated_at:
+
+      type: string
+
+      format: date-time
+
+
+
+##################################################
+# CALL PARTICIPANT
+##################################################
+
+
+CallParticipant:
+
+  type: object
+
+
+  properties:
+
+
+    id:
+
+      type: string
+
+      format: uuid
+
+
+
+    call_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    participant_type:
+
+      type: string
+
+      enum:
+
+        - caller
+        - ai_agent
+        - human_agent
+        - supervisor
+
+
+
+    participant_id:
+
+      type: string
+
+
+
+    joined_at:
+
+      type: string
+
+      format: date-time
+
+
+
+    left_at:
+
+      type: string
+
+      format: date-time
+
+
+
+##################################################
+# CALL EVENT
+##################################################
+
+
+CallEvent:
+
+  type: object
+
+
+  properties:
+
+
+    id:
+
+      type: string
+
+      format: uuid
+
+
+
+    call_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    event_type:
+
+      type: string
+
+      example: call.connected
+
+
+
+    payload:
+
+      type: object
+
+
+
+    created_at:
+
+      type: string
+
+      format: date-time
+
+
+
+##################################################
+# RECORDING
+##################################################
+
+
+CallRecording:
+
+  type: object
+
+
+  properties:
+
+
+    id:
+
+      type: string
+
+      format: uuid
+
+
+
+    call_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    provider:
+
+      type: string
+
+      example: twilio
+
+
+
+    recording_sid:
+
+      type: string
+
+
+
+    recording_url:
+
+      type: string
+
+
+
+    duration_seconds:
+
+      type: integer
+
+
+
+    status:
+
+      type: string
+
+      enum:
+
+        - processing
+        - completed
+        - failed
+
+
+
+    created_at:
+
+      type: string
+
+      format: date-time
+
+
+
+##################################################
+# TRANSFER
+##################################################
+
+
+CallTransfer:
+
+  type: object
+
+
+  properties:
+
+
+    id:
+
+      type: string
+
+      format: uuid
+
+
+
+    call_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    transfer_type:
+
+      type: string
+
+      enum:
+
+        - ai_agent
+        - human_agent
+        - external_number
+
+
+
+    target_agent_id:
+
+      type: string
+
+      format: uuid
+
+
+
+    target_phone_number:
+
+      type: string
+
+
+
+    warm_transfer:
+
+      type: boolean
+
+
+
+    status:
+
+      type: string
+
+      enum:
+
+        - initiated
+        - completed
+        - failed
+
+
+
+    created_at:
+
+      type: string
+
+      format: date-time
+
+
+
+##################################################
+# LIVEKIT ROOM
+##################################################
+
+
+LiveKitRoom:
+
+  type: object
+
+
+  properties:
+
+
+    room_name:
+
+      type: string
+
+
+
+    room_sid:
+
+      type: string
+
+
+
+    status:
+
+      type: string
+
+      enum:
+
+        - creating
+        - active
+        - closed
+
+
+
+    participant_count:
+
+      type: integer
+
+
+
+    created_at:
+
+      type: string
+
+      format: date-time

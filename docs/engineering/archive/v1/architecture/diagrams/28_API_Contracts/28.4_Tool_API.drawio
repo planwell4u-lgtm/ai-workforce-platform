@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1471" dy="753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n    participant Agent as Voice Agent Runtime\n    participant Router as Tool Router\n    participant Tool as Tool Service\n    participant Ext as External CRM/Calendar API\n    participant DB as PostgreSQL\n\n    Agent-&gt;&gt;Router: Intent detected: Execute &apos;book_appointment&apos;\n    Router-&gt;&gt;Tool: GET /api/v1/tools/book_appointment\n    Tool--&gt;&gt;Router: Tool details &amp; API parameters\n    Router-&gt;&gt;Router: Check execution authorization\n    Router-&gt;&gt;Ext: POST /api/v1/appointments (External API Call)\n    Ext--&gt;&gt;Router: API response (Appointment confirmed)\n    Router-&gt;&gt;DB: Log tool execution history &amp; status\n    Router--&gt;&gt;Agent: Structured JSON tool response\n    Agent-&gt;&gt;Agent: Feed result back to LLM context&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-898">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,760 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Audit Log API
+
+  description: >
+    API for tracking user activities,
+    system events, AI agent actions,
+    security events and compliance records.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Audit Events
+
+  - name: Security Events
+
+  - name: Reports
+
+
+
+
+
+paths:
+
+
+
+  /audit/events:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Audit Events
+
+
+
+      summary: Create audit event
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateAuditEventRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Audit event stored
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Audit Events
+
+
+
+      summary: Search audit events
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+        - name: actorId
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+        - name: action
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+        - name: from
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+            format: date-time
+
+
+
+        - name: to
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+            format: date-time
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Audit event list
+
+
+
+
+
+
+
+  /audit/events/{eventId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Audit Events
+
+
+
+      summary: Get audit event details
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/EventId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Audit event details
+
+
+
+
+
+
+
+  /audit/security-events:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Security Events
+
+
+
+      summary: Record security event
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SecurityEventRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Security event stored
+
+
+
+
+
+
+
+  /audit/reports:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Reports
+
+
+
+      summary: Generate audit report
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/AuditReportRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Report generation started
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    EventId:
+
+
+
+      name: eventId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateAuditEventRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - action
+
+        - resourceType
+
+
+
+      properties:
+
+
+
+        actorType:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - user
+
+            - admin
+
+            - agent
+
+            - system
+
+
+
+        actorId:
+
+
+
+          type: string
+
+
+
+        action:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            agent.configuration.updated
+
+
+
+        resourceType:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            AI_Agent
+
+
+
+        resourceId:
+
+
+
+          type: string
+
+
+
+        ipAddress:
+
+
+
+          type: string
+
+
+
+        metadata:
+
+
+
+          type: object
+
+
+
+        timestamp:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+
+    AuditEvent:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        actorId:
+
+
+
+          type: string
+
+
+
+        action:
+
+
+
+          type: string
+
+
+
+        resourceType:
+
+
+
+          type: string
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+
+    SecurityEventRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        eventType:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - login_failed
+
+            - suspicious_activity
+
+            - permission_denied
+
+            - token_revoked
+
+
+
+        severity:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - low
+
+            - medium
+
+            - high
+
+            - critical
+
+
+
+        details:
+
+
+
+          type: object
+
+
+
+
+
+
+    AuditReportRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        startDate:
+
+
+
+          type: string
+
+
+
+          format: date
+
+
+
+        endDate:
+
+
+
+          type: string
+
+
+
+          format: date
+
+
+
+        format:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - json
+
+            - csv
+
+            - pdf

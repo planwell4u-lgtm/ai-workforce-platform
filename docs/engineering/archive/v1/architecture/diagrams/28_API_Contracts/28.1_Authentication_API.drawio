@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1471" dy="753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n    actor User as Tenant Admin / User\n    participant FE as Next.js Dashboard\n    participant GW as API Gateway\n    participant Auth as Auth Service\n    participant DB as PostgreSQL\n    participant Cache as Redis\n\n    User-&gt;&gt;FE: Enter login credentials\n    FE-&gt;&gt;GW: POST /api/v1/auth/login\n    GW-&gt;&gt;Auth: Forward Authentication Request\n    Auth-&gt;&gt;DB: Query user by email\n    DB--&gt;&gt;Auth: User record &amp; password hash\n    Auth-&gt;&gt;Auth: Verify password argon2 hash\n    alt Credentials Valid\n        Auth-&gt;&gt;Cache: Store session token / refresh token (TTL)\n        Auth--&gt;&gt;GW: JWT Access Token &amp; Refresh Token\n        GW--&gt;&gt;FE: HTTP 200 OK (Tokens payload)\n        FE--&gt;&gt;User: Redirect to Dashboard\n    else Invalid Credentials\n        Auth--&gt;&gt;GW: HTTP 401 Unauthorized\n        GW--&gt;&gt;FE: Forward error\n        FE--&gt;&gt;User: Show login error message\n    end&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-898">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

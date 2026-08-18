@@ -1,0 +1,1043 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: RAG Knowledge API
+
+  description: >
+    API for tenant knowledge management,
+    document ingestion, embeddings,
+    vector search and AI agent retrieval.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Knowledge Base
+
+  - name: Documents
+
+  - name: Search
+
+  - name: Processing
+
+
+
+
+
+paths:
+
+
+
+  /knowledge-bases:
+
+
+
+    post:
+
+
+      tags:
+
+
+        - Knowledge Base
+
+
+
+      summary: Create knowledge base
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateKnowledgeBaseRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Knowledge base created
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/KnowledgeBase'
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Knowledge Base
+
+
+
+      summary: List tenant knowledge bases
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Knowledge bases
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                type: array
+
+
+
+                items:
+
+
+
+                  $ref: '#/components/schemas/KnowledgeBase'
+
+
+
+
+
+
+
+  /knowledge-bases/{knowledgeBaseId}/documents:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Documents
+
+
+
+      summary: Upload document
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/KnowledgeBaseId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          multipart/form-data:
+
+
+
+            schema:
+
+
+
+              type: object
+
+
+
+              properties:
+
+
+
+                file:
+
+
+
+                  type: string
+
+
+
+                  format: binary
+
+
+
+                metadata:
+
+
+
+                  type: object
+
+
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Document uploaded
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Document'
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Documents
+
+
+
+      summary: List documents
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/KnowledgeBaseId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Documents list
+
+
+
+
+
+
+
+  /documents/{documentId}/process:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Processing
+
+
+
+      summary: Start document processing
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/DocumentId'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Processing started
+
+
+
+
+
+
+
+  /knowledge/search:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Search
+
+
+
+      summary: Semantic knowledge search
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SearchRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Search results
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                type: array
+
+
+
+                items:
+
+
+
+                  $ref: '#/components/schemas/SearchResult'
+
+
+
+
+
+
+
+  /knowledge/query:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Search
+
+
+
+      summary: Agent knowledge retrieval
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/KnowledgeQueryRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Retrieved context
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/RetrievalResponse'
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+    KnowledgeBaseId:
+
+
+
+      name: knowledgeBaseId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    DocumentId:
+
+
+
+      name: documentId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateKnowledgeBaseRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            Product Documentation
+
+
+
+        description:
+
+
+
+          type: string
+
+
+
+        embeddingModel:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            text-embedding-3-small
+
+
+
+
+
+    KnowledgeBase:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        documentCount:
+
+
+
+          type: integer
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+    Document:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        knowledgeBaseId:
+
+
+
+          type: string
+
+
+
+        filename:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - uploaded
+
+            - processing
+
+            - completed
+
+            - failed
+
+
+
+        chunkCount:
+
+
+
+          type: integer
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    SearchRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - query
+
+
+
+      properties:
+
+
+
+        knowledgeBaseId:
+
+
+
+          type: string
+
+
+
+        query:
+
+
+
+          type: string
+
+
+
+        limit:
+
+
+
+          type: integer
+
+
+
+          default: 5
+
+
+
+        scoreThreshold:
+
+
+
+          type: number
+
+
+
+          default: 0.75
+
+
+
+
+
+
+    KnowledgeQueryRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        agentSessionId:
+
+
+
+          type: string
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        query:
+
+
+
+          type: string
+
+
+
+        topK:
+
+
+
+          type: integer
+
+
+
+          default: 5
+
+
+
+
+
+
+    SearchResult:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        chunkId:
+
+
+
+          type: string
+
+
+
+        content:
+
+
+
+          type: string
+
+
+
+        score:
+
+
+
+          type: number
+
+
+
+        source:
+
+
+
+          type: string
+
+
+
+        metadata:
+
+
+
+          type: object
+
+
+
+
+
+
+    RetrievalResponse:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        context:
+
+
+
+          type: string
+
+
+
+        sources:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            $ref: '#/components/schemas/SearchResult'

@@ -1,0 +1,922 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Workflow Engine API
+
+  description: >
+    API for managing AI agent workflows,
+    LangGraph execution graphs, nodes,
+    states and business process automation.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Workflows
+
+  - name: Nodes
+
+  - name: Execution
+
+  - name: Versions
+
+
+
+
+paths:
+
+
+
+  /workflows:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Workflows
+
+
+
+      summary: Create workflow
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateWorkflowRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Workflow created
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Workflow'
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Workflows
+
+
+
+      summary: List workflows
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Workflow list
+
+
+
+
+
+
+
+  /workflows/{workflowId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Workflows
+
+
+
+      summary: Get workflow definition
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/WorkflowId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Workflow details
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Workflows
+
+
+
+      summary: Update workflow
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/WorkflowId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/UpdateWorkflowRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Workflow updated
+
+
+
+
+
+
+
+  /workflows/{workflowId}/nodes:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Nodes
+
+
+
+      summary: Add workflow node
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/WorkflowId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateNodeRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Node created
+
+
+
+
+
+
+
+  /workflows/{workflowId}/execute:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Execution
+
+
+
+      summary: Execute workflow
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/WorkflowId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ExecutionRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Workflow execution result
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/ExecutionResponse'
+
+
+
+
+
+
+
+  /workflow-runs/{runId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Execution
+
+
+
+      summary: Get workflow execution status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/RunId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Workflow run status
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    WorkflowId:
+
+
+
+      name: workflowId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    RunId:
+
+
+
+      name: runId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateWorkflowRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            Appointment Booking Flow
+
+
+
+        description:
+
+
+
+          type: string
+
+
+
+        trigger:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - voice_call_started
+
+            - customer_message
+
+            - scheduled_event
+
+
+
+        initialNode:
+
+
+
+          type: string
+
+
+
+
+
+    Workflow:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - draft
+
+            - active
+
+            - archived
+
+
+
+        version:
+
+
+
+          type: integer
+
+
+
+        nodes:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            $ref: '#/components/schemas/WorkflowNode'
+
+
+
+
+
+
+    CreateNodeRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+        - type
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - llm
+
+            - tool
+
+            - condition
+
+            - human_transfer
+
+            - memory
+
+            - end
+
+
+
+        configuration:
+
+
+
+          type: object
+
+
+
+        nextNodes:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    WorkflowNode:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+        configuration:
+
+
+
+          type: object
+
+
+
+
+
+
+    ExecutionRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        agentSessionId:
+
+
+
+          type: string
+
+
+
+        input:
+
+
+
+          type: string
+
+
+
+        state:
+
+
+
+          type: object
+
+
+
+
+
+
+    ExecutionResponse:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        runId:
+
+
+
+          type: string
+
+
+
+        nextNode:
+
+
+
+          type: string
+
+
+
+        output:
+
+
+
+          type: string
+
+
+
+        state:
+
+
+
+          type: object

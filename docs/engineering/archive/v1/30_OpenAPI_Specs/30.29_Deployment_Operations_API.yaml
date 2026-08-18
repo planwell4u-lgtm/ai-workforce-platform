@@ -1,0 +1,648 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Deployment Operations API
+
+  description: >
+    API for managing deployments,
+    environments, releases, health checks
+    and operational workflows.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Deployments
+
+  - name: Environments
+
+  - name: Releases
+
+  - name: Monitoring
+
+  - name: Rollbacks
+
+
+
+
+
+paths:
+
+
+
+  /deployments:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Deployments
+
+
+
+      summary: Create deployment
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/DeploymentRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Deployment started
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Deployments
+
+
+
+      summary: List deployments
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Deployment history
+
+
+
+
+
+
+
+  /deployments/{deploymentId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Deployments
+
+
+
+      summary: Get deployment status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/DeploymentId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Deployment details
+
+
+
+
+
+
+
+  /deployments/{deploymentId}/rollback:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Rollbacks
+
+
+
+      summary: Rollback deployment
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/DeploymentId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/RollbackRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Rollback initiated
+
+
+
+
+
+
+
+  /environments:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Environments
+
+
+
+      summary: List environments
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Environment list
+
+
+
+
+
+
+
+  /releases:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Releases
+
+
+
+      summary: List releases
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Release history
+
+
+
+
+
+
+
+  /operations/health:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Monitoring
+
+
+
+      summary: Platform operational health
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Health status
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    DeploymentId:
+
+
+
+      name: deploymentId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    DeploymentRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - service
+
+        - version
+
+        - environment
+
+
+
+      properties:
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            agent-runtime
+
+
+
+        version:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            v1.4.2
+
+
+
+        environment:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - development
+
+            - staging
+
+            - production
+
+
+
+        strategy:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - rolling
+
+            - blue_green
+
+            - canary
+
+
+
+
+
+
+    Deployment:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+        version:
+
+
+
+          type: string
+
+
+
+        environment:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - pending
+
+            - deploying
+
+            - running
+
+            - failed
+
+            - rolled_back
+
+
+
+        startedAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    RollbackRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        targetVersion:
+
+
+
+          type: string
+
+
+
+        reason:
+
+
+
+          type: string
+
+
+
+
+
+
+    Environment:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        region:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+        services:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string

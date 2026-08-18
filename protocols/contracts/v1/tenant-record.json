@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-workforce/contracts/v1/tenant-record",
+  "title": "Tenant-scoped opaque domain record",
+  "type": "object",
+  "required": ["record_ref", "contract_version", "payload"],
+  "properties": {
+    "record_ref": {"type": "string", "minLength": 1},
+    "contract_version": {"const": "v1"},
+    "payload": {"type": "object"}
+  },
+  "additionalProperties": false
+}

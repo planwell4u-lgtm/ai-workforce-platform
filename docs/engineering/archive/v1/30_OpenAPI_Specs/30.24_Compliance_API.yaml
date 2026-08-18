@@ -1,0 +1,730 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Compliance API
+
+  description: >
+    API for privacy controls, data governance,
+    retention policies, consent management and
+    compliance reporting.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Data Requests
+
+  - name: Retention
+
+  - name: Consent
+
+  - name: Reports
+
+  - name: Policies
+
+
+
+
+
+paths:
+
+
+
+  /compliance/data-export:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Data Requests
+
+
+
+      summary: Request customer data export
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/DataExportRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Export request created
+
+
+
+
+
+
+
+  /compliance/data-export/{requestId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Data Requests
+
+
+
+      summary: Get export status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/RequestId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Export status
+
+
+
+
+
+
+
+  /compliance/data-delete:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Data Requests
+
+
+
+      summary: Request data deletion
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/DataDeleteRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Deletion request created
+
+
+
+
+
+
+
+  /compliance/retention-policy:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Retention
+
+
+
+      summary: Get retention policy
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Retention policy
+
+
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Policies
+
+
+
+      summary: Update retention policy
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/RetentionPolicyRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Policy updated
+
+
+
+
+
+
+
+  /compliance/consent:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Consent
+
+
+
+      summary: Record consent
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ConsentRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Consent recorded
+
+
+
+
+
+
+
+  /compliance/reports:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Reports
+
+
+
+      summary: Generate compliance report
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Compliance report
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    RequestId:
+
+
+
+      name: requestId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    DataExportRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - customerId
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        format:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - json
+
+            - csv
+
+            - zip
+
+
+
+        include:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+            enum:
+
+
+
+              - conversations
+
+              - recordings
+
+              - profile
+
+              - memories
+
+              - documents
+
+
+
+
+
+
+    DataDeleteRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        reason:
+
+
+
+          type: string
+
+
+
+        confirmation:
+
+
+
+          type: boolean
+
+
+
+
+
+
+    RetentionPolicyRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        conversationRetentionDays:
+
+
+
+          type: integer
+
+
+
+          example:
+
+
+
+            365
+
+
+
+        recordingRetentionDays:
+
+
+
+          type: integer
+
+
+
+          example:
+
+
+
+            90
+
+
+
+        autoDeleteEnabled:
+
+
+
+          type: boolean
+
+
+
+
+
+
+    ConsentRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - customerId
+
+        - consentType
+
+
+
+      properties:
+
+
+
+        customerId:
+
+
+
+          type: string
+
+
+
+        consentType:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - recording
+
+            - analytics
+
+            - marketing
+
+            - data_processing
+
+
+
+        granted:
+
+
+
+          type: boolean
+
+
+
+        timestamp:
+
+
+
+          type: string
+
+
+
+          format: date-time

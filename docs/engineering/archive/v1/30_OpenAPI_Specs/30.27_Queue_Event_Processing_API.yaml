@@ -1,0 +1,576 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Queue Event Processing API
+
+  description: >
+    API for event publishing,
+    subscriptions, queues, consumers,
+    retries and message processing.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Events
+
+  - name: Queues
+
+  - name: Consumers
+
+  - name: Dead Letter
+
+
+
+
+
+paths:
+
+
+
+  /queue/events:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Events
+
+
+
+      summary: Publish event
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/EventMessage'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Event accepted
+
+
+
+
+
+
+
+  /queue/subscriptions:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Events
+
+
+
+      summary: Create event subscription
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SubscriptionRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Subscription created
+
+
+
+
+
+
+
+  /queue/status:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Queues
+
+
+
+      summary: Queue health status
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Queue metrics
+
+
+
+
+
+
+
+  /queue/consumers:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Consumers
+
+
+
+      summary: List active consumers
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Consumer list
+
+
+
+
+
+
+
+  /queue/dead-letter:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Dead Letter
+
+
+
+      summary: List failed events
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Failed events
+
+
+
+
+
+
+
+  /queue/dead-letter/{eventId}/retry:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Dead Letter
+
+
+
+      summary: Retry failed event
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/EventId'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Event retry scheduled
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    EventId:
+
+
+
+      name: eventId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    EventMessage:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - eventType
+
+
+
+        - payload
+
+
+
+      properties:
+
+
+
+        eventType:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            conversation.completed
+
+
+
+        source:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            conversation-service
+
+
+
+        payload:
+
+
+
+          type: object
+
+
+
+        priority:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - low
+
+            - normal
+
+            - high
+
+
+
+
+
+
+    SubscriptionRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        service:
+
+
+
+          type: string
+
+
+
+        events:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+        queueName:
+
+
+
+          type: string
+
+
+
+
+
+
+    QueueStatus:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        queueName:
+
+
+
+          type: string
+
+
+
+        pendingMessages:
+
+
+
+          type: integer
+
+
+
+        consumers:
+
+
+
+          type: integer
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - healthy
+
+            - degraded
+
+            - failed

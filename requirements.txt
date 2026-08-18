@@ -1,0 +1,4 @@
+# Runtime dependencies for the hosted PostgreSQL adapter.
+psycopg[binary]>=3.2,<4
+# Auth0 access-token signature validation through the tenant JWKS endpoint.
+PyJWT[crypto]>=2.10,<3

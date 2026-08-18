@@ -1,0 +1,876 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Campaign API
+
+  description: >
+    API for managing outbound AI calling campaigns,
+    contacts, scheduling, dialing and analytics.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Campaigns
+
+  - name: Contacts
+
+  - name: Dialer
+
+  - name: Analytics
+
+
+
+
+
+paths:
+
+
+
+  /campaigns:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Campaigns
+
+
+
+      summary: Create outbound campaign
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateCampaignRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Campaign created
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/Campaign'
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Campaigns
+
+
+
+      summary: List campaigns
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign list
+
+
+
+
+
+
+
+  /campaigns/{campaignId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Campaigns
+
+
+
+      summary: Get campaign details
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign details
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/contacts:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Contacts
+
+
+
+      summary: Import contacts
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          multipart/form-data:
+
+
+
+            schema:
+
+
+
+              type: object
+
+
+
+              properties:
+
+
+
+                file:
+
+
+
+                  type: string
+
+
+
+                  format: binary
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Contacts imported
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/contacts:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Contacts
+
+
+
+      summary: List campaign contacts
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Contacts list
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/start:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Dialer
+
+
+
+      summary: Start campaign dialing
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign started
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/pause:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Dialer
+
+
+
+      summary: Pause campaign
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign paused
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/stop:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Dialer
+
+
+
+      summary: Stop campaign
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign stopped
+
+
+
+
+
+
+
+  /campaigns/{campaignId}/analytics:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Analytics
+
+
+
+      summary: Campaign performance metrics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign analytics
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/CampaignAnalytics'
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    CampaignId:
+
+
+
+      name: campaignId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateCampaignRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+        - agentId
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            Customer Follow Up Campaign
+
+
+
+        agentId:
+
+
+
+          type: string
+
+
+
+        schedule:
+
+
+
+          type: object
+
+
+
+        retryPolicy:
+
+
+
+          $ref: '#/components/schemas/RetryPolicy'
+
+
+
+        dialingStrategy:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - sequential
+
+            - parallel
+
+            - predictive
+
+
+
+
+
+    Campaign:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - draft
+
+            - scheduled
+
+            - running
+
+            - paused
+
+            - completed
+
+
+
+        totalContacts:
+
+
+
+          type: integer
+
+
+
+        completedCalls:
+
+
+
+          type: integer
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    RetryPolicy:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        maxAttempts:
+
+
+
+          type: integer
+
+
+
+          default: 3
+
+
+
+        delayMinutes:
+
+
+
+          type: integer
+
+
+
+          default: 30
+
+
+
+        retryOn:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    CampaignAnalytics:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        totalCalls:
+
+
+
+          type: integer
+
+
+
+        answered:
+
+
+
+          type: integer
+
+
+
+        missed:
+
+
+
+          type: integer
+
+
+
+        transferred:
+
+
+
+          type: integer
+
+
+
+        successfulConversions:
+
+
+
+          type: integer
+
+
+
+        averageDurationSeconds:
+
+
+
+          type: number

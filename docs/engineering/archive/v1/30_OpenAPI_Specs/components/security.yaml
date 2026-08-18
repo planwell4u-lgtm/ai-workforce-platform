@@ -1,0 +1,12 @@
+securitySchemes:
+
+  bearerAuth:
+
+    type: http
+
+    scheme: bearer
+
+    bearerFormat: JWT
+
+    description: |
+      JWT authentication token issued after successful login.

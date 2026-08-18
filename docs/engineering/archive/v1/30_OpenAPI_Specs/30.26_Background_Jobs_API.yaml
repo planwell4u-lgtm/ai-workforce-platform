@@ -1,0 +1,652 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Background Jobs API
+
+  description: >
+    API for managing asynchronous jobs,
+    workers, scheduling and task execution.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Jobs
+
+  - name: Workers
+
+  - name: Scheduling
+
+
+
+
+
+paths:
+
+
+
+  /jobs:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Jobs
+
+
+
+      summary: Create background job
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateJobRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Job queued
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Jobs
+
+
+
+      summary: List jobs
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+        - name: status
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Job list
+
+
+
+
+
+
+
+  /jobs/{jobId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Jobs
+
+
+
+      summary: Get job status
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/JobId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Job status
+
+
+
+
+
+
+
+    cancel:
+
+
+
+      post:
+
+
+
+        tags:
+
+
+
+          - Jobs
+
+
+
+        summary: Cancel running job
+
+
+
+        parameters:
+
+
+
+          - $ref: '#/components/parameters/JobId'
+
+
+
+        responses:
+
+
+
+          "200":
+
+
+
+            description: Job cancelled
+
+
+
+
+
+
+
+  /jobs/{jobId}/retry:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Jobs
+
+
+
+      summary: Retry failed job
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/JobId'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Retry queued
+
+
+
+
+
+
+
+  /workers:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Workers
+
+
+
+      summary: Worker status
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Worker information
+
+
+
+
+
+
+
+  /scheduler/jobs:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Scheduling
+
+
+
+      summary: Create scheduled job
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ScheduledJobRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Scheduled job created
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    JobId:
+
+
+
+      name: jobId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateJobRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - type
+
+
+
+      properties:
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - document_ingestion
+
+            - embedding_generation
+
+            - transcription
+
+            - report_generation
+
+            - campaign_execution
+
+            - data_cleanup
+
+
+
+        priority:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - low
+
+            - normal
+
+            - high
+
+
+
+        payload:
+
+
+
+          type: object
+
+
+
+
+
+
+    Job:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - queued
+
+            - running
+
+            - completed
+
+            - failed
+
+            - cancelled
+
+
+
+        progress:
+
+
+
+          type: number
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    ScheduledJobRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        jobType:
+
+
+
+          type: string
+
+
+
+        cronExpression:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            "0 2 * * *"
+
+
+
+        payload:
+
+
+
+          type: object

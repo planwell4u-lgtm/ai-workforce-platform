@@ -1,0 +1,922 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Agent Configuration API
+
+  description: >
+    API for creating and managing AI agent
+    configurations, prompts, voices, tools,
+    workflows and runtime settings.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Agents
+
+  - name: Configuration
+
+  - name: Versions
+
+  - name: Deployment
+
+
+
+
+paths:
+
+
+
+  /agents:
+
+
+    post:
+
+
+      tags:
+
+        - Agents
+
+
+      summary: Create AI agent
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: '#/components/schemas/CreateAgentRequest'
+
+
+
+      responses:
+
+
+        "201":
+
+
+          description: Agent created
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: '#/components/schemas/Agent'
+
+
+
+
+
+    get:
+
+
+      tags:
+
+
+        - Agents
+
+
+      summary: List tenant agents
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent list
+
+
+
+
+
+  /agents/{agentId}:
+
+
+
+    get:
+
+
+      tags:
+
+
+        - Agents
+
+
+
+      summary: Get agent configuration
+
+
+
+      parameters:
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent details
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: '#/components/schemas/Agent'
+
+
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Update agent configuration
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/UpdateAgentRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Agent updated
+
+
+
+
+
+
+
+  /agents/{agentId}/publish:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Deployment
+
+
+
+      summary: Publish agent version
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Agent published
+
+
+
+
+
+
+
+  /agents/{agentId}/versions:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Versions
+
+
+
+      summary: List agent versions
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Versions list
+
+
+
+
+
+
+
+  /agents/{agentId}/tools:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Assign tools to agent
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ToolAssignmentRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Tools assigned
+
+
+
+
+
+
+
+  /agents/{agentId}/knowledge:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Configuration
+
+
+
+      summary: Attach knowledge bases
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/AgentId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/KnowledgeAssignmentRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Knowledge assigned
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+      in: header
+
+
+      required: true
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+
+    AgentId:
+
+
+
+      name: agentId
+
+
+      in: path
+
+
+      required: true
+
+
+      schema:
+
+
+        type: string
+
+
+
+
+
+  schemas:
+
+
+
+
+    CreateAgentRequest:
+
+
+
+      type: object
+
+
+
+      required:
+
+
+
+        - name
+
+        - type
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            Dental Receptionist
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - sales
+
+            - support
+
+            - booking
+
+            - receptionist
+
+            - custom
+
+
+
+        description:
+
+
+
+          type: string
+
+
+
+        voiceConfig:
+
+
+
+          $ref: '#/components/schemas/VoiceConfig'
+
+
+
+        modelConfig:
+
+
+
+          $ref: '#/components/schemas/ModelConfig'
+
+
+
+        promptConfig:
+
+
+
+          $ref: '#/components/schemas/PromptConfig'
+
+
+
+        workflow:
+
+
+
+          type: string
+
+
+
+
+
+
+    UpdateAgentRequest:
+
+
+
+      allOf:
+
+
+
+        - $ref: '#/components/schemas/CreateAgentRequest'
+
+
+
+
+
+    Agent:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - draft
+
+            - published
+
+            - inactive
+
+
+
+        version:
+
+
+
+          type: integer
+
+
+
+        configuration:
+
+
+
+          type: object
+
+
+
+
+
+
+    VoiceConfig:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        provider:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            elevenlabs
+
+
+
+        voiceId:
+
+
+
+          type: string
+
+
+
+        language:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            en-US
+
+
+
+
+
+
+    ModelConfig:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        provider:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            openai
+
+
+
+        model:
+
+
+
+          type: string
+
+
+
+          example:
+
+
+
+            gpt-4.1-mini
+
+
+
+        temperature:
+
+
+
+          type: number
+
+
+
+
+
+    PromptConfig:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        systemPrompt:
+
+
+
+          type: string
+
+
+
+        personality:
+
+
+
+          type: string
+
+
+
+        instructions:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    ToolAssignmentRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        toolIds:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+    KnowledgeAssignmentRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        knowledgeBaseIds:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string

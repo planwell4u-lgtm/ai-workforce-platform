@@ -1,0 +1,782 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Analytics API
+
+  description: >
+    API for conversation analytics,
+    agent performance, sentiment analysis,
+    reporting and business intelligence.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Dashboard
+
+  - name: Conversations
+
+  - name: Agents
+
+  - name: Campaigns
+
+  - name: Reports
+
+
+
+
+
+paths:
+
+
+
+  /analytics/dashboard:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Dashboard
+
+
+
+      summary: Get tenant dashboard metrics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+        - name: period
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+            example:
+
+
+
+              2026-07
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Dashboard metrics
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/DashboardMetrics'
+
+
+
+
+
+
+
+  /analytics/conversations:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Conversations
+
+
+
+      summary: Conversation analytics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Conversation statistics
+
+
+
+
+
+
+
+  /analytics/conversations/{conversationId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Conversations
+
+
+
+      summary: Detailed conversation analysis
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/ConversationId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Conversation analysis
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/ConversationAnalytics'
+
+
+
+
+
+
+
+  /analytics/agents:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Agents
+
+
+
+      summary: Agent performance metrics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Agent metrics
+
+
+
+
+
+
+
+  /analytics/campaigns/{campaignId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Campaigns
+
+
+
+      summary: Campaign analytics
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/CampaignId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Campaign report
+
+
+
+
+
+
+
+  /analytics/reports:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Reports
+
+
+
+      summary: Generate analytics report
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/ReportRequest'
+
+
+
+      responses:
+
+
+
+        "202":
+
+
+
+          description: Report generation started
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    ConversationId:
+
+
+
+      name: conversationId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    CampaignId:
+
+
+
+      name: campaignId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    DashboardMetrics:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        totalCalls:
+
+
+
+          type: integer
+
+
+
+        totalMinutes:
+
+
+
+          type: number
+
+
+
+        activeAgents:
+
+
+
+          type: integer
+
+
+
+        averageResolutionTime:
+
+
+
+          type: number
+
+
+
+        customerSatisfaction:
+
+
+
+          type: number
+
+
+
+        conversionRate:
+
+
+
+          type: number
+
+
+
+
+
+
+    ConversationAnalytics:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        durationSeconds:
+
+
+
+          type: integer
+
+
+
+        sentiment:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - positive
+
+            - neutral
+
+            - negative
+
+
+
+        intent:
+
+
+
+          type: string
+
+
+
+        resolution:
+
+
+
+          type: string
+
+
+
+        agentScore:
+
+
+
+          type: number
+
+
+
+          minimum: 0
+
+
+
+          maximum: 100
+
+
+
+        summary:
+
+
+
+          type: string
+
+
+
+        improvementSuggestions:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+
+
+
+    AgentMetrics:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        agentId:
+
+
+
+          type: string
+
+
+
+        callsHandled:
+
+
+
+          type: integer
+
+
+
+        averageScore:
+
+
+
+          type: number
+
+
+
+        successRate:
+
+
+
+          type: number
+
+
+
+        escalationRate:
+
+
+
+          type: number
+
+
+
+        averageResponseTime:
+
+
+
+          type: number
+
+
+
+
+
+
+    ReportRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - call_report
+
+            - agent_report
+
+            - campaign_report
+
+            - billing_report
+
+
+
+        startDate:
+
+
+
+          type: string
+
+
+
+          format: date
+
+
+
+        endDate:
+
+
+
+          type: string
+
+
+
+          format: date
+
+
+
+        format:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - json
+
+            - csv
+
+            - pdf

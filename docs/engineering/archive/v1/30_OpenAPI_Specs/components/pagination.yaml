@@ -1,0 +1,25 @@
+Pagination:
+
+  type: object
+
+  properties:
+
+    page:
+
+      type: integer
+
+      example: 1
+
+
+    page_size:
+
+      type: integer
+
+      example: 25
+
+
+    total:
+
+      type: integer
+
+      example: 250

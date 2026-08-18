@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-workforce-platform"
+version = "0.1.0"
+description = "Engineering foundation for the AI Workforce Platform"
+requires-python = ">=3.12"
+dependencies = [
+  "psycopg[binary]>=3.2,<4",
+  "PyJWT[crypto]>=2.10,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.13,<2",
+  "ruff>=0.8,<1",
+]
+
+[tool.setuptools.packages.find]
+where = ["apps/backend/src", "packages/agent/python/src", "packages/conversation/python/src", "packages/data/python/src", "packages/integration/python/src"]
+include = ["ai_workforce_agent*", "ai_workforce_backend*", "ai_workforce_conversation*", "ai_workforce_data*", "ai_workforce_integration*"]
+
+[tool.unittest]
+start-directory = "tests"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["docs"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["scripts", "packages/shared/python/src"]

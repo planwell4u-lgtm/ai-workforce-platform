@@ -1,0 +1,785 @@
+openapi: 3.1.0
+
+info:
+
+  title: Voice Agent SaaS Agent Configuration API
+
+  description: |
+    API for creating and managing AI voice agents.
+
+    Supports:
+    - Agent creation
+    - Agent configuration
+    - Voice settings
+    - LLM settings
+    - Prompt management
+    - Tool assignment
+    - Memory configuration
+    - RAG access configuration
+
+  version: 1.0.0
+
+
+servers:
+
+  - url: https://api.voice-agent-saas.com/v1
+
+  - url: http://localhost:8000/api/v1
+
+
+tags:
+
+  - name: Agents
+
+  - name: Agent Configuration
+
+  - name: Agent Deployment
+
+
+
+paths:
+
+
+  /agents:
+
+
+    post:
+
+
+      tags:
+
+        - Agents
+
+
+      summary: Create AI agent
+
+
+      security:
+
+        - bearerAuth: []
+
+
+      operationId: createAgent
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/CreateAgentRequest"
+
+
+
+      responses:
+
+
+        "201":
+
+          description: Agent created
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/Agent"
+
+
+
+
+
+    get:
+
+
+      tags:
+
+
+        - Agents
+
+
+
+      summary: List tenant agents
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: listAgents
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent list
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                type: array
+
+
+                items:
+
+
+                  $ref: "#/components/schemas/Agent"
+
+
+
+
+
+
+
+  /agents/{agent_id}:
+
+
+    get:
+
+
+      tags:
+
+
+        - Agents
+
+
+
+      summary: Get agent
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getAgent
+
+
+
+      parameters:
+
+
+        - name: agent_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent details
+
+
+          content:
+
+
+            application/json:
+
+
+              schema:
+
+
+                $ref: "#/components/schemas/Agent"
+
+
+
+
+
+
+    patch:
+
+
+      tags:
+
+
+        - Agents
+
+
+
+      summary: Update agent
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: updateAgent
+
+
+
+      parameters:
+
+
+        - name: agent_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+
+      requestBody:
+
+
+        required: true
+
+
+        content:
+
+
+          application/json:
+
+
+            schema:
+
+
+              $ref: "#/components/schemas/UpdateAgentRequest"
+
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent updated
+
+
+
+
+
+    delete:
+
+
+      tags:
+
+
+        - Agents
+
+
+
+      summary: Delete agent
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: deleteAgent
+
+
+
+      parameters:
+
+
+        - name: agent_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "204":
+
+
+          description: Agent deleted
+
+
+
+
+
+  /agents/{agent_id}/deploy:
+
+
+    post:
+
+
+      tags:
+
+
+        - Agent Deployment
+
+
+
+      summary: Deploy agent
+
+
+
+      description:
+
+        Activates agent in runtime environment.
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: deployAgent
+
+
+
+      parameters:
+
+
+        - name: agent_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Agent deployed
+
+
+
+
+
+  /agents/{agent_id}/configuration:
+
+
+    get:
+
+
+      tags:
+
+
+        - Agent Configuration
+
+
+
+      summary: Get full agent configuration
+
+
+
+      security:
+
+
+        - bearerAuth: []
+
+
+
+      operationId: getAgentConfiguration
+
+
+
+      parameters:
+
+
+        - name: agent_id
+
+
+          in: path
+
+
+          required: true
+
+
+          schema:
+
+
+            type: string
+
+
+            format: uuid
+
+
+
+      responses:
+
+
+        "200":
+
+
+          description: Configuration returned
+
+
+
+
+
+components:
+
+
+  securitySchemes:
+
+
+    bearerAuth:
+
+
+      type: http
+
+      scheme: bearer
+
+      bearerFormat: JWT
+
+
+
+
+  schemas:
+
+
+
+
+    Agent:
+
+
+      type: object
+
+
+      properties:
+
+
+        id:
+
+
+          type: string
+
+          format: uuid
+
+
+
+        tenant_id:
+
+
+          type: string
+
+          format: uuid
+
+
+
+        name:
+
+
+          type: string
+
+
+
+        agent_type:
+
+
+          type: string
+
+
+          enum:
+
+
+            - receptionist
+
+            - sales
+
+            - support
+
+            - booking
+
+            - medical
+
+            - custom
+
+
+
+        status:
+
+
+          type: string
+
+
+          enum:
+
+
+            - draft
+
+            - active
+
+            - paused
+
+            - archived
+
+
+
+        created_at:
+
+
+          type: string
+
+
+          format: date-time
+
+
+
+
+
+    CreateAgentRequest:
+
+
+      type: object
+
+
+      required:
+
+
+        - name
+
+        - agent_type
+
+
+
+      properties:
+
+
+        name:
+
+
+          type: string
+
+
+
+        agent_type:
+
+
+          type: string
+
+
+
+        description:
+
+
+          type: string
+
+
+
+        prompt:
+
+
+          type: string
+
+
+
+        voice:
+
+
+          $ref: "#/components/schemas/VoiceConfig"
+
+
+
+        model:
+
+
+          $ref: "#/components/schemas/ModelConfig"
+
+
+
+
+    UpdateAgentRequest:
+
+
+      type: object
+
+
+      properties:
+
+
+        name:
+
+
+          type: string
+
+
+
+        prompt:
+
+
+          type: string
+
+
+
+        status:
+
+
+          type: string
+
+
+
+
+
+    VoiceConfig:
+
+
+      type: object
+
+
+      properties:
+
+
+        provider:
+
+
+          type: string
+
+
+          example: elevenlabs
+
+
+
+        voice_id:
+
+
+          type: string
+
+
+
+        language:
+
+
+          type: string
+
+
+          example: en-US
+
+
+
+
+
+    ModelConfig:
+
+
+      type: object
+
+
+      properties:
+
+
+        provider:
+
+
+          type: string
+
+
+          example: openai
+
+
+
+        model:
+
+
+          type: string
+
+
+          example: gpt-4.1-mini
+
+
+
+        temperature:
+
+
+          type: number
+
+
+          example: 0.7

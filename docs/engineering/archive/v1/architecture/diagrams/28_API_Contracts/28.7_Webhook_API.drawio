@@ -1,0 +1,15 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="2QSEjMFQxGtTRbsTyFBp">
+    <mxGraphModel dx="1471" dy="753" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    autonumber\n    participant System as System Event Bus (Redis/Kafka)\n    participant Wh as Webhook Service\n    participant DB as PostgreSQL\n    actor Client as Customer API Server\n\n    System-&gt;&gt;Wh: Trigger event: &apos;call.completed&apos;\n    Wh-&gt;&gt;DB: Query webhooks subscriptions for event type\n    DB--&gt;&gt;Wh: Matching subscription URL &amp; signing secret\n    Wh-&gt;&gt;Wh: Sign payload with signature header (HMAC-SHA256)\n    Wh-&gt;&gt;Client: POST Webhook URL with JSON payload\n    alt Client API responds with 2xx\n        Wh-&gt;&gt;DB: Log delivery status (Success)\n    else Client API errors / times out\n        Wh-&gt;&gt;DB: Log delivery failure\n        Wh-&gt;&gt;Wh: Schedule retry with exponential backoff\n    end&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="ySirkflwYDD05Z-J9VoX-898">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=20;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

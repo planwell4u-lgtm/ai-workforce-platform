@@ -1,0 +1,852 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: Security API
+
+  description: >
+    API for security controls including
+    tokens, API keys, permissions, sessions,
+    secrets and security policies.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Tokens
+
+  - name: API Keys
+
+  - name: Sessions
+
+  - name: Permissions
+
+  - name: Secrets
+
+  - name: Policies
+
+
+
+
+
+paths:
+
+
+
+  /security/tokens/revoke:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Tokens
+
+
+
+      summary: Revoke access token
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/RevokeTokenRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Token revoked
+
+
+
+
+
+
+
+  /security/api-keys:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - API Keys
+
+
+
+      summary: Create API key
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: API key created
+
+
+
+
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - API Keys
+
+
+
+      summary: List API keys
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: API keys
+
+
+
+
+
+
+
+  /security/api-keys/{keyId}/rotate:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - API Keys
+
+
+
+      summary: Rotate API key
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/KeyId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Key rotated
+
+
+
+
+
+
+
+  /security/sessions:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Sessions
+
+
+
+      summary: List active sessions
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/UserId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Active sessions
+
+
+
+
+
+
+
+  /security/sessions/{sessionId}/terminate:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Sessions
+
+
+
+      summary: Terminate session
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/SessionId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Session terminated
+
+
+
+
+
+
+
+  /security/permissions/check:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Permissions
+
+
+
+      summary: Check user permission
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/PermissionCheckRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Permission result
+
+
+
+
+
+
+
+  /security/secrets:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Secrets
+
+
+
+      summary: Store encrypted secret
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SecretRequest'
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: Secret stored
+
+
+
+
+
+
+
+  /security/policies:
+
+
+
+    put:
+
+
+
+      tags:
+
+
+
+        - Policies
+
+
+
+      summary: Update security policy
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        content:
+
+
+
+          application/json:
+
+
+
+            schema:
+
+
+
+              $ref: '#/components/schemas/SecurityPolicyRequest'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Policy updated
+
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    KeyId:
+
+
+
+      name: keyId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    SessionId:
+
+
+
+      name: sessionId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    UserId:
+
+
+
+      name: userId
+
+
+
+      in: query
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    RevokeTokenRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        tokenId:
+
+
+
+          type: string
+
+
+
+        reason:
+
+
+
+          type: string
+
+
+
+
+
+
+    CreateApiKeyRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        permissions:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string
+
+
+
+        expiresAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    PermissionCheckRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        userId:
+
+
+
+          type: string
+
+
+
+        resource:
+
+
+
+          type: string
+
+
+
+        action:
+
+
+
+          type: string
+
+
+
+
+
+
+    SecretRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        name:
+
+
+
+          type: string
+
+
+
+        value:
+
+
+
+          type: string
+
+
+
+        type:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - api_key
+
+            - oauth_token
+
+            - credential
+
+
+
+    SecurityPolicyRequest:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        mfaRequired:
+
+
+
+          type: boolean
+
+
+
+        passwordPolicy:
+
+
+
+          type: object
+
+
+
+        sessionTimeoutMinutes:
+
+
+
+          type: integer
+
+
+
+        allowedIpRanges:
+
+
+
+          type: array
+
+
+
+          items:
+
+
+
+            type: string

@@ -1,0 +1,666 @@
+openapi: 3.0.3
+
+
+info:
+
+  title: File Storage API
+
+  description: >
+    API for managing tenant files,
+    uploads, downloads, recordings,
+    documents and generated assets.
+
+  version: 1.0.0
+
+
+
+servers:
+
+  - url: https://api.example.com/v1
+
+
+
+tags:
+
+  - name: Files
+
+  - name: Uploads
+
+  - name: Recordings
+
+  - name: Storage
+
+
+
+
+
+paths:
+
+
+
+  /files/upload:
+
+
+
+    post:
+
+
+
+      tags:
+
+
+
+        - Uploads
+
+
+
+      summary: Upload file
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      requestBody:
+
+
+
+        required: true
+
+
+
+        content:
+
+
+
+          multipart/form-data:
+
+
+
+            schema:
+
+
+
+              type: object
+
+
+
+              properties:
+
+
+
+                file:
+
+
+
+                  type: string
+
+
+
+                  format: binary
+
+
+
+                category:
+
+
+
+                  type: string
+
+
+
+                  enum:
+
+
+
+                    - knowledge
+
+                    - recording
+
+                    - report
+
+                    - attachment
+
+                    - campaign
+
+
+
+      responses:
+
+
+
+        "201":
+
+
+
+          description: File uploaded
+
+
+
+          content:
+
+
+
+            application/json:
+
+
+
+              schema:
+
+
+
+                $ref: '#/components/schemas/FileObject'
+
+
+
+
+
+
+
+  /files/{fileId}:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Files
+
+
+
+      summary: Get file metadata
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/FileId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: File metadata
+
+
+
+
+
+
+
+    delete:
+
+
+
+      tags:
+
+
+
+        - Files
+
+
+
+      summary: Delete file
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/FileId'
+
+
+
+      responses:
+
+
+
+        "204":
+
+
+
+          description: File deleted
+
+
+
+
+
+
+
+  /files/{fileId}/download:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Files
+
+
+
+      summary: Generate secure download URL
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/FileId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Download URL
+
+
+
+
+
+
+
+  /recordings:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Recordings
+
+
+
+      summary: List call recordings
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+        - name: conversationId
+
+
+
+          in: query
+
+
+
+          schema:
+
+
+
+            type: string
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Recording list
+
+
+
+
+
+
+
+  /storage/usage:
+
+
+
+    get:
+
+
+
+      tags:
+
+
+
+        - Storage
+
+
+
+      summary: Get tenant storage usage
+
+
+
+      parameters:
+
+
+
+        - $ref: '#/components/parameters/TenantId'
+
+
+
+      responses:
+
+
+
+        "200":
+
+
+
+          description: Storage metrics
+
+
+
+
+
+
+components:
+
+
+
+  parameters:
+
+
+
+    TenantId:
+
+
+
+      name: X-Tenant-ID
+
+
+
+      in: header
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+    FileId:
+
+
+
+      name: fileId
+
+
+
+      in: path
+
+
+
+      required: true
+
+
+
+      schema:
+
+
+
+        type: string
+
+
+
+
+
+
+  schemas:
+
+
+
+
+    FileObject:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        tenantId:
+
+
+
+          type: string
+
+
+
+        filename:
+
+
+
+          type: string
+
+
+
+        category:
+
+
+
+          type: string
+
+
+
+        mimeType:
+
+
+
+          type: string
+
+
+
+        sizeBytes:
+
+
+
+          type: integer
+
+
+
+        storagePath:
+
+
+
+          type: string
+
+
+
+        status:
+
+
+
+          type: string
+
+
+
+          enum:
+
+
+
+            - uploaded
+
+            - processing
+
+            - completed
+
+            - failed
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    Recording:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        id:
+
+
+
+          type: string
+
+
+
+        conversationId:
+
+
+
+          type: string
+
+
+
+        durationSeconds:
+
+
+
+          type: integer
+
+
+
+        audioFormat:
+
+
+
+          type: string
+
+
+
+        storageUrl:
+
+
+
+          type: string
+
+
+
+        createdAt:
+
+
+
+          type: string
+
+
+
+          format: date-time
+
+
+
+
+
+
+    StorageUsage:
+
+
+
+      type: object
+
+
+
+      properties:
+
+
+
+        totalBytes:
+
+
+
+          type: integer
+
+
+
+        usedBytes:
+
+
+
+          type: integer
+
+
+
+        remainingBytes:
+
+
+
+          type: integer
