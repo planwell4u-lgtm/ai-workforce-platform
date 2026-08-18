@@ -32,5 +32,10 @@ tenant and gives each token a unique temporary LiveKit participant identity.
 LiveKit recorded the listener subscription and RTP forwarding, and the owner
 confirmed audible playback.
 
+The denied-permission recovery path was also verified in the browser. When the
+site microphone permission was blocked, the application displayed the explicit
+no-sharing recovery state and returned to Start voice. Restoring permission
+allowed a fresh microphone session to connect.
+
 No participant media track, recording, LiveKit Cloud project, Twilio account,
 PSTN/SIP route, phone number, or live telephony effect is enabled.

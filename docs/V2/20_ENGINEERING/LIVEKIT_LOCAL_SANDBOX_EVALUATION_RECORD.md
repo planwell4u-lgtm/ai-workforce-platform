@@ -67,7 +67,14 @@ from displacing the host. LiveKit confirmed that the listener subscribed to the
 host audio track and started forwarding RTP. The owner confirmed audible
 playback in the listener browser.
 
+The permission-denied recovery rehearsal also passed on 2026-08-18. With
+browser-level microphone permission set to Block, the application reported
+that microphone permission was not granted and that nothing was shared; the
+voice control returned to Start. After browser permission was restored, a new
+microphone session connected successfully.
+
 ## Next Evaluation Step
 
-Exercise the permission-denied recovery path. Do not add recording, Twilio, or
-cloud resources without a separate approved decision.
+The bounded local evaluation is complete. Retain this evidence and await an
+explicit provider-selection or deployment decision. Do not add recording,
+Twilio, or cloud resources without a separate approved decision.
