@@ -30,6 +30,7 @@ export default function Home() {
   const [adminConversations, setAdminConversations] = useState<AdminConversation[] | null>(null);
   const [ticketNotice, setTicketNotice] = useState("");
   const [apiBaseUrl, setApiBaseUrl] = useState("http://localhost:8080");
+  const [escalatingConversationRef, setEscalatingConversationRef] = useState<string | null>(null);
   useEffect(() => {
     void loadRuntimeConfig().then(async (config) => {
       const client = await createAuth0Client({
@@ -113,6 +114,8 @@ export default function Home() {
       setTicketNotice(`Ticket ${conversation.ticket_ref} already created.`);
       return;
     }
+    setEscalatingConversationRef(conversation.conversation_ref);
+    setTicketNotice("Creating Jira ticket…");
     try {
       const token = await auth.getTokenSilently();
       const summary = conversation.messages.map((message) => `${message.sender}: ${message.text}`).join(" ");
@@ -130,9 +133,13 @@ export default function Home() {
         ) ?? null);
       }
       setTicketNotice(response.ok ? `Ticket created: ${result.ticket_ref ?? "submitted"}` : "Ticket could not be created.");
-    } catch { setTicketNotice("Ticket service could not be reached."); }
+    } catch { setTicketNotice("Ticket service could not be reached.");
+    } finally {
+      setEscalatingConversationRef(null);
+    }
   }
   function ticketLabel(conversation: AdminConversation) {
+    if (escalatingConversationRef === conversation.conversation_ref) return "Creating ticket…";
     return conversation.ticket_ref
       ? `Ticket ${conversation.ticket_ref} created`
       : "Escalate to ticket";
@@ -144,5 +151,5 @@ export default function Home() {
     setSequence(1);
     setMessages([{ sender: "support", text: "Hello. I can help with approved Planwell support information." }]);
   }
-  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn ? <button onClick={() => auth?.logout({ logoutParams: { returnTo: window.location.origin } })}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref)} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
+  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn ? <button onClick={() => auth?.logout({ logoutParams: { returnTo: window.location.origin } })}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
 }
