@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 2.5  
+**Version:** 2.6  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -37,6 +37,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Auth0 sign-in through the local frontend was verified after the runtime-configuration change. The protected backend restored conversation history and returned Admin history successfully (`200` responses).
 - The full local Docker user flow is verified: approved order-tracking response, Jira escalation (`CS-13`), Admin-history restoration, persisted Jira reference, and repeat-escalation suppression.
 - The Admin escalation control now gives immediate progress feedback: it shows `Creating Jira ticket…` and prevents a second click until the request completes.
+- The updated escalation feedback was visually verified in the local Docker rehearsal; a fresh conversation created Jira ticket `CS-14`, persisted the reference, and returned to the completed disabled state.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Rehearsal Gaps
@@ -46,7 +47,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 
 # Next Action
 
-Refresh the local frontend and visually verify the `Creating Jira ticket…` state during one new escalation, then publish a new signed release candidate containing the runtime-configuration and progress-feedback fixes.
+Publish a new signed release candidate containing the runtime-configuration and progress-feedback fixes, then enable local read access to its GitHub Container Registry package for exact-digest rehearsal.
 
 # Session Checkpoint
 
@@ -72,6 +73,7 @@ previous signed release candidate as containing the runtime-configuration fix.
 
 | Version | Date | Changes |
 |---|---|---|
+| 2.6 | 2026-08-18 | Visually verified the escalation feedback and completed ticket state in a fresh local Docker conversation (Jira CS-14). |
 | 2.5 | 2026-08-18 | Added visible in-progress feedback and repeat-click suppression while a Jira ticket escalation is being created. |
 | 2.4 | 2026-08-18 | Verified the complete local Docker support flow: approved answer, Jira ticket CS-13, Admin restoration, persisted ticket state, and repeat-escalation suppression. |
 | 2.3 | 2026-08-18 | Verified local container Auth0 sign-in, protected conversation restoration, and Admin history after the runtime-configuration fix. |
