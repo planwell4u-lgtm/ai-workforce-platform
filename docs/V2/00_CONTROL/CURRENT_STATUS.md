@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 1.6  
+**Version:** 1.7  
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -30,10 +30,11 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - B5 Auth0-protected web chat and tenant-scoped Admin conversation history.
 - Admin-to-Jira escalation verified; backend idempotency is active. The Admin view reloads the saved Jira reference from the tenant-scoped action record and disables repeat escalation.
 - Configured-staging chat, persistence refresh, Admin history, Jira reference restoration, and repeat-escalation suppression were verified on 2026-08-18.
+- Backend and frontend Linux container builds are validated locally and in GitHub Actions; a release-candidate workflow produces image archives, checksums, and source/workflow provenance metadata.
 
 # Next Action
 
-Record the configured-staging evidence in the engineering delivery record, then select the next controlled release-readiness gate with the accountable owners.
+Select and enable the approved signing/attestation solution for the private release repository, then run the first versioned release-candidate artifact workflow.
 
 # Delivery Guardrails
 
@@ -53,6 +54,7 @@ Record the configured-staging evidence in the engineering delivery record, then 
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.7 | 2026-08-18 | Validated backend and frontend container builds locally and in GitHub Actions; release-candidate packaging workflow added. |
 | 1.6 | 2026-08-18 | Verified the configured-staging chat, persistence, Admin, Jira-reference, and repeat-escalation flow. |
 | 1.5 | 2026-08-18 | Completed durable Admin ticket-state display and repeat-escalation suppression; staging end-to-end verification is next. |
 | 1.4 | 2026-08-18 | Recorded durable chat, Admin history/status, and Jira escalation; noted remaining ticket-state UI work. |
