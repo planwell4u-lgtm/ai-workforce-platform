@@ -1,6 +1,6 @@
 # Release Artifact and Provenance Record
 
-**Status:** Container build and release-candidate evidence workflow validated; signing remains an owner gate.  
+**Status:** Container build and release-candidate evidence workflow validated; Sigstore/Cosign signing is configured for the first candidate run.  
 **Date:** 2026-08-18
 
 ## Implemented
@@ -8,8 +8,10 @@
 - `apps/backend/Dockerfile` builds the Python API image from the repository root.
 - `apps/frontend/Dockerfile` builds and serves the Web Chat/Admin application.
 - `container-build.yml` validates both image builds on pull requests and `main`.
-- `release-candidate.yml` creates Linux/AMD64 image archives, `SHA256SUMS`, and
-  a source/workflow provenance manifest for a version tag or manual run.
+- `release-candidate.yml` publishes Linux/AMD64 backend and frontend images to
+  GitHub Container Registry, signs their immutable digests through keyless
+  Sigstore/Cosign GitHub OIDC, verifies each signature, and uploads a
+  source/workflow provenance manifest for a version tag or manual run.
 
 ## Validation
 
@@ -18,12 +20,12 @@
 - GitHub Actions Container Build run `32107804474` passed for source revision
   `1040d5a91c6d6515a245280b2b4173c15c93bb03`.
 
-## Remaining signing gate
+## Signing boundary
 
-GitHub artifact attestations require `id-token: write`, `attestations: write`,
-and a plan that supports private-repository attestations. The current private
-repository must not claim signed provenance until the accountable release owner
-selects and enables an approved signing/attestation service.
+The signing workflow uses short-lived GitHub OIDC credentials. It does not
+store a signing key, package credential, or release secret in the repository.
+The release owner must still approve the first workflow dispatch because it
+publishes versioned images to GitHub Container Registry.
 
 ## Verification
 
