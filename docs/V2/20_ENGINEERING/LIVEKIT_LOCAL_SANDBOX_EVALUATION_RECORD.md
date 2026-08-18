@@ -81,12 +81,18 @@ the browser. The worker has no support-data access, recording, cloud
 credentials, or AI-model integration; the robotic offline voice is intentional
 for this transport and lifecycle proof.
 
+A separate LiveKit Cloud Agent Builder browser rehearsal passed on 2026-08-19.
+The owner created and tested a simple open-ended agent using LiveKit-managed
+voice models and generic safe prompts. No actions, HTTP tools, MCP servers,
+data collection, secrets, application-data connection, telephony, or recording
+were enabled. The owner confirmed that the browser conversation worked
+normally.
+
 ## Next Evaluation Step
 
-The bounded local media and scripted-agent evaluations are complete. Before
-telephony, choose and authorize the LiveKit Cloud project and managed inference
-option, or separately approved STT, LLM, and TTS providers, for a browser-only
-conversational-agent rehearsal. Account creation, billing, external AI use,
-number rental, dispatch-rule activation, and any telephone call remain
-separately gated external actions. Do not add recording or Twilio resources
-without a separate approved decision.
+The bounded local media, scripted-agent, and Cloud Console conversational
+rehearsals are complete. Before telephony, choose and authorize either local
+browser integration through server-issued tokens with no application-data tools,
+or further Cloud Console safety and recovery tests. Do not connect the agent to
+support data, enable actions, recording, Twilio, number rental, dispatch-rule
+activation, or any telephone call without a separate approved decision.

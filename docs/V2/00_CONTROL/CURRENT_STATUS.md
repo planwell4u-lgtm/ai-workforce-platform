@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 3.9
+**Version:** 4.0
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -52,6 +52,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The two-participant local voice rehearsal passed: a host joined with microphone consent and a second, same-user browser session joined the tenant-scoped room as a listener without microphone access. LiveKit confirmed the listener subscribed to the host track and forwarded RTP; the owner confirmed audible playback. Each token uses a distinct temporary participant identity so the second session does not displace the first.
 - The denied-microphone recovery rehearsal passed: browser-level microphone denial produced the explicit "nothing was shared" state and returned the control to Start voice; after permission was restored, a new microphone session connected successfully.
 - The local scripted browser-agent rehearsal passed: an explicitly requested `local-agent-...` room admitted a separate programmatic LiveKit participant, which published an offline synthesized greeting that the owner heard in the browser. This proves the independent agent participant and playback path only; it does not process support data, record audio, or call an AI service.
+- A real LiveKit Cloud Agent Builder browser rehearsal passed with managed voice models. The owner confirmed normal conversational behavior using generic, safe prompts; the proof used no actions, data collection, secrets, application-data connection, telephony, or recording.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -61,11 +62,11 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Choose and authorize the credentials for a browser-only LiveKit conversational
-agent rehearsal: LiveKit Cloud project plus managed inference, or separately
-approved speech-to-text, language-model, and text-to-speech providers. Do not
-create an account, enable billing, use external AI services, rent a number, or
-place a phone call until explicitly authorized. Keep Twilio deferred.
+Choose the next bounded scope: integrate the verified Cloud agent into the
+local browser with a server-issued token and no application-data tools, or
+perform additional Cloud Console safety/recovery checks. Do not connect the
+agent to support data, enable actions, rent a number, or place a phone call
+until explicitly authorized. Keep Twilio deferred.
 
 # Session Checkpoint
 
@@ -76,10 +77,9 @@ deployment remains deferred.
 
 The owner approved the recommended sequence to evaluate a LiveKit-managed
 inbound phone number before considering Twilio. Before telephony, the local
-scripted browser-agent proof is complete and the next gated step is a real
-browser conversational-agent rehearsal. LiveKit Cloud account creation, model
-service use, number rental, routing, and telephone calls remain separately
-gated external actions.
+scripted browser-agent proof and the Cloud Console conversational rehearsal are
+complete. Local-app integration, application-data access, number rental,
+routing, and telephone calls remain separately gated external actions.
 
 # Delivery Guardrails
 
@@ -99,6 +99,7 @@ gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.0 | 2026-08-19 | Verified a real LiveKit Cloud Agent Builder browser conversation with managed voice models and generic safe prompts; set the next scope decision to local-app integration or further Console safety testing. |
 | 3.9 | 2026-08-19 | Verified a separate local scripted LiveKit participant publishes an offline browser-playable greeting; set the credential and provider decision for the real browser conversational-agent rehearsal as next. |
 | 3.8 | 2026-08-18 | Approved the sequence for a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio evaluation; recorded account, number, routing, and calling as separately gated external actions. |
 | 3.7 | 2026-08-18 | Verified denied-microphone recovery: denial shared nothing and returned to a retryable state; restoring browser permission started a new live session. Local LiveKit evaluation is complete. |
