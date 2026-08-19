@@ -190,9 +190,9 @@ export default function Home() {
       const token = await auth.getTokenSilently();
       const requestedRoomRef = joinVoiceRoomRef.trim();
       const requestBody = voiceAgentTest
-        ? { agent_test: true }
+        ? undefined
         : requestedRoomRef ? { room_ref: requestedRoomRef } : undefined;
-      const response = await fetch(`${apiBaseUrl}/v1/voice-sandbox-token`, {
+      const response = await fetch(`${apiBaseUrl}${voiceAgentTest ? "/v1/livekit-cloud-agent-token" : "/v1/voice-sandbox-token"}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: requestBody ? JSON.stringify(requestBody) : undefined,
@@ -200,16 +200,44 @@ export default function Home() {
       const result = await response.json();
       if (!response.ok || typeof result.url !== "string" || typeof result.token !== "string") throw new Error("token_request_failed");
       const room = new Room();
+      let cloudAgentJoined = false;
+      let cloudAudioReceived = false;
       voiceRoomRef.current = room;
+      room.on(RoomEvent.ParticipantConnected, () => {
+        if (!voiceAgentTest) return;
+        cloudAgentJoined = true;
+        setVoiceSandboxStatus("Cloud voice agent joined the private room. It is ready to hear your question.");
+      });
       room.on(RoomEvent.TrackSubscribed, (track) => {
         if (track.kind !== Track.Kind.Audio) return;
+        if (voiceAgentTest) {
+          cloudAudioReceived = true;
+          setVoiceSandboxStatus("Cloud voice agent audio received. It should be playing now.");
+        }
         const playback = track.attach();
         playback.autoplay = true;
         playback.setAttribute("aria-label", "Voice participant audio");
         document.body.appendChild(playback);
         voicePlaybackElementsRef.current.push(playback);
+        void playback.play().catch(() => {
+          setVoiceSandboxStatus("Cloud voice agent audio is ready, but your browser blocked playback. Click once anywhere on this page, then try the test again.");
+        });
+      });
+      room.on(RoomEvent.Disconnected, () => {
+        if (voiceRoomRef.current === room) {
+          setVoiceConnected(false);
+          setVoiceConnecting(false);
+          setVoiceSandboxStatus("Voice connection ended unexpectedly. Nothing is being shared; you can try again.");
+        }
       });
       await room.connect(result.url, result.token);
+      if (voiceAgentTest) {
+        window.setTimeout(() => {
+          if (voiceRoomRef.current === room && !cloudAgentJoined) {
+            setVoiceSandboxStatus("Waiting for the Cloud voice agent to join. If this remains, its deployment name or Cloud project settings need checking.");
+          }
+        }, 12000);
+      }
       if (!shareMicrophone) {
         setVoiceConnected(true);
         setVoiceConnecting(false);
@@ -232,7 +260,11 @@ export default function Home() {
       setVoiceConnecting(false);
       setVoiceRoomCode(result.room_ref);
       setVoiceSandboxStatus(voiceAgentTest
-        ? "Voice agent test is live. Your microphone is shared only in this local room; the scripted agent greeting will play automatically."
+        ? cloudAudioReceived
+          ? "Cloud voice agent audio received. It should be playing now."
+          : cloudAgentJoined
+            ? "Cloud voice agent joined the private room. Ask your question now."
+            : "Cloud voice agent test is live. Your microphone is shared only in this private room; the configured agent will join automatically."
         : "Voice is live. Your microphone is shared only in this room; audio from other participants will play automatically.");
     } catch (error) {
       const denied = error instanceof DOMException && error.name === "NotAllowedError";
@@ -245,5 +277,5 @@ export default function Home() {
     if (voiceRoomRef.current) await stopVoiceSession("Voice session ended before signing out.");
     await auth?.logout({ logoutParams: { returnTo: window.location.origin } });
   }
-  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceAgentTest(false); setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn && !voiceConnected && <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setJoinVoiceRoomRef(""); setVoiceAgentTest(true); setVoiceConsentPending(true); setVoiceSandboxStatus("The local scripted voice agent will join only after you choose Enable microphone. Nothing is recorded."); }}>Test voice agent</button>}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceRoomCode && <p className="notice">Voice room code: <code>{voiceRoomCode}</code></p>}{voiceConsentPending && <div className="notice"><p>{voiceAgentTest ? "Enable your microphone to begin the local scripted-agent test. It will play one offline greeting, then disconnect; no recording or AI service is used." : "Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled."}</p><label>Join an existing local room (optional)<input value={joinVoiceRoomRef} onChange={(event) => setJoinVoiceRoomRef(event.target.value)} placeholder="Paste a voice room code" aria-label="Voice room code"/></label><button onClick={() => void startVoiceSession()}>{voiceAgentTest ? "Enable microphone and start agent" : "Enable microphone"}</button>{joinVoiceRoomRef.trim() && <button className="secondary" onClick={() => void startVoiceSession(false)}>Join without microphone</button>}<button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceAgentTest(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
+  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceAgentTest(false); setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn && !voiceConnected && <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setJoinVoiceRoomRef(""); setVoiceAgentTest(true); setVoiceConsentPending(true); setVoiceSandboxStatus("The configured Cloud voice agent will join a new private room only after you choose Enable microphone. Nothing is recorded."); }}>Test Cloud voice agent</button>}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceRoomCode && <p className="notice">Voice room code: <code>{voiceRoomCode}</code></p>}{voiceConsentPending && <div className="notice"><p>{voiceAgentTest ? "Enable your microphone to begin the Cloud voice-agent test. The configured agent joins a new private room. It has no Planwell support data, tools, or recording." : "Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled."}</p><label>Join an existing local room (optional)<input value={joinVoiceRoomRef} onChange={(event) => setJoinVoiceRoomRef(event.target.value)} placeholder="Paste a voice room code" aria-label="Voice room code"/></label><button onClick={() => void startVoiceSession()}>{voiceAgentTest ? "Enable microphone and start Cloud agent" : "Enable microphone"}</button>{joinVoiceRoomRef.trim() && <button className="secondary" onClick={() => void startVoiceSession(false)}>Join without microphone</button>}<button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceAgentTest(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div><form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
 }

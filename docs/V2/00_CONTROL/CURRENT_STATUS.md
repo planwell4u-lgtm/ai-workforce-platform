@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 4.0
+**Version:** 4.2
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-18
@@ -53,6 +53,8 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - The denied-microphone recovery rehearsal passed: browser-level microphone denial produced the explicit "nothing was shared" state and returned the control to Start voice; after permission was restored, a new microphone session connected successfully.
 - The local scripted browser-agent rehearsal passed: an explicitly requested `local-agent-...` room admitted a separate programmatic LiveKit participant, which published an offline synthesized greeting that the owner heard in the browser. This proves the independent agent participant and playback path only; it does not process support data, record audio, or call an AI service.
 - A real LiveKit Cloud Agent Builder browser rehearsal passed with managed voice models. The owner confirmed normal conversational behavior using generic, safe prompts; the proof used no actions, data collection, secrets, application-data connection, telephony, or recording.
+- The protected local-browser-to-LiveKit-Cloud integration passed. The backend issues a five-minute room-bound token for a unique private Cloud room and explicitly dispatches the deployed Cloud agent; the browser receives no Cloud API secret. The owner confirmed the agent joined, spoke naturally, and safely answered an order-tracking question. No application data, tools, actions, recording, or telephony were enabled.
+- Repository Quality recovery is merged on `main`: repository formatting, active Mypy import resolution, and the safe local-configuration boundary check now pass. The Cloud voice integration is rebased on that baseline in draft PR #1; its GitHub checks are queued before merge.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -62,11 +64,11 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Choose the next bounded scope: integrate the verified Cloud agent into the
-local browser with a server-issued token and no application-data tools, or
-perform additional Cloud Console safety/recovery checks. Do not connect the
-agent to support data, enable actions, rent a number, or place a phone call
-until explicitly authorized. Keep Twilio deferred.
+Wait for draft PR #1's Quality and container-build checks to pass, then merge
+it. After merge, perform Cloud browser recovery and lifecycle checks before
+approving any application-data boundary. Do not connect the agent to support
+data, enable actions, rent a number, or place a phone call until explicitly
+authorized. Keep Twilio deferred.
 
 # Session Checkpoint
 
@@ -77,9 +79,10 @@ deployment remains deferred.
 
 The owner approved the recommended sequence to evaluate a LiveKit-managed
 inbound phone number before considering Twilio. Before telephony, the local
-scripted browser-agent proof and the Cloud Console conversational rehearsal are
-complete. Local-app integration, application-data access, number rental,
-routing, and telephone calls remain separately gated external actions.
+scripted browser-agent proof, Cloud Console conversational rehearsal, and
+protected local-browser-to-Cloud-agent rehearsal are complete.
+Application-data access, number rental, routing, and telephone calls remain
+separately gated external actions.
 
 # Delivery Guardrails
 
@@ -99,6 +102,8 @@ routing, and telephone calls remain separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.2 | 2026-08-19 | Merged the repository Quality recovery; rebased the verified Cloud voice integration on it in draft PR #1. GitHub checks are queued before the Cloud voice change is merged. |
+| 4.1 | 2026-08-19 | Verified the protected local-browser-to-LiveKit-Cloud-agent journey: private server-issued room token, explicit dispatch, browser playback, and safe order-tracking response; Cloud agent has no application-data tools, recording, or telephony. |
 | 4.0 | 2026-08-19 | Verified a real LiveKit Cloud Agent Builder browser conversation with managed voice models and generic safe prompts; set the next scope decision to local-app integration or further Console safety testing. |
 | 3.9 | 2026-08-19 | Verified a separate local scripted LiveKit participant publishes an offline browser-playable greeting; set the credential and provider decision for the real browser conversational-agent rehearsal as next. |
 | 3.8 | 2026-08-18 | Approved the sequence for a controlled LiveKit Cloud inbound-phone rehearsal before any Twilio evaluation; recorded account, number, routing, and calling as separately gated external actions. |

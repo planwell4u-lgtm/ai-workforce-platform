@@ -32,6 +32,7 @@ from .runtime import (
 )
 from .support_answer import SupportAnswerApi
 from .ticket_flow import SupportTicketApi
+from .voice_cloud_token import VoiceCloudAgentTokenApi
 from .voice_sandbox_token import VoiceSandboxTokenApi
 
 
@@ -45,6 +46,7 @@ class BackendApplication:
         support_answer_api: SupportAnswerApi,
         admin_conversations_api: AdminConversationsApi,
         voice_sandbox_token_api: VoiceSandboxTokenApi | None,
+        voice_cloud_agent_token_api: VoiceCloudAgentTokenApi | None,
         tenant_store: TenantStore,
     ) -> None:
         self.api = api
@@ -52,6 +54,7 @@ class BackendApplication:
         self.support_answer_api = support_answer_api
         self.admin_conversations_api = admin_conversations_api
         self.voice_sandbox_token_api = voice_sandbox_token_api
+        self.voice_cloud_agent_token_api = voice_cloud_agent_token_api
         self.tenant_store = tenant_store
 
     @property
@@ -70,6 +73,7 @@ class BackendApplication:
             "/v1/admin/conversations",
             "/v1/support-tickets",
             "/v1/voice-sandbox-token",
+            "/v1/livekit-cloud-agent-token",
         }:
             if origin != "http://localhost:3000":
                 start_response("403 Forbidden", [("Content-Length", "0")])
@@ -143,6 +147,18 @@ class BackendApplication:
                 return start_response(status, headers)
 
             return self.voice_sandbox_token_api(environ, voice_token_start)
+        if (
+            self.voice_cloud_agent_token_api is not None
+            and environ.get("REQUEST_METHOD") == "POST"
+            and environ.get("PATH_INFO") == VoiceCloudAgentTokenApi.path
+        ):
+
+            def cloud_agent_token_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == "http://localhost:3000":
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+
+            return self.voice_cloud_agent_token_api(environ, cloud_agent_token_start)
         return self.api(environ, start_response)
 
 
@@ -156,6 +172,10 @@ def create_app() -> BackendApplication:
     livekit_url = os.environ.get("LIVEKIT_SANDBOX_URL")
     livekit_api_key = os.environ.get("LIVEKIT_API_KEY")
     livekit_api_secret = os.environ.get("LIVEKIT_API_SECRET")
+    livekit_cloud_url = os.environ.get("LIVEKIT_CLOUD_URL")
+    livekit_cloud_api_key = os.environ.get("LIVEKIT_CLOUD_API_KEY")
+    livekit_cloud_api_secret = os.environ.get("LIVEKIT_CLOUD_API_SECRET")
+    livekit_cloud_agent_name = os.environ.get("LIVEKIT_CLOUD_AGENT_NAME")
     missing = [
         name
         for name, value in (
@@ -173,6 +193,16 @@ def create_app() -> BackendApplication:
     if any(livekit_values) and not all(livekit_values):
         raise RuntimeError(
             "LIVEKIT_SANDBOX_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET must be set together"
+        )
+    livekit_cloud_values = (
+        livekit_cloud_url,
+        livekit_cloud_api_key,
+        livekit_cloud_api_secret,
+        livekit_cloud_agent_name,
+    )
+    if any(livekit_cloud_values) and not all(livekit_cloud_values):
+        raise RuntimeError(
+            "LIVEKIT_CLOUD_URL, LIVEKIT_CLOUD_API_KEY, LIVEKIT_CLOUD_API_SECRET, and LIVEKIT_CLOUD_AGENT_NAME must be set together"
         )
     tenant_store = create_tenant_store(environment_ref, os.environ)
     verifier = Auth0JwtVerifier(domain, audience, environment_ref)
@@ -235,6 +265,17 @@ def create_app() -> BackendApplication:
             api_secret=cast(str, livekit_api_secret),
         )
         if all(livekit_values)
+        else None,
+        VoiceCloudAgentTokenApi(
+            verifier,
+            memberships,
+            audit_sink,
+            url=cast(str, livekit_cloud_url),
+            api_key=cast(str, livekit_cloud_api_key),
+            api_secret=cast(str, livekit_cloud_api_secret),
+            agent_name=cast(str, livekit_cloud_agent_name),
+        )
+        if all(livekit_cloud_values)
         else None,
         tenant_store,
     )
