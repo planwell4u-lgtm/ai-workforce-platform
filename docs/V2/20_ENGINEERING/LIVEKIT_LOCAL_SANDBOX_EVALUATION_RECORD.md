@@ -88,11 +88,21 @@ data collection, secrets, application-data connection, telephony, or recording
 were enabled. The owner confirmed that the browser conversation worked
 normally.
 
+The protected local-browser-to-Cloud-agent rehearsal passed on 2026-08-19.
+The authenticated backend creates a unique tenant-scoped Cloud room, issues a
+five-minute room-bound participant token, and explicitly dispatches the
+deployed agent. The browser receives only the room URL and participant token,
+never a Cloud API secret. The owner confirmed that the deployed agent joined,
+spoke naturally, and safely answered an order-tracking question. This proof
+uses no application data, actions, HTTP tools, MCP servers, recording,
+telephony, or phone number.
+
 ## Next Evaluation Step
 
-The bounded local media, scripted-agent, and Cloud Console conversational
-rehearsals are complete. Before telephony, choose and authorize either local
-browser integration through server-issued tokens with no application-data tools,
-or further Cloud Console safety and recovery tests. Do not connect the agent to
-support data, enable actions, recording, Twilio, number rental, dispatch-rule
-activation, or any telephone call without a separate approved decision.
+The bounded local media, scripted-agent, Cloud Console conversational, and
+protected local-browser-to-Cloud-agent rehearsals are complete. Before
+telephony, choose and authorize either Cloud browser recovery/lifecycle checks,
+or a separately designed read-only application-data boundary. Do not connect
+the agent to support data, enable actions, recording, Twilio, number rental,
+dispatch-rule activation, or any telephone call without a separate approved
+decision.
