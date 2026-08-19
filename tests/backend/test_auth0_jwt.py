@@ -26,10 +26,10 @@ class Auth0JwtVerifierTests(unittest.TestCase):
     def setUp(self) -> None:
         self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         self.jwks_client = Mock()
-        self.jwks_client.get_signing_key_from_jwt.return_value = Mock(key=self.private_key.public_key())
-        self.verifier = Auth0JwtVerifier(
-            DOMAIN, AUDIENCE, "staging", jwks_client=self.jwks_client
+        self.jwks_client.get_signing_key_from_jwt.return_value = Mock(
+            key=self.private_key.public_key()
         )
+        self.verifier = Auth0JwtVerifier(DOMAIN, AUDIENCE, "staging", jwks_client=self.jwks_client)
 
     def token(self, **changes: object) -> str:
         now = int(time.time())

@@ -51,7 +51,10 @@ class SupportTicketApi:
     ) -> list[bytes]:
         correlation_ref = self._correlation_factory()
         headers = [("Content-Type", "application/json"), ("X-Correlation-Id", correlation_ref)]
-        if environ.get("REQUEST_METHOD") != "POST" or environ.get("PATH_INFO") != "/v1/support-tickets":
+        if (
+            environ.get("REQUEST_METHOD") != "POST"
+            or environ.get("PATH_INFO") != "/v1/support-tickets"
+        ):
             return self._respond(start_response, "404 Not Found", headers, {"error": "not_found"})
         try:
             identity = self._verifier.verify(cast(str | None, environ.get("HTTP_AUTHORIZATION")))
@@ -62,17 +65,25 @@ class SupportTicketApi:
                 raise AuthorizationError("token_missing_permission")
             request = self._parse_request(environ, membership.tenant_ref)
         except AuthenticationError as error:
-            self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
-            return self._respond(start_response, "401 Unauthorized", headers, {"error": "unauthorized"})
+            self._audit_sink.record(
+                AuditEvent("denied", str(error), correlation_ref, self.route_ref)
+            )
+            return self._respond(
+                start_response, "401 Unauthorized", headers, {"error": "unauthorized"}
+            )
         except (AuthorizationError, TypeError, ValueError) as error:
-            self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
+            self._audit_sink.record(
+                AuditEvent("denied", str(error), correlation_ref, self.route_ref)
+            )
             return self._respond(start_response, "403 Forbidden", headers, {"error": "forbidden"})
 
         scope = TenantScope(membership.tenant_ref, identity.environment_ref, correlation_ref)
         existing = self._store.get(scope, "action", request.idempotency_ref)
         if existing is not None:
             return self._respond(start_response, "200 OK", headers, existing.payload)
-        self._store.save(scope, "action", VersionedRecord(request.idempotency_ref, "v1", {"outcome": "pending"}))
+        self._store.save(
+            scope, "action", VersionedRecord(request.idempotency_ref, "v1", {"outcome": "pending"})
+        )
         result = self._action.request(request, membership.permissions)
         body: dict[str, object] = {
             "outcome": result.outcome,
@@ -82,7 +93,14 @@ class SupportTicketApi:
         }
         self._store.save(scope, "action", VersionedRecord(request.idempotency_ref, "v1", body))
         self._audit_sink.record(
-            AuditEvent("allowed", result.outcome, correlation_ref, self.route_ref, identity.principal_ref, membership.tenant_ref)
+            AuditEvent(
+                "allowed",
+                result.outcome,
+                correlation_ref,
+                self.route_ref,
+                identity.principal_ref,
+                membership.tenant_ref,
+            )
         )
         return self._respond(start_response, "201 Created", headers, body)
 
@@ -95,14 +113,21 @@ class SupportTicketApi:
         payload = json.loads(raw.read(content_length).decode("utf-8"))
         if not isinstance(payload, dict):
             raise TypeError("invalid_request")
-        values = tuple(payload.get(name) for name in ("conversation_ref", "idempotency_ref", "summary"))
+        values = tuple(
+            payload.get(name) for name in ("conversation_ref", "idempotency_ref", "summary")
+        )
         if not all(isinstance(value, str) and value for value in values):
             raise ValueError("invalid_request")
-        return SupportTicketRequest(tenant_ref, cast(str, values[0]), cast(str, values[1]), cast(str, values[2]))
+        return SupportTicketRequest(
+            tenant_ref, cast(str, values[0]), cast(str, values[1]), cast(str, values[2])
+        )
 
     @staticmethod
     def _respond(
-        start_response: Callable[..., object], status: str, headers: list[tuple[str, str]], body: object
+        start_response: Callable[..., object],
+        status: str,
+        headers: list[tuple[str, str]],
+        body: object,
     ) -> list[bytes]:
         encoded = json.dumps(body, separators=(",", ":")).encode("utf-8")
         start_response(status, [*headers, ("Content-Length", str(len(encoded)))])

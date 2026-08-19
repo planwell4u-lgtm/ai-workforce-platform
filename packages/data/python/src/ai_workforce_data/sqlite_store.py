@@ -181,8 +181,14 @@ class SqliteTenantStore:
                   AND json_extract(payload_json, '$.state_version') = ?
                 """,
                 (
-                    record.contract_version, payload_json, scope.correlation_ref, int(time.time()),
-                    kind, record.record_ref, scope.tenant_ref, scope.environment_ref,
+                    record.contract_version,
+                    payload_json,
+                    scope.correlation_ref,
+                    int(time.time()),
+                    kind,
+                    record.record_ref,
+                    scope.tenant_ref,
+                    scope.environment_ref,
                     expected_state_version,
                 ),
             )
@@ -201,8 +207,14 @@ class SqliteTenantStore:
                 ON CONFLICT(record_kind, record_ref, tenant_ref, environment_ref) DO NOTHING
                 """,
                 (
-                    kind, record.record_ref, scope.tenant_ref, scope.environment_ref,
-                    record.contract_version, payload_json, scope.correlation_ref, int(time.time()),
+                    kind,
+                    record.record_ref,
+                    scope.tenant_ref,
+                    scope.environment_ref,
+                    record.contract_version,
+                    payload_json,
+                    scope.correlation_ref,
+                    int(time.time()),
                 ),
             )
             self._connection.commit()

@@ -29,7 +29,9 @@ class LiveKitSandboxTests(unittest.TestCase):
                 api_secret=os.environ.get("LIVEKIT_API_SECRET", "secret"),
             )
             adapter = LiveKitSandboxAdapter(conversations, configuration)
-            interaction = await adapter.connect("livekit-interaction-a", conversation, "participant-a")
+            interaction = await adapter.connect(
+                "livekit-interaction-a", conversation, "participant-a"
+            )
             adapter.begin_output(interaction, conversation, "voice-turn-a")
             await adapter.disconnect(interaction, conversation)
             self.assertEqual(conversation.turn_outcomes["voice-turn-a"], "uncertain")

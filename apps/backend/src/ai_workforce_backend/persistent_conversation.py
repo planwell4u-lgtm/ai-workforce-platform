@@ -16,9 +16,7 @@ from ai_workforce_data.sqlite_store import TenantScope, VersionedRecord
 
 
 class ConversationRecordStore(Protocol):
-    def get(
-        self, scope: TenantScope, kind: str, record_ref: str
-    ) -> VersionedRecord | None: ...
+    def get(self, scope: TenantScope, kind: str, record_ref: str) -> VersionedRecord | None: ...
 
     def compare_and_swap(
         self,
@@ -109,14 +107,18 @@ class PersistentConversationService:
             self._scope(conversation.tenant_ref), "conversation", conversation.conversation_ref
         )
         if record is None:
-            return Conversation(conversation.conversation_ref, conversation.tenant_ref, conversation.session_ref), 0
+            return Conversation(
+                conversation.conversation_ref, conversation.tenant_ref, conversation.session_ref
+            ), 0
         payload = record.payload
         version = payload.get("state_version")
         if not isinstance(version, int) or version < 1:
             raise ConversationError("invalid_conversation_record")
         return self._decode(record, conversation.tenant_ref, conversation.session_ref), version
 
-    def _save(self, conversation: Conversation, expected_version: int, correlation_ref: str | None = None) -> bool:
+    def _save(
+        self, conversation: Conversation, expected_version: int, correlation_ref: str | None = None
+    ) -> bool:
         next_version = expected_version + 1
         record = VersionedRecord(
             conversation.conversation_ref,
@@ -125,7 +127,11 @@ class PersistentConversationService:
                 "state_version": next_version,
                 "session_ref": conversation.session_ref,
                 "messages": [
-                    {"event_ref": item.event_ref, "sequence": item.sequence, "correlation_ref": item.correlation_ref}
+                    {
+                        "event_ref": item.event_ref,
+                        "sequence": item.sequence,
+                        "correlation_ref": item.correlation_ref,
+                    }
                     for item in conversation.messages
                 ],
                 "active_turn_ref": conversation.active_turn_ref,
@@ -137,7 +143,11 @@ class PersistentConversationService:
             },
         )
         return self._store.compare_and_swap(
-            TenantScope(conversation.tenant_ref, self._environment_ref, correlation_ref or self._correlation_factory()),
+            TenantScope(
+                conversation.tenant_ref,
+                self._environment_ref,
+                correlation_ref or self._correlation_factory(),
+            ),
             "conversation",
             record,
             expected_version,
@@ -166,18 +176,31 @@ class PersistentConversationService:
             if not isinstance(item, dict):
                 raise ConversationError("invalid_conversation_record")
             event_ref, sequence, correlation_ref = (
-                item.get("event_ref"), item.get("sequence"), item.get("correlation_ref")
+                item.get("event_ref"),
+                item.get("sequence"),
+                item.get("correlation_ref"),
             )
-            if not isinstance(event_ref, str) or not isinstance(sequence, int) or not isinstance(correlation_ref, str):
+            if (
+                not isinstance(event_ref, str)
+                or not isinstance(sequence, int)
+                or not isinstance(correlation_ref, str)
+            ):
                 raise ConversationError("invalid_conversation_record")
             parsed_messages.append(Message(event_ref, sequence, correlation_ref))
         if active_turn is not None and not isinstance(active_turn, str):
             raise ConversationError("invalid_conversation_record")
-        if not all(isinstance(key, str) and value in {"pending", "succeeded", "failed", "uncertain"} for key, value in outcomes.items()):
+        if not all(
+            isinstance(key, str) and value in {"pending", "succeeded", "failed", "uncertain"}
+            for key, value in outcomes.items()
+        ):
             raise ConversationError("invalid_conversation_record")
         parsed_transcript: list[TranscriptEntry] = []
         for entry in transcript:
-            if not isinstance(entry, dict) or entry.get("sender") not in {"support", "you"} or not isinstance(entry.get("text"), str):
+            if (
+                not isinstance(entry, dict)
+                or entry.get("sender") not in {"support", "you"}
+                or not isinstance(entry.get("text"), str)
+            ):
                 raise ConversationError("invalid_conversation_record")
             parsed_transcript.append(TranscriptEntry(entry["sender"], entry["text"]))
         return Conversation(

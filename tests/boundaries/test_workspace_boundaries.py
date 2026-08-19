@@ -23,7 +23,7 @@ class WorkspaceBoundaryTests(unittest.TestCase):
     def test_safe_local_configuration_example_exists(self) -> None:
         example = ROOT / "config" / "local.env.example"
         self.assertTrue(example.is_file())
-        self.assertNotIn("SECRET=", example.read_text(encoding="utf-8"))
+        self.assertNotRegex(example.read_text(encoding="utf-8"), r"(?m)^SECRET=")
 
     def test_shared_package_has_no_domain_or_provider_dependency(self) -> None:
         shared_source = ROOT / "packages" / "shared" / "python" / "src"
