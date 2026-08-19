@@ -54,7 +54,10 @@ class VoiceSandboxTokenApi:
     ) -> list[bytes]:
         correlation_ref = self._correlation_factory()
         headers = [("Content-Type", "application/json"), ("X-Correlation-Id", correlation_ref)]
-        if environ.get("REQUEST_METHOD") != "POST" or environ.get("PATH_INFO") != "/v1/voice-sandbox-token":
+        if (
+            environ.get("REQUEST_METHOD") != "POST"
+            or environ.get("PATH_INFO") != "/v1/voice-sandbox-token"
+        ):
             return self._respond(start_response, "404 Not Found", headers, {"error": "not_found"})
         try:
             identity = self._verifier.verify(cast(str | None, environ.get("HTTP_AUTHORIZATION")))
@@ -74,10 +77,16 @@ class VoiceSandboxTokenApi:
                 .to_jwt()
             )
         except AuthenticationError as error:
-            self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
-            return self._respond(start_response, "401 Unauthorized", headers, {"error": "unauthorized"})
+            self._audit_sink.record(
+                AuditEvent("denied", str(error), correlation_ref, self.route_ref)
+            )
+            return self._respond(
+                start_response, "401 Unauthorized", headers, {"error": "unauthorized"}
+            )
         except (AuthorizationError, TypeError, ValueError) as error:
-            self._audit_sink.record(AuditEvent("denied", str(error), correlation_ref, self.route_ref))
+            self._audit_sink.record(
+                AuditEvent("denied", str(error), correlation_ref, self.route_ref)
+            )
             return self._respond(start_response, "403 Forbidden", headers, {"error": "forbidden"})
         self._audit_sink.record(
             AuditEvent(
@@ -93,7 +102,12 @@ class VoiceSandboxTokenApi:
             start_response,
             "200 OK",
             headers,
-            {"url": self._url, "token": token, "room_ref": room_ref, "correlation_ref": correlation_ref},
+            {
+                "url": self._url,
+                "token": token,
+                "room_ref": room_ref,
+                "correlation_ref": correlation_ref,
+            },
         )
 
     @staticmethod
@@ -106,7 +120,7 @@ class VoiceSandboxTokenApi:
             raise TypeError("invalid_request")
         payload = json.loads(raw.read(content_length).decode("utf-8"))
         if not isinstance(payload, dict):
-            raise ValueError("invalid_room_ref")
+            raise TypeError("invalid_room_ref")
         if payload.get("agent_test") is True and payload.get("room_ref") is None:
             return f"local-agent-{tenant_ref}-{uuid.uuid4()}"
         room_ref = payload.get("room_ref")
@@ -122,7 +136,10 @@ class VoiceSandboxTokenApi:
 
     @staticmethod
     def _respond(
-        start_response: Callable[..., object], status: str, headers: list[tuple[str, str]], body: object
+        start_response: Callable[..., object],
+        status: str,
+        headers: list[tuple[str, str]],
+        body: object,
     ) -> list[bytes]:
         encoded = json.dumps(body, separators=(",", ":")).encode()
         start_response(status, [*headers, ("Content-Length", str(len(encoded)))])

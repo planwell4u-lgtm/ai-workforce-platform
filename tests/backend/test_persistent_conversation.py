@@ -35,18 +35,25 @@ class PersistentConversationTests(unittest.TestCase):
     def test_state_survives_service_restart_and_keeps_message_rules(self) -> None:
         first = self.service()
         conversation = first.open("tenant-a", "session-a", "conversation-a")
-        self.assertEqual(first.append_message(conversation, Message("event-1", 1, "corr-1")), "accepted")
+        self.assertEqual(
+            first.append_message(conversation, Message("event-1", 1, "corr-1")), "accepted"
+        )
         first.begin_turn(conversation, "turn:event-1")
         first.finish_turn(conversation, "turn:event-1", "succeeded")
 
         restarted = self.service()
         restored = restarted.open("tenant-a", "session-a", "conversation-a")
-        self.assertEqual(restarted.append_message(restored, Message("event-1", 1, "corr-2")), "duplicate")
-        self.assertEqual(restarted.append_message(restored, Message("event-2", 2, "corr-2")), "accepted")
+        self.assertEqual(
+            restarted.append_message(restored, Message("event-1", 1, "corr-2")), "duplicate"
+        )
+        self.assertEqual(
+            restarted.append_message(restored, Message("event-2", 2, "corr-2")), "accepted"
+        )
         with self.assertRaisesRegex(ConversationError, "out_of_order_message"):
             restarted.append_message(restored, Message("event-4", 4, "corr-4"))
 
-        record = self.store.get(TenantScope("tenant-a", "test", "read"), "conversation", "conversation-a")
+        record = self.store.get(
+            TenantScope("tenant-a", "test", "read"), "conversation", "conversation-a"
+        )
         self.assertIsNotNone(record)
         self.assertEqual(record.payload["state_version"], 4)
-

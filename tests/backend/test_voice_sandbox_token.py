@@ -13,7 +13,12 @@ from livekit import api
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "apps" / "backend" / "src"))
 
-from ai_workforce_backend.b1 import IdentityContext, InMemoryAuditSink, InMemoryMembershipDirectory, Membership
+from ai_workforce_backend.b1 import (
+    IdentityContext,
+    InMemoryAuditSink,
+    InMemoryMembershipDirectory,
+    Membership,
+)
 from ai_workforce_backend.voice_sandbox_token import VoiceSandboxTokenApi
 
 
@@ -26,14 +31,20 @@ class Verifier:
             from ai_workforce_backend.b1 import AuthenticationError
 
             raise AuthenticationError("missing_bearer_token")
-        return IdentityContext("auth0|member", "human", "https://issuer/", "local", 1, self._permissions)
+        return IdentityContext(
+            "auth0|member", "human", "https://issuer/", "local", 1, self._permissions
+        )
 
 
 class VoiceSandboxTokenTests(unittest.TestCase):
-    def _api(self, permissions: frozenset[str] = frozenset({"agent.context.read"})) -> VoiceSandboxTokenApi:
+    def _api(
+        self, permissions: frozenset[str] = frozenset({"agent.context.read"})
+    ) -> VoiceSandboxTokenApi:
         return VoiceSandboxTokenApi(
             Verifier(permissions),
-            InMemoryMembershipDirectory((Membership("auth0|member", "tenant-a", "active", permissions),)),
+            InMemoryMembershipDirectory(
+                (Membership("auth0|member", "tenant-a", "active", permissions),)
+            ),
             InMemoryAuditSink(),
             url="ws://localhost:7880",
             api_key="devkey",
@@ -45,7 +56,11 @@ class VoiceSandboxTokenTests(unittest.TestCase):
         captured: dict[str, object] = {}
         body = b"".join(
             self._api()(
-                {"REQUEST_METHOD": "POST", "PATH_INFO": "/v1/voice-sandbox-token", "HTTP_AUTHORIZATION": "Bearer valid"},
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                },
                 lambda status, headers: captured.update(status=status, headers=headers),
             )
         )
@@ -62,7 +77,11 @@ class VoiceSandboxTokenTests(unittest.TestCase):
     def test_allows_a_second_local_participant_to_join_the_same_tenant_room(self) -> None:
         first_body = b"".join(
             self._api()(
-                {"REQUEST_METHOD": "POST", "PATH_INFO": "/v1/voice-sandbox-token", "HTTP_AUTHORIZATION": "Bearer valid"},
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                },
                 lambda status, headers: None,
             )
         )
@@ -106,7 +125,9 @@ class VoiceSandboxTokenTests(unittest.TestCase):
         self.assertEqual(claims.video.room, response["room_ref"])
 
     def test_rejects_a_room_from_another_tenant(self) -> None:
-        join_body = json.dumps({"room_ref": "local-voice-tenant-b-12345678-1234-1234-1234-123456789abc"}).encode()
+        join_body = json.dumps(
+            {"room_ref": "local-voice-tenant-b-12345678-1234-1234-1234-123456789abc"}
+        ).encode()
         captured: dict[str, object] = {}
         body = b"".join(
             self._api()(
@@ -127,7 +148,11 @@ class VoiceSandboxTokenTests(unittest.TestCase):
         captured: dict[str, object] = {}
         body = b"".join(
             self._api(frozenset())(
-                {"REQUEST_METHOD": "POST", "PATH_INFO": "/v1/voice-sandbox-token", "HTTP_AUTHORIZATION": "Bearer valid"},
+                {
+                    "REQUEST_METHOD": "POST",
+                    "PATH_INFO": "/v1/voice-sandbox-token",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                },
                 lambda status, headers: captured.update(status=status),
             )
         )

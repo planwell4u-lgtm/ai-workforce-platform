@@ -79,7 +79,11 @@ def create_tenant_store(environment_ref: str, configuration: Mapping[str, str]) 
 def _validate_supabase_postgres_url(database_url: str) -> None:
     parsed = urlparse(database_url)
     host = parsed.hostname or ""
-    if parsed.scheme not in {"postgres", "postgresql"} or not parsed.username or not parsed.password:
+    if (
+        parsed.scheme not in {"postgres", "postgresql"}
+        or not parsed.username
+        or not parsed.password
+    ):
         raise RuntimeConfigurationError("DATABASE_URL must be a complete PostgreSQL connection URL")
     if not host.endswith((".pooler.supabase.com", ".supabase.co")):
         raise RuntimeConfigurationError("staging DATABASE_URL must target Supabase PostgreSQL")

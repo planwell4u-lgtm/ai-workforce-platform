@@ -77,7 +77,9 @@ HttpRequest = Callable[[Request, float], object]
 class JiraServiceManagementClient:
     """Small client for Jira's create-customer-request endpoint."""
 
-    def __init__(self, settings: JiraServiceManagementSettings, request: HttpRequest = urlopen) -> None:
+    def __init__(
+        self, settings: JiraServiceManagementSettings, request: HttpRequest = urlopen
+    ) -> None:
         self._settings = settings
         self._request = request
 

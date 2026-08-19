@@ -64,7 +64,14 @@ class SupportTicketFlowTests(unittest.TestCase):
         self.api = SupportTicketApi(
             Verifier(),
             InMemoryMembershipDirectory(
-                (Membership("auth0|user", "tenant-a", "active", frozenset({"integration.support-ticket.create"})),)
+                (
+                    Membership(
+                        "auth0|user",
+                        "tenant-a",
+                        "active",
+                        frozenset({"integration.support-ticket.create"}),
+                    ),
+                )
             ),
             InMemoryAuditSink(),
             self.store,
@@ -94,11 +101,17 @@ class SupportTicketFlowTests(unittest.TestCase):
         return str(captured["status"]), json.loads(body)
 
     def test_authenticated_request_persists_then_creates_one_jira_ticket(self) -> None:
-        payload = {"conversation_ref": "conversation-a", "idempotency_ref": "request-1", "summary": "Need help"}
+        payload = {
+            "conversation_ref": "conversation-a",
+            "idempotency_ref": "request-1",
+            "summary": "Need help",
+        }
         status, body = self.request(payload)
         self.assertEqual(status, "201 Created")
         self.assertEqual(body["ticket_ref"], "CS-4")
-        self.assertEqual(self.store.records[("tenant-a", "request-1")].payload["outcome"], "succeeded")
+        self.assertEqual(
+            self.store.records[("tenant-a", "request-1")].payload["outcome"], "succeeded"
+        )
         repeat_status, repeat_body = self.request(payload)
         self.assertEqual((repeat_status, repeat_body), ("200 OK", body))
         self.assertEqual(self.action.calls, 1)

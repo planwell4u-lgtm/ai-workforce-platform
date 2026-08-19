@@ -65,8 +65,10 @@ class Auth0JwtVerifier(IdentityVerifier):
                 raise AuthenticationError("invalid_identity_claims")
             scope = claims.get("scope", "")
             permissions = claims.get("permissions", [])
-            if not isinstance(scope, str) or not isinstance(permissions, list) or not all(
-                isinstance(permission, str) for permission in permissions
+            if (
+                not isinstance(scope, str)
+                or not isinstance(permissions, list)
+                or not all(isinstance(permission, str) for permission in permissions)
             ):
                 raise AuthenticationError("invalid_permission_claims")
             return IdentityContext(

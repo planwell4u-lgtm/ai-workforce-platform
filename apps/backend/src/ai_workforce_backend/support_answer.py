@@ -12,8 +12,6 @@ from urllib.parse import parse_qs
 from ai_workforce_agent.support import FaqSupportAgent
 from ai_workforce_conversation.control import ConversationError, Message
 
-from .persistent_conversation import PersistentConversationService
-
 from .b1 import (
     AuditEvent,
     AuditSink,
@@ -22,6 +20,7 @@ from .b1 import (
     IdentityVerifier,
     MembershipDirectory,
 )
+from .persistent_conversation import PersistentConversationService
 
 
 class SupportAnswerApi:
@@ -79,7 +78,12 @@ class SupportAnswerApi:
                     },
                 )
             if environ.get("REQUEST_METHOD") != "POST":
-                return self._respond(start_response, "405 Method Not Allowed", headers, {"error": "method_not_allowed"})
+                return self._respond(
+                    start_response,
+                    "405 Method Not Allowed",
+                    headers,
+                    {"error": "method_not_allowed"},
+                )
             payload = self._parse_request(environ)
             conversation_ref = self._conversation_ref(membership.tenant_ref, payload["session_ref"])
             conversation = self._conversations.open(

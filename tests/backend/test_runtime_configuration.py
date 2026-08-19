@@ -25,7 +25,9 @@ class RuntimeConfigurationTests(unittest.TestCase):
     def test_postgres_audit_sink_persists_bounded_event_fields(self) -> None:
         store = Mock()
         PostgresAuditSink(store).record(
-            AuditEvent("allowed", "authorized", "correlation-1", "route-1", "principal-1", "tenant-a")
+            AuditEvent(
+                "allowed", "authorized", "correlation-1", "route-1", "principal-1", "tenant-a"
+            )
         )
         arguments = store.record_audit_event.call_args.kwargs
         self.assertEqual(arguments["outcome"], "allowed")
@@ -47,7 +49,10 @@ class RuntimeConfigurationTests(unittest.TestCase):
             {"DATABASE_URL": "https://example.supabase.co"},
         )
         for configuration in invalid_configurations:
-            with self.subTest(configuration=configuration), self.assertRaises(RuntimeConfigurationError):
+            with (
+                self.subTest(configuration=configuration),
+                self.assertRaises(RuntimeConfigurationError),
+            ):
                 create_tenant_store("staging", configuration)
 
     def test_non_staging_runtime_is_not_silently_redirected_to_sqlite(self) -> None:

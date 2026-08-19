@@ -42,11 +42,18 @@ class Store:
                 VersionedRecord(
                     "conversation-a",
                     "v1",
-                    {"transcript": [{"sender": "you", "text": "Need help"}], "turn_outcomes": {"turn-1": "succeeded"}},
+                    {
+                        "transcript": [{"sender": "you", "text": "Need help"}],
+                        "turn_outcomes": {"turn-1": "succeeded"},
+                    },
                 )
             ]
         if kind == "action":
-            return [VersionedRecord("conversation-a", "v1", {"outcome": "succeeded", "ticket_ref": "CS-4"})]
+            return [
+                VersionedRecord(
+                    "conversation-a", "v1", {"outcome": "succeeded", "ticket_ref": "CS-4"}
+                )
+            ]
         return []
 
 
@@ -55,7 +62,11 @@ class AdminConversationTests(unittest.TestCase):
         api = AdminConversationsApi(
             Verifier(),
             InMemoryMembershipDirectory(
-                (Membership("auth0|operator", "tenant-a", "active", frozenset({"operator.status.read"})),)
+                (
+                    Membership(
+                        "auth0|operator", "tenant-a", "active", frozenset({"operator.status.read"})
+                    ),
+                )
             ),
             InMemoryAuditSink(),
             Store(),
@@ -65,7 +76,11 @@ class AdminConversationTests(unittest.TestCase):
 
         body = b"".join(
             api(
-                {"REQUEST_METHOD": "GET", "PATH_INFO": "/v1/admin/conversations", "HTTP_AUTHORIZATION": "Bearer valid"},
+                {
+                    "REQUEST_METHOD": "GET",
+                    "PATH_INFO": "/v1/admin/conversations",
+                    "HTTP_AUTHORIZATION": "Bearer valid",
+                },
                 lambda status, headers: captured.update(status=status),
             )
         )

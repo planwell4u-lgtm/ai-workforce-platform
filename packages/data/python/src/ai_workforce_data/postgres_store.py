@@ -196,7 +196,11 @@ class PostgresTenantStore:
             )
             rows = cursor.fetchall()
         return [
-            VersionedRecord(cast(str, row["record_ref"]), cast(str, row["contract_version"]), cast(Mapping[str, object], row["payload_json"]))
+            VersionedRecord(
+                cast(str, row["record_ref"]),
+                cast(str, row["contract_version"]),
+                cast(Mapping[str, object], row["payload_json"]),
+            )
             for row in rows
             if isinstance(row["payload_json"], Mapping)
         ]
@@ -227,8 +231,13 @@ class PostgresTenantStore:
                     ON CONFLICT(record_kind, record_ref, tenant_ref, environment_ref) DO NOTHING
                     """,
                     (
-                        kind, record.record_ref, scope.tenant_ref, scope.environment_ref,
-                        record.contract_version, Json(payload), scope.correlation_ref,
+                        kind,
+                        record.record_ref,
+                        scope.tenant_ref,
+                        scope.environment_ref,
+                        record.contract_version,
+                        Json(payload),
+                        scope.correlation_ref,
                     ),
                 )
             else:
@@ -242,8 +251,13 @@ class PostgresTenantStore:
                       AND (payload_json ->> 'state_version')::integer = %s
                     """,
                     (
-                        record.contract_version, Json(payload), scope.correlation_ref,
-                        kind, record.record_ref, scope.tenant_ref, scope.environment_ref,
+                        record.contract_version,
+                        Json(payload),
+                        scope.correlation_ref,
+                        kind,
+                        record.record_ref,
+                        scope.tenant_ref,
+                        scope.environment_ref,
                         expected_state_version,
                     ),
                 )
@@ -267,7 +281,9 @@ class PostgresTenantStore:
         if row is None:
             return None
         permissions = row["permissions"]
-        if not isinstance(permissions, list) or not all(isinstance(value, str) for value in permissions):
+        if not isinstance(permissions, list) or not all(
+            isinstance(value, str) for value in permissions
+        ):
             raise ContractError("stored membership permissions are invalid")
         return PrincipalMembershipRecord(
             cast(str, row["principal_ref"]),

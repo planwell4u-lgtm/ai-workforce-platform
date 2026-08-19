@@ -20,34 +20,48 @@ from .b1 import (
 
 
 class ConversationHistoryStore(Protocol):
-    def list(
-        self, scope: TenantScope, kind: str, limit: int = 25
-    ) -> list[VersionedRecord]: ...
+    def list(self, scope: TenantScope, kind: str, limit: int = 25) -> list[VersionedRecord]: ...
 
 
 class AdminConversationsApi:
     route_ref = "operator.conversation-history.v1"
     required_permission = "operator.status.read"
 
-    def __init__(self, verifier: IdentityVerifier, memberships: MembershipDirectory, audit_sink: AuditSink, store: ConversationHistoryStore, environment_ref: str) -> None:
+    def __init__(
+        self,
+        verifier: IdentityVerifier,
+        memberships: MembershipDirectory,
+        audit_sink: AuditSink,
+        store: ConversationHistoryStore,
+        environment_ref: str,
+    ) -> None:
         self._verifier, self._memberships, self._audit_sink = verifier, memberships, audit_sink
         self._store, self._environment_ref = store, environment_ref
 
-    def __call__(self, environ: Mapping[str, object], start_response: Callable[..., object]) -> list[bytes]:
+    def __call__(
+        self, environ: Mapping[str, object], start_response: Callable[..., object]
+    ) -> list[bytes]:
         correlation_ref = str(uuid.uuid4())
         headers = [("Content-Type", "application/json"), ("X-Correlation-Id", correlation_ref)]
         try:
-            if environ.get("REQUEST_METHOD") != "GET" or environ.get("PATH_INFO") != "/v1/admin/conversations":
-                return self._respond(start_response, "404 Not Found", headers, {"error": "not_found"})
+            if (
+                environ.get("REQUEST_METHOD") != "GET"
+                or environ.get("PATH_INFO") != "/v1/admin/conversations"
+            ):
+                return self._respond(
+                    start_response, "404 Not Found", headers, {"error": "not_found"}
+                )
             identity = self._verifier.verify(cast(str | None, environ.get("HTTP_AUTHORIZATION")))
             membership = self._memberships.resolve(identity.principal_ref)
-            if self.required_permission not in membership.permissions or self.required_permission not in identity.granted_permissions:
+            if (
+                self.required_permission not in membership.permissions
+                or self.required_permission not in identity.granted_permissions
+            ):
                 raise AuthorizationError("insufficient_permission")
             scope = TenantScope(membership.tenant_ref, self._environment_ref, correlation_ref)
             records = self._store.list(scope, "conversation")
             actions = {
-                record.record_ref: record.payload
-                for record in self._store.list(scope, "action")
+                record.record_ref: record.payload for record in self._store.list(scope, "action")
             }
             conversations = [
                 {
@@ -61,10 +75,23 @@ class AdminConversationsApi:
                 }
                 for record in records
             ]
-            self._audit_sink.record(AuditEvent("allowed", "history_viewed", correlation_ref, self.route_ref, identity.principal_ref, membership.tenant_ref))
-            return self._respond(start_response, "200 OK", headers, {"conversations": conversations})
+            self._audit_sink.record(
+                AuditEvent(
+                    "allowed",
+                    "history_viewed",
+                    correlation_ref,
+                    self.route_ref,
+                    identity.principal_ref,
+                    membership.tenant_ref,
+                )
+            )
+            return self._respond(
+                start_response, "200 OK", headers, {"conversations": conversations}
+            )
         except AuthenticationError:
-            return self._respond(start_response, "401 Unauthorized", headers, {"error": "unauthorized"})
+            return self._respond(
+                start_response, "401 Unauthorized", headers, {"error": "unauthorized"}
+            )
         except AuthorizationError:
             return self._respond(start_response, "403 Forbidden", headers, {"error": "forbidden"})
 
@@ -85,7 +112,12 @@ class AdminConversationsApi:
         return ticket_ref if isinstance(ticket_ref, str) and ticket_ref else None
 
     @staticmethod
-    def _respond(start_response: Callable[..., object], status: str, headers: list[tuple[str, str]], body: object) -> list[bytes]:
+    def _respond(
+        start_response: Callable[..., object],
+        status: str,
+        headers: list[tuple[str, str]],
+        body: object,
+    ) -> list[bytes]:
         encoded = json.dumps(body, separators=(",", ":")).encode()
         start_response(status, [*headers, ("Content-Length", str(len(encoded)))])
         return [encoded]

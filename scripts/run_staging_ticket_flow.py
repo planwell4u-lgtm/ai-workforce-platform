@@ -70,7 +70,9 @@ def main() -> None:
     audience = _required_environment("AUTH0_AUDIENCE")
     redirect_uri = "http://localhost:8765/callback"
     verifier = secrets.token_urlsafe(64)
-    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    challenge = (
+        base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    )
     state = secrets.token_urlsafe(32)
     query = urlencode(
         {
@@ -93,7 +95,11 @@ def main() -> None:
     webbrowser.open(f"https://{domain}/authorize?{query}")
     server.timeout = 1
     deadline = time.monotonic() + 300
-    while CallbackHandler.code is None and CallbackHandler.error is None and time.monotonic() < deadline:
+    while (
+        CallbackHandler.code is None
+        and CallbackHandler.error is None
+        and time.monotonic() < deadline
+    ):
         server.handle_request()
     server.server_close()
     if CallbackHandler.error:
@@ -106,7 +112,9 @@ def main() -> None:
         )
         raise SystemExit("Auth0 denied the authorization request")
     if CallbackHandler.state != state or CallbackHandler.code is None:
-        _write_result(arguments.result_file, {"outcome": "runner_error", "reason": "callback_invalid"})
+        _write_result(
+            arguments.result_file, {"outcome": "runner_error", "reason": "callback_invalid"}
+        )
         raise SystemExit("sign-in was cancelled, expired, or failed state validation")
     token_permissions: list[str] = []
     try:

@@ -57,16 +57,19 @@ class JiraSupportTicketActionTests(unittest.TestCase):
             sent_request.full_url,
             "https://api.atlassian.com/ex/jira/cloud-123/rest/servicedeskapi/request",
         )
-        self.assertEqual(json.loads(sent_request.data), {
-            "serviceDeskId": "67",
-            "requestTypeId": "69",
-            "requestFieldValues": {
-                "summary": "Need support",
-                "description": (
-                    "Tenant: tenant-a\nConversation: conversation-a\nIdempotency reference: request-1"
-                ),
+        self.assertEqual(
+            json.loads(sent_request.data),
+            {
+                "serviceDeskId": "67",
+                "requestTypeId": "69",
+                "requestFieldValues": {
+                    "summary": "Need support",
+                    "description": (
+                        "Tenant: tenant-a\nConversation: conversation-a\nIdempotency reference: request-1"
+                    ),
+                },
             },
-        })
+        )
 
     def test_authorization_rejection_and_ambiguous_delivery_are_safe(self) -> None:
         action = JiraSupportTicketAction(JiraServiceManagementClient(SETTINGS, Mock()))
