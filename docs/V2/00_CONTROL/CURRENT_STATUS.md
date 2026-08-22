@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.2
+**Version:** 5.3
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -66,8 +66,8 @@ deferred until explicitly authorized.
 
 # Next Action
 
-Choose whether to authorize a new signed release candidate for the verified
-local changes, or select another bounded delivery scope. Keep any future
+Choose the next bounded delivery scope. The verified local changes are
+published as signed release candidate `v0.2.0-rc.1`. Keep any future
 application-data expansion, actions, number rental, and phone calls separately
 authorized; Twilio remains deferred.
 
@@ -103,6 +103,7 @@ separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.3 | 2026-08-23 | Published signed release candidate `v0.2.0-rc.1` from `4bdf72ff377bfdcac360f82149b7bff020bd591f`; backend and frontend images, keyless signatures, verification, and provenance artifact succeeded. |
 | 5.2 | 2026-08-23 | Full backend suite and frontend checks passed after FAQ-context, Auth0-refresh, diagram, and browser-flow work; release publication remains separately authorized. |
 | 5.1 | 2026-08-23 | Recorded Taj's final approval for diagrams 01–07; the diagram PNG and reviewer-metadata finalization is complete. |
 | 5.0 | 2026-08-22 | Completed local acceptance of the approved read-only FAQ context boundary: approved-answer and safe-unavailable rehearsals passed. |
