@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.5
+**Version:** 5.6
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -58,6 +58,7 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - The local frontend now retains the Auth0 session cache across a browser refresh. The signed-in browser rehearsal verified that refresh restored the session while ending microphone sharing; a new local voice session then started and stopped cleanly.
 - The approved read-only Cloud-agent FAQ context boundary is locally verified: an order-tracking answer matched the approved excerpt, and an unmatched refund-policy topic safely offered human support without inventing an answer or taking an action.
 - Exact signed-release rehearsal passed for `v0.2.0-rc.1`: the corrected runtime Auth0 configuration authenticated successfully, the Cloud agent received the explicit order-tracking FAQ topic, audio was received, and Stop released microphone sharing.
+- The owner-designated LiveKit phone number is active with an inbound-only individual-room dispatch rule for the existing support agent. Recording, actions, outbound calling, and Twilio are not enabled; the single inbound caller rehearsal remains.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -68,11 +69,10 @@ and release authority is explicitly granted.
 
 # Next Action
 
-Choose the next bounded delivery scope. The verified local changes are
-published as signed release candidate `v0.2.0-rc.1`. Cloud deployment occurs
-only at the end of the project; keep any future application-data expansion,
-actions, number rental, and phone calls separately authorized; Twilio remains
-deferred.
+Complete one controlled inbound LiveKit phone rehearsal against the active
+pilot number. The verified local changes are published as signed release
+candidate `v0.2.0-rc.1`. Cloud deployment occurs only at the end of the
+project; actions, outbound calling, and Twilio remain separately deferred.
 
 # Session Checkpoint
 
@@ -85,8 +85,10 @@ The owner approved the recommended sequence to evaluate a LiveKit-managed
 inbound phone number before considering Twilio. Before telephony, the local
 scripted browser-agent proof, Cloud Console conversational rehearsal, and
 protected local-browser-to-Cloud-agent rehearsal are complete.
-Application-data access, number rental, routing, and telephone calls remain
-separately gated external actions.
+The owner has approved the pilot-number rental and inbound routing. The
+remaining telephone action is one controlled inbound caller rehearsal;
+application-data expansion, actions, outbound calling, and Twilio remain
+separately gated.
 
 # Delivery Guardrails
 
@@ -106,6 +108,7 @@ separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.6 | 2026-08-23 | Activated the owner-designated LiveKit inbound phone pilot and support-agent dispatch; one inbound caller rehearsal remains. |
 | 5.5 | 2026-08-23 | Recorded the owner decision that cloud deployment is an end-of-project release activity, not an active delivery scope. |
 | 5.4 | 2026-08-23 | Completed exact signed-release Cloud-agent rehearsal: Auth0 runtime configuration, explicit FAQ topic, received audio, and clean microphone stop all passed. |
 | 5.3 | 2026-08-23 | Published signed release candidate `v0.2.0-rc.1` from `4bdf72ff377bfdcac360f82149b7bff020bd591f`; backend and frontend images, keyless signatures, verification, and provenance artifact succeeded. |
