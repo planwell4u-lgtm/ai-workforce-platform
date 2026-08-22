@@ -27,6 +27,7 @@ test("server-renders the Planwell support chat", async () => {
 
 test("keeps voice consent, playback, and recovery explicit in browser code", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /cacheLocation: "localstorage"/);
   assert.match(page, /Start voice/);
   assert.match(page, /Enable microphone/);
   assert.match(page, /Stop voice/);

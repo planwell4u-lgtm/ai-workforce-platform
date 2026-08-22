@@ -9,6 +9,7 @@ from datetime import timedelta
 from typing import cast
 
 from livekit import api
+from ai_workforce_agent.context import LocalKnowledgeSource
 
 from .b1 import (
     AuditEvent,
@@ -37,6 +38,7 @@ class VoiceCloudAgentTokenApi:
         api_key: str,
         api_secret: str,
         agent_name: str,
+        knowledge: LocalKnowledgeSource,
         correlation_factory: Callable[[], str] = lambda: str(uuid.uuid4()),
     ) -> None:
         if not url.startswith("wss://"):
@@ -50,6 +52,7 @@ class VoiceCloudAgentTokenApi:
         self._api_key = api_key
         self._api_secret = api_secret
         self._agent_name = agent_name
+        self._knowledge = knowledge
         self._correlation_factory = correlation_factory
 
     def __call__(
@@ -67,6 +70,16 @@ class VoiceCloudAgentTokenApi:
                 or self.required_permission not in identity.granted_permissions
             ):
                 raise AuthorizationError("insufficient_permission")
+            body_size = int(cast(str, environ.get("CONTENT_LENGTH") or "0"))
+            if body_size < 1 or body_size > 512:
+                raise AuthorizationError("invalid_context_request")
+            request = json.loads(cast(object, environ.get("wsgi.input")).read(body_size))
+            query = request.get("support_query") if isinstance(request, dict) else None
+            if not isinstance(query, str) or not query.strip() or len(query) > 240:
+                raise AuthorizationError("invalid_context_request")
+            entry = self._knowledge.search(membership.tenant_ref, query)
+            if entry is None:
+                raise AuthorizationError("approved_context_unavailable")
             room_ref = f"cloud-agent-{membership.tenant_ref}-{uuid.uuid4()}"
             token = (
                 api.AccessToken(self._api_key, self._api_secret)
@@ -80,7 +93,8 @@ class VoiceCloudAgentTokenApi:
                             api.RoomAgentDispatch(
                                 agent_name=self._agent_name,
                                 metadata=json.dumps(
-                                    {"mode": "browser-proof"}, separators=(",", ":")
+                                    {"mode": "support-faq", "source_ref": entry.source_ref,
+                                     "support_context": entry.excerpt}, separators=(",", ":")
                                 ),
                             )
                         ]

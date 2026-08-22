@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import unittest
+from io import BytesIO
 from pathlib import Path
 
 from livekit import api
@@ -19,6 +20,7 @@ from ai_workforce_backend.b1 import (
     Membership,
 )
 from ai_workforce_backend.voice_cloud_token import VoiceCloudAgentTokenApi
+from ai_workforce_agent.context import KnowledgeEntry, LocalKnowledgeSource
 
 
 class Verifier:
@@ -53,6 +55,7 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
             api_key="cloud-key",
             api_secret="cloud-secret",
             agent_name="planwell-browser-proof",
+            knowledge=LocalKnowledgeSource((KnowledgeEntry("faq:v1", "tenant-a", "internal", True, "Q: order tracking\nA: Your order is on its way."),)),
             correlation_factory=lambda: "correlation-a",
         )
         captured: dict[str, object] = {}
@@ -62,6 +65,8 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
                     "REQUEST_METHOD": "POST",
                     "PATH_INFO": token_api.path,
                     "HTTP_AUTHORIZATION": "Bearer valid",
+                    "CONTENT_LENGTH": "25",
+                    "wsgi.input": BytesIO(b'{"support_query":"order"}'),
                 },
                 lambda status, headers: captured.update(status=status),
             )
@@ -74,4 +79,6 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
         claims = api.TokenVerifier("cloud-key", "cloud-secret").verify(response["token"])
         self.assertEqual(claims.video.room, response["room_ref"])
         self.assertEqual(claims.room_config.agents[0].agent_name, "planwell-browser-proof")
-        self.assertEqual(claims.room_config.agents[0].metadata, '{"mode":"browser-proof"}')
+        metadata = json.loads(claims.room_config.agents[0].metadata)
+        self.assertEqual(metadata["mode"], "support-faq")
+        self.assertEqual(metadata["source_ref"], "faq:v1")

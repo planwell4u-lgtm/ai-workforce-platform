@@ -274,6 +274,7 @@ def create_app() -> BackendApplication:
             api_key=cast(str, livekit_cloud_api_key),
             api_secret=cast(str, livekit_cloud_api_secret),
             agent_name=cast(str, livekit_cloud_agent_name),
+            knowledge=knowledge,
         )
         if all(livekit_cloud_values)
         else None,

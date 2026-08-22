@@ -1,6 +1,6 @@
 # 18_ARCHITECTURE_DIAGRAMS
 
-**Version:** 1.1  
+**Version:** 1.3  
 **Status:** Approved  
 **Owner:** Architecture Owner  
 **Phase:** Architecture Documentation  
@@ -76,25 +76,27 @@ Before a diagram is approved:
 
 # Current Status
 
-This module and its diagram-governance standard are approved. Diagrams 01–07 have editable Draw.io sources and review SVGs. PNG export and final reviewer metadata are required before a diagram is marked fully approved.
+This module and its diagram-governance standard are approved. Diagrams 01–07 have editable Draw.io sources and matching SVG/PNG exports with final reviewer metadata.
 
 # Artifact Inventory
 
-All seven planned diagrams now have validated editable Draw.io sources and matching review SVGs. PNG exports and final reviewer metadata remain required before an individual diagram is marked fully approved.
+All seven planned diagrams have validated editable Draw.io sources and matching SVG/PNG exports. They are individually approved.
 
 | ID | Editable source | Review export | PNG | Reviewer metadata | Diagram status |
 |---|---|---|---|---|---|
-| 01 | `source/01_platform-context-and-ownership.drawio` | `rendered/01_platform-context-and-ownership.svg` | Pending | Pending | Review-ready |
-| 02 | `source/02_voice-agent-runtime-flow.drawio` | `rendered/02_voice-agent-runtime-flow.svg` | Pending | Pending | Review-ready |
-| 03 | `source/03_security-trust-and-authorization-flow.drawio` | `rendered/03_security-trust-and-authorization-flow.svg` | Pending | Pending | Review-ready |
-| 04 | `source/04_data-lifecycle-and-recovery-flow.drawio` | `rendered/04_data-lifecycle-and-recovery-flow.svg` | Pending | Pending | Review-ready |
-| 05 | `source/05_integration-action-and-workflow-flow.drawio` | `rendered/05_integration-action-and-workflow-flow.svg` | Pending | Pending | Review-ready |
-| 06 | `source/06_digital-channel-delivery-flow.drawio` | `rendered/06_digital-channel-delivery-flow.svg` | Pending | Pending | Review-ready |
-| 07 | `source/07_deployment-observability-and-incident-flow.drawio` | `rendered/07_deployment-observability-and-incident-flow.svg` | Pending | Pending | Review-ready |
+| 01 | `source/01_platform-context-and-ownership.drawio` | `rendered/01_platform-context-and-ownership.svg` | `rendered/01_platform-context-and-ownership.png` | Taj — 2026-08-23 | Approved |
+| 02 | `source/02_voice-agent-runtime-flow.drawio` | `rendered/02_voice-agent-runtime-flow.svg` | `rendered/02_voice-agent-runtime-flow.png` | Taj — 2026-08-23 | Approved |
+| 03 | `source/03_security-trust-and-authorization-flow.drawio` | `rendered/03_security-trust-and-authorization-flow.svg` | `rendered/03_security-trust-and-authorization-flow.png` | Taj — 2026-08-23 | Approved |
+| 04 | `source/04_data-lifecycle-and-recovery-flow.drawio` | `rendered/04_data-lifecycle-and-recovery-flow.svg` | `rendered/04_data-lifecycle-and-recovery-flow.png` | Taj — 2026-08-23 | Approved |
+| 05 | `source/05_integration-action-and-workflow-flow.drawio` | `rendered/05_integration-action-and-workflow-flow.svg` | `rendered/05_integration-action-and-workflow-flow.png` | Taj — 2026-08-23 | Approved |
+| 06 | `source/06_digital-channel-delivery-flow.drawio` | `rendered/06_digital-channel-delivery-flow.svg` | `rendered/06_digital-channel-delivery-flow.png` | Taj — 2026-08-23 | Approved |
+| 07 | `source/07_deployment-observability-and-incident-flow.drawio` | `rendered/07_deployment-observability-and-incident-flow.svg` | `rendered/07_deployment-observability-and-incident-flow.png` | Taj — 2026-08-23 | Approved |
 
 # Revision History
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.3 | 2026-08-23 | Recorded Taj's final approval for diagrams 01–07 and marked the artifact set approved. |
+| 1.2 | 2026-08-22 | Exported validated PNG artifacts for diagrams 01–07; named-reviewer approval remains pending. |
 | 1.1 | 2026-08-09 | Added editable Draw.io sources and matching SVG review exports for diagrams 01–07; added artifact inventory. |
 | 1.0 | 2026-08-07 | Created the Architecture Diagrams module, initial inventory, artifact structure, and review rules. |

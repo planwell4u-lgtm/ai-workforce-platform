@@ -1,6 +1,6 @@
 # 10_PROJECT_STATUS
 
-**Version:** 3.8
+**Version:** 4.0
 
 **Status:** Approved
 
@@ -30,7 +30,7 @@ This document represents the current reality of the project.
 |---|---|
 | Project | AI Workforce Platform |
 | Documentation Version | v2 |
-| Last Updated | 2026-08-18 |
+| Last Updated | 2026-08-22 |
 | Updated By | Architecture Owner |
 | Review Frequency | Milestone Based |
 
@@ -54,9 +54,9 @@ This document exists to:
 
 | Item | Status |
 |---|---|
-| Project Phase | First Vertical Slice — local release baseline |
+| Project Phase | First Vertical Slice — local release baseline and gated data-boundary design |
 | Project Status | Active |
-| Development Status | B0–B9 locally implemented and verified; cloud deployment deferred |
+| Development Status | B0–B9 locally implemented and verified; approved read-only data boundary ready for implementation |
 | Architecture Status | Approved; visual-review finalization remains |
 | Documentation Status | Complete; diagram finalization remains |
 
@@ -66,20 +66,21 @@ This document exists to:
 
 ## Phase
 
-Implementation Readiness & First Vertical Slice Phase
+First Vertical Slice Completion & Controlled Expansion Phase
 
 ---
 
 ## Objective
 
-The objective of this phase is to turn the approved architecture into the smallest safe end-to-end codebase slice.
+The objective of this phase is to preserve the verified local slice while
+introducing only separately approved, bounded expansions.
 
 Goals:
 
-- Establish the approved workspace and module boundaries.
-- Implement the first tenant-aware, traceable vertical slice.
+- Preserve the tenant-aware, traceable local vertical slice and its evidence.
+- Approve a read-only application-data boundary before any Cloud-agent support-data connection.
 - Preserve all approved contracts, controls, and evidence requirements.
-- Complete diagram PNG exports and reviewer metadata in parallel with engineering setup.
+- Complete diagram PNG exports and reviewer metadata separately.
 
 ---
 
@@ -88,8 +89,8 @@ Goals:
 Current focus areas:
 
 - Preserve the verified, exact-digest signed local release baseline.
-- Record the next Voice-provider decision: LiveKit sandbox evaluation first, with
-  Twilio PSTN/SIP considered separately when phone calling is in scope.
+- Implement and test the approved read-only application-data boundary without
+  broadening its scope.
 - Finalize diagram PNG exports and reviewer metadata.
 
 ---
@@ -119,7 +120,7 @@ Current focus areas:
 | Frontend Platform Architecture Documentation | Completed | Frontend Platform Owner |
 | Platform Architecture Documentation | Completed; diagram finalization pending | Architecture Owner |
 | Implementation Preparation | Completed | Engineering Owner |
-| Coding Phase | B0–B9 local slice complete; provider expansion next | Engineering Owner |
+| Coding Phase | B0–B9 local slice complete; data-boundary approval next | Engineering Owner |
 
 ---
 
@@ -229,13 +230,12 @@ The complete 16_PLATFORM_FOUNDATION architecture set, including module navigatio
 
 Status:
 
-Ready to begin
+Local slice complete; approved data-boundary implementation pending
 
 Focus:
 
-- Engineering workspace and module-boundary foundation.
-- Tenant-aware identity/API entry and shared contracts.
-- Controlled provider/sandbox selection for the first supported paths.
+- Preserve the verified local chat, admin, Jira, and voice baseline.
+- Implement the approved read-only Cloud-agent support-FAQ context boundary.
 
 ---
 
@@ -254,18 +254,21 @@ Focus:
 
 # Upcoming Activities
 
-## Implementation Preparation
+## Controlled Application-Data Expansion
 
 Next activities:
 
-- Establish the workspace, safe configuration, quality checks, and CI skeleton.
-- Confirm the first-slice provider and contract choices under their owning modules.
-- Implement B1: tenant-aware identity and protected API entry.
-- Preserve traceability, test evidence, operational readiness, and recovery requirements throughout.
+- Implement only the approved contract, enforcement, tests, evidence, and
+  rollback control in `20_ENGINEERING/05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
+- Preserve traceability, test evidence, operational readiness, and recovery
+  requirements throughout.
 
 ## Next Architecture Module
 
-Architecture documentation and the first vertical-slice backlog are approved. The next action is B0, Engineering Foundation: create the governed workspace/module structure, local safe configuration, quality baseline, test runner, and CI entry point before product behavior is implemented.
+The verified local vertical slice and LiveKit browser rehearsals are complete.
+The next action is constrained implementation of the approved read-only
+application-data boundary; it does not authorize telephony, actions, or any
+broader data connection.
 
 ---
 
@@ -294,7 +297,7 @@ Green
 | Architecture | Green |
 | Documentation | Green |
 | Planning | Green |
-| Implementation | Ready to begin |
+| Implementation | Local baseline complete; controlled expansion pending approval |
 | Risks | Managed |
 | Blockers | None |
 
@@ -304,10 +307,9 @@ Green
 
 Priority order:
 
-1. Confirm B1 identity, tenant/membership, audit/correlation, and route choices with the owning modules.
-2. Implement B1 tenant-aware identity and protected API entry.
-3. Maintain tests, telemetry, runbook, and recovery evidence with each slice.
-4. Finalize diagram PNG exports and reviewer metadata.
+1. Implement and test the approved read-only application-data boundary.
+2. Maintain tests, telemetry, runbook, and recovery evidence with each slice.
+3. Finalize diagram PNG exports and reviewer metadata.
 
 ---
 
@@ -485,6 +487,8 @@ Change Management
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.0 | 2026-08-22 | Recorded explicit approval for the constrained read-only application-data boundary and moved the next action to implementation and tests. |
+| 3.9 | 2026-08-22 | Reconciled detailed status with the verified local Auth0/voice recovery rehearsal and proposed, separately gated read-only application-data boundary. |
 | 3.8 | 2026-08-18 | Reconciled the detailed status with B0–B9 local completion, signed exact-digest rehearsal, deferred cloud deployment, and the next Voice-provider decision. |
 | 2.0 | 2026-08-03 | Initial project status structure. |
 | 2.1 | 2026-08-03 | Added update procedure, milestones tracking, and status history. |
