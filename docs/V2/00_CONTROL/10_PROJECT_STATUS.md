@@ -1,6 +1,6 @@
 # 10_PROJECT_STATUS
 
-**Version:** 4.1
+**Version:** 4.2
 
 **Status:** Approved
 
@@ -80,7 +80,8 @@ Goals:
 - Preserve the tenant-aware, traceable local vertical slice and its evidence.
 - Preserve the approved read-only application-data boundary for Cloud-agent support context.
 - Preserve all approved contracts, controls, and evidence requirements.
-- Keep any future Cloud data expansion and telephony separately authorized.
+- Keep cloud deployment for the end-of-project release, with all future Cloud
+  data expansion and telephony separately authorized.
 
 ---
 
@@ -264,7 +265,8 @@ Next activities:
 
 The verified local vertical slice, approved FAQ boundary, and exact signed
 release rehearsal are complete. The next action is a new bounded scope
-decision; it does not authorize telephony, actions, or broader data access.
+decision. Cloud deployment is reserved for the end-of-project release and
+does not authorize telephony, actions, or broader data access.
 
 ---
 
@@ -484,6 +486,7 @@ Change Management
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.2 | 2026-08-23 | Recorded the owner decision to keep cloud deployment as an end-of-project release activity. |
 | 4.1 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved FAQ boundary; next action is a new bounded scope decision. |
 | 4.0 | 2026-08-22 | Recorded explicit approval for the constrained read-only application-data boundary and moved the next action to implementation and tests. |
 | 3.9 | 2026-08-22 | Reconciled detailed status with the verified local Auth0/voice recovery rehearsal and proposed, separately gated read-only application-data boundary. |

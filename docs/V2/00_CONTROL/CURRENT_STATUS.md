@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.4
+**Version:** 5.5
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -62,15 +62,17 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 
 # Deployment Decision
 
-There are no active local-release gaps. Cloud deployment remains intentionally
-deferred until explicitly authorized.
+There are no active local-release gaps. Cloud deployment is an end-of-project
+release activity and remains deferred until the project is otherwise complete
+and release authority is explicitly granted.
 
 # Next Action
 
 Choose the next bounded delivery scope. The verified local changes are
-published as signed release candidate `v0.2.0-rc.1`. Keep any future
-application-data expansion, actions, number rental, and phone calls separately
-authorized; Twilio remains deferred.
+published as signed release candidate `v0.2.0-rc.1`. Cloud deployment occurs
+only at the end of the project; keep any future application-data expansion,
+actions, number rental, and phone calls separately authorized; Twilio remains
+deferred.
 
 # Session Checkpoint
 
@@ -104,6 +106,7 @@ separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.5 | 2026-08-23 | Recorded the owner decision that cloud deployment is an end-of-project release activity, not an active delivery scope. |
 | 5.4 | 2026-08-23 | Completed exact signed-release Cloud-agent rehearsal: Auth0 runtime configuration, explicit FAQ topic, received audio, and clean microphone stop all passed. |
 | 5.3 | 2026-08-23 | Published signed release candidate `v0.2.0-rc.1` from `4bdf72ff377bfdcac360f82149b7bff020bd591f`; backend and frontend images, keyless signatures, verification, and provenance artifact succeeded. |
 | 5.2 | 2026-08-23 | Full backend suite and frontend checks passed after FAQ-context, Auth0-refresh, diagram, and browser-flow work; release publication remains separately authorized. |
