@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.3
+**Version:** 5.4
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -15,7 +15,7 @@ This is the concise operational snapshot for contributors. `10_PROJECT_STATUS.md
 
 The approved V2 architecture and engineering planning are complete. Auth0 JWT validation, Supabase PostgreSQL persistence, Jira ticket creation, and the protected tenant-scoped FAQ support flow are verified in staging.
 
-The initial Architecture Diagrams set (01-07) has validated editable Draw.io sources and matching SVG review exports. PNG exports and reviewer metadata remain required before individual diagrams are fully approved.
+The initial Architecture Diagrams set (01-07) has approved editable Draw.io sources, matching SVG and PNG review exports, and recorded reviewer metadata.
 
 # Completed
 
@@ -57,6 +57,7 @@ The initial Architecture Diagrams set (01-07) has validated editable Draw.io sou
 - Repository Quality recovery and the Cloud voice integration are merged on `main`. The Cloud browser recovery rehearsal passed: Stop/Start reconnected successfully, browser refresh released the microphone and returned to a safe signed-out state, and browser-level microphone denial shared nothing; after permission was restored, a new Cloud voice session spoke normally.
 - The local frontend now retains the Auth0 session cache across a browser refresh. The signed-in browser rehearsal verified that refresh restored the session while ending microphone sharing; a new local voice session then started and stopped cleanly.
 - The approved read-only Cloud-agent FAQ context boundary is locally verified: an order-tracking answer matched the approved excerpt, and an unmatched refund-policy topic safely offered human support without inventing an answer or taking an action.
+- Exact signed-release rehearsal passed for `v0.2.0-rc.1`: the corrected runtime Auth0 configuration authenticated successfully, the Cloud agent received the explicit order-tracking FAQ topic, audio was received, and Stop released microphone sharing.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -103,6 +104,7 @@ separately gated external actions.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.4 | 2026-08-23 | Completed exact signed-release Cloud-agent rehearsal: Auth0 runtime configuration, explicit FAQ topic, received audio, and clean microphone stop all passed. |
 | 5.3 | 2026-08-23 | Published signed release candidate `v0.2.0-rc.1` from `4bdf72ff377bfdcac360f82149b7bff020bd591f`; backend and frontend images, keyless signatures, verification, and provenance artifact succeeded. |
 | 5.2 | 2026-08-23 | Full backend suite and frontend checks passed after FAQ-context, Auth0-refresh, diagram, and browser-flow work; release publication remains separately authorized. |
 | 5.1 | 2026-08-23 | Recorded Taj's final approval for diagrams 01–07; the diagram PNG and reviewer-metadata finalization is complete. |

@@ -1,6 +1,6 @@
 # 20_ENGINEERING
 
-**Version:** 1.4  
+**Version:** 1.6
 **Status:** Approved  
 **Owner:** Engineering Owner  
 **Phase:** Implementation Planning
@@ -31,9 +31,9 @@ It does not own:
 2. `02_ENGINEERING_WORKSPACE_AND_MODULE_STRUCTURE.md` — source-code organization, package/module boundaries, and dependency rules aligned to V2 ownership.
 3. `03_ENGINEERING_DELIVERY_WORKFLOW.md` — feature planning, review, validation, release, recovery, and durable change-record workflow.
 4. `04_IMPLEMENTATION_DECISION_AND_TRACEABILITY.md` — links between requirements, architecture, code, tests, migrations, operations, and decisions.
-5. `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md` — proposed, separately gated
-   contract for the Cloud agent to read only the current tenant's approved
-   support-FAQ context.
+5. `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md` — approved and implemented,
+   constrained contract for the Cloud agent to read only the current tenant's
+   approved support-FAQ context.
 
 The set may expand only when an implementation need cannot be covered by an existing authoritative module document.
 
@@ -72,7 +72,7 @@ It excludes broad multi-tenant administration, additional channels, unbounded in
 
 # Current Status
 
-The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0–B9 are implemented and locally verified, including signed exact-digest container rehearsal. The local LiveKit and Cloud-agent rehearsals are complete. The proposed read-only application-data boundary awaits cross-owner approval; cloud deployment and Twilio remain deferred.
+The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0–B9 and the approved read-only FAQ boundary are implemented and locally verified, including the `v0.2.0-rc.1` exact-digest signed-image rehearsal. The local LiveKit and Cloud-agent rehearsals are complete. Cloud deployment and Twilio remain deferred.
 
 # Related Documents
 
@@ -89,6 +89,7 @@ The Engineering implementation-planning set is complete. Documents 01–04 defin
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.6 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved constrained Cloud-agent FAQ boundary. |
 | 1.5 | 2026-08-22 | Added the proposed, separately gated read-only application-data boundary for Cloud-agent support-FAQ context. |
 | 1.4 | 2026-08-18 | Reconciled the Engineering status with completed B0–B9 local slice evidence and the next Voice-provider decision. |
 | 1.2 | 2026-08-09 | Completed the initial Engineering document set (02–04) and confirmed the pre-coding planning boundary. |

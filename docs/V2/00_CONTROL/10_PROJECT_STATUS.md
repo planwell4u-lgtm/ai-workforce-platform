@@ -1,6 +1,6 @@
 # 10_PROJECT_STATUS
 
-**Version:** 4.0
+**Version:** 4.1
 
 **Status:** Approved
 
@@ -30,7 +30,7 @@ This document represents the current reality of the project.
 |---|---|
 | Project | AI Workforce Platform |
 | Documentation Version | v2 |
-| Last Updated | 2026-08-22 |
+| Last Updated | 2026-08-23 |
 | Updated By | Architecture Owner |
 | Review Frequency | Milestone Based |
 
@@ -56,9 +56,9 @@ This document exists to:
 |---|---|
 | Project Phase | First Vertical Slice — local release baseline and gated data-boundary design |
 | Project Status | Active |
-| Development Status | B0–B9 locally implemented and verified; approved read-only data boundary ready for implementation |
-| Architecture Status | Approved; visual-review finalization remains |
-| Documentation Status | Complete; diagram finalization remains |
+| Development Status | B0–B9 locally implemented and verified; approved read-only data boundary implemented and rehearsed |
+| Architecture Status | Approved |
+| Documentation Status | Complete; diagrams approved |
 
 ---
 
@@ -78,9 +78,9 @@ introducing only separately approved, bounded expansions.
 Goals:
 
 - Preserve the tenant-aware, traceable local vertical slice and its evidence.
-- Approve a read-only application-data boundary before any Cloud-agent support-data connection.
+- Preserve the approved read-only application-data boundary for Cloud-agent support context.
 - Preserve all approved contracts, controls, and evidence requirements.
-- Complete diagram PNG exports and reviewer metadata separately.
+- Keep any future Cloud data expansion and telephony separately authorized.
 
 ---
 
@@ -89,9 +89,9 @@ Goals:
 Current focus areas:
 
 - Preserve the verified, exact-digest signed local release baseline.
-- Implement and test the approved read-only application-data boundary without
+- Preserve and monitor the approved read-only application-data boundary without
   broadening its scope.
-- Finalize diagram PNG exports and reviewer metadata.
+- Choose the next bounded delivery scope.
 
 ---
 
@@ -118,9 +118,9 @@ Current focus areas:
 | Digital Channel Platform Architecture Documentation | Completed | Digital Channel Platform Owner |
 | Agent Platform Architecture Documentation | Completed | Agent Platform Owner |
 | Frontend Platform Architecture Documentation | Completed | Frontend Platform Owner |
-| Platform Architecture Documentation | Completed; diagram finalization pending | Architecture Owner |
+| Platform Architecture Documentation | Completed; diagrams 01–07 approved | Architecture Owner |
 | Implementation Preparation | Completed | Engineering Owner |
-| Coding Phase | B0–B9 local slice complete; data-boundary approval next | Engineering Owner |
+| Coding Phase | B0–B9 local slice and approved FAQ boundary complete | Engineering Owner |
 
 ---
 
@@ -230,12 +230,12 @@ The complete 16_PLATFORM_FOUNDATION architecture set, including module navigatio
 
 Status:
 
-Local slice complete; approved data-boundary implementation pending
+Local slice and approved data-boundary implementation complete
 
 Focus:
 
 - Preserve the verified local chat, admin, Jira, and voice baseline.
-- Implement the approved read-only Cloud-agent support-FAQ context boundary.
+- Preserve the constrained Cloud-agent support-FAQ context boundary.
 
 ---
 
@@ -243,12 +243,11 @@ Focus:
 
 Status:
 
-In final review
+Approved
 
 Focus:
 
-- Generate PNG exports from the validated Draw.io sources.
-- Record reviewer, approval date, and source references for diagrams 01-07.
+- Maintain the approved Draw.io sources and review exports.
 
 ---
 
@@ -258,17 +257,14 @@ Focus:
 
 Next activities:
 
-- Implement only the approved contract, enforcement, tests, evidence, and
-  rollback control in `20_ENGINEERING/05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
-- Preserve traceability, test evidence, operational readiness, and recovery
-  requirements throughout.
+- Select a separately authorized, bounded improvement without broadening Cloud
+  support-data access, actions, or telephony.
 
 ## Next Architecture Module
 
-The verified local vertical slice and LiveKit browser rehearsals are complete.
-The next action is constrained implementation of the approved read-only
-application-data boundary; it does not authorize telephony, actions, or any
-broader data connection.
+The verified local vertical slice, approved FAQ boundary, and exact signed
+release rehearsal are complete. The next action is a new bounded scope
+decision; it does not authorize telephony, actions, or broader data access.
 
 ---
 
@@ -297,7 +293,7 @@ Green
 | Architecture | Green |
 | Documentation | Green |
 | Planning | Green |
-| Implementation | Local baseline complete; controlled expansion pending approval |
+| Implementation | Local baseline and approved controlled expansion complete |
 | Risks | Managed |
 | Blockers | None |
 
@@ -307,9 +303,9 @@ Green
 
 Priority order:
 
-1. Implement and test the approved read-only application-data boundary.
+1. Choose the next bounded delivery scope.
 2. Maintain tests, telemetry, runbook, and recovery evidence with each slice.
-3. Finalize diagram PNG exports and reviewer metadata.
+3. Preserve the approved data and diagram boundaries.
 
 ---
 
@@ -414,6 +410,7 @@ Related Documents:
 
 | Date | Change | Impact |
 |---|---|---|
+| 2026-08-23 | Published `v0.2.0-rc.1` and passed the exact signed-image Cloud-agent rehearsal | Established the verified local release baseline with constrained FAQ context |
 | 2026-08-03 | Documentation and architecture phase started | Established project foundation |
 | 2026-08-06 | Conversation Platform architecture documentation approved | Established the canonical conversation source of truth and completed the module architecture milestone |
 | 2026-08-06 | Knowledge Platform architecture documentation approved | Established the governed knowledge source of truth and completed the module architecture milestone |
@@ -487,6 +484,7 @@ Change Management
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.1 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved FAQ boundary; next action is a new bounded scope decision. |
 | 4.0 | 2026-08-22 | Recorded explicit approval for the constrained read-only application-data boundary and moved the next action to implementation and tests. |
 | 3.9 | 2026-08-22 | Reconciled detailed status with the verified local Auth0/voice recovery rehearsal and proposed, separately gated read-only application-data boundary. |
 | 3.8 | 2026-08-18 | Reconciled the detailed status with B0–B9 local completion, signed exact-digest rehearsal, deferred cloud deployment, and the next Voice-provider decision. |
