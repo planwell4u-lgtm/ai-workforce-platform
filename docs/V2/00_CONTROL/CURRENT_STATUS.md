@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.7
+**Version:** 5.8
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -59,6 +59,7 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - The approved read-only Cloud-agent FAQ context boundary is locally verified: an order-tracking answer matched the approved excerpt, and an unmatched refund-policy topic safely offered human support without inventing an answer or taking an action.
 - Exact signed-release rehearsal passed for `v0.2.0-rc.1`: the corrected runtime Auth0 configuration authenticated successfully, the Cloud agent received the explicit order-tracking FAQ topic, audio was received, and Stop released microphone sharing.
 - The owner-designated LiveKit phone number is active with an inbound-only individual-room dispatch rule for the existing support agent. The controlled inbound caller rehearsal passed: LiveKit recorded the inbound room/session and the owner heard the agent. Recording, actions, outbound calling, and Twilio are not enabled.
+- B11 local telephone admission primitives are implemented and tested: only configured called-number-to-tenant routes create canonical Conversations, telephone numbers are excluded from canonical session scope, unknown routes fail closed, and disconnected output remains uncertain. The active LiveKit pilot route is unchanged.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -69,9 +70,10 @@ and release authority is explicitly granted.
 
 # Next Action
 
-Choose the next bounded delivery scope. The verified local changes are
-published as signed release candidate `v0.2.0-rc.1`. Cloud deployment occurs
-only at the end of the project; actions, outbound calling, and Twilio remain
+Build and test a local LiveKit worker adapter for the B11 admission boundary.
+The verified local changes are published as signed release candidate
+`v0.2.0-rc.1`. Cloud deployment occurs only at the end of the project;
+application-data access, actions, outbound calling, and Twilio remain
 separately deferred.
 
 # Session Checkpoint
@@ -107,6 +109,7 @@ actions, outbound calling, and Twilio remain separately gated.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.8 | 2026-08-23 | Implemented and tested provider-neutral inbound-call admission: configured tenant routing, canonical Conversation creation, fail-closed unknown routes, and uncertain disconnect handling. |
 | 5.7 | 2026-08-23 | Completed the controlled inbound LiveKit phone rehearsal: the owner heard the dispatched support agent and LiveKit recorded the inbound room/session. |
 | 5.6 | 2026-08-23 | Activated the owner-designated LiveKit inbound phone pilot and support-agent dispatch; one inbound caller rehearsal remains. |
 | 5.5 | 2026-08-23 | Recorded the owner decision that cloud deployment is an end-of-project release activity, not an active delivery scope. |

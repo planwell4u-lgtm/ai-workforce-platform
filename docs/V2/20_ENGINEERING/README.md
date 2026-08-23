@@ -1,6 +1,6 @@
 # 20_ENGINEERING
 
-**Version:** 1.6
+**Version:** 1.7
 **Status:** Approved  
 **Owner:** Engineering Owner  
 **Phase:** Implementation Planning
@@ -34,6 +34,9 @@ It does not own:
 5. `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md` — approved and implemented,
    constrained contract for the Cloud agent to read only the current tenant's
    approved support-FAQ context.
+6. `06_INBOUND_TELEPHONE_INTEGRATION.md` — provider-neutral, tenant-safe
+   inbound-call admission contract; LiveKit worker and production routing are
+   separately deferred.
 
 The set may expand only when an implementation need cannot be covered by an existing authoritative module document.
 
@@ -72,7 +75,7 @@ It excludes broad multi-tenant administration, additional channels, unbounded in
 
 # Current Status
 
-The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0–B9 and the approved read-only FAQ boundary are implemented and locally verified, including the `v0.2.0-rc.1` exact-digest signed-image rehearsal. The local LiveKit and Cloud-agent rehearsals are complete. Cloud deployment and Twilio remain deferred.
+The Engineering implementation-planning set is complete. Documents 01–04 define the first vertical slice, workspace boundaries, delivery workflow, and durable decision/evidence trace. B0–B9, the approved read-only FAQ boundary, and the provider-neutral inbound-call admission primitives are implemented and locally verified. The `v0.2.0-rc.1` exact-digest signed-image rehearsal and the LiveKit inbound pilot are complete. Cloud deployment and Twilio remain deferred.
 
 # Related Documents
 
@@ -89,6 +92,7 @@ The Engineering implementation-planning set is complete. Documents 01–04 defin
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.7 | 2026-08-23 | Added the implemented local inbound-telephone admission contract; LiveKit worker, app-data access, and production routing remain separately deferred. |
 | 1.6 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved constrained Cloud-agent FAQ boundary. |
 | 1.5 | 2026-08-22 | Added the proposed, separately gated read-only application-data boundary for Cloud-agent support-FAQ context. |
 | 1.4 | 2026-08-18 | Reconciled the Engineering status with completed B0–B9 local slice evidence and the next Voice-provider decision. |
