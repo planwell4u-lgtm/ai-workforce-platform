@@ -1,6 +1,6 @@
 # Inbound Telephone Integration
 
-**Status:** Implemented locally — LiveKit event adapter complete; worker runtime and production routing deferred
+**Status:** Implemented locally — event adapter and worker harness complete; LiveKit Agents runtime and production routing deferred
 **Date:** 2026-08-23  
 **Scope:** Tenant-safe admission of an inbound telephone call into canonical Voice and Conversation state
 
@@ -48,15 +48,19 @@ disconnected output turn remains `uncertain`.
 - Disconnect keeps an active output turn `uncertain`.
 - The LiveKit event adapter admits only SIP participants carrying a valid
   `sip.trunkPhoneNumber`; it ignores caller-number attributes.
+- The local worker harness keeps one interaction per LiveKit call reference,
+  rejects a reused call reference in another room, and clears an interaction
+  with uncertain output on disconnect.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Build a local LiveKit worker runtime that receives validated SIP participant
-events and calls this adapter. It must not retrieve application data or modify
-the active cloud dispatch rule. Any subsequent FAQ context for a telephone call
-requires a separate extension of `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
+Install and validate the LiveKit Agents runtime, then connect its SIP
+participant callbacks to this worker harness. It must not retrieve application
+data or modify the active cloud dispatch rule. Any subsequent FAQ context for
+a telephone call requires a separate extension of
+`05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
 ## References
 

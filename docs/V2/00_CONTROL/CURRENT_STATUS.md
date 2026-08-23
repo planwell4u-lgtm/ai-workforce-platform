@@ -1,6 +1,6 @@
 # Current Project Status
 
-**Version:** 5.9
+**Version:** 5.10
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
 **Last Updated:** 2026-08-23
@@ -61,6 +61,7 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - The owner-designated LiveKit phone number is active with an inbound-only individual-room dispatch rule for the existing support agent. The controlled inbound caller rehearsal passed: LiveKit recorded the inbound room/session and the owner heard the agent. Recording, actions, outbound calling, and Twilio are not enabled.
 - B11 local telephone admission primitives are implemented and tested: only configured called-number-to-tenant routes create canonical Conversations, telephone numbers are excluded from canonical session scope, unknown routes fail closed, and disconnected output remains uncertain. The active LiveKit pilot route is unchanged.
 - The local LiveKit telephone event adapter is implemented and tested: only SIP participants with a valid called-number attribute reach B11 admission, and caller-number attributes are ignored.
+- The local inbound-telephone worker harness is implemented and tested: it keeps one interaction per call, rejects cross-room call-reference reuse, and clears disconnected calls with uncertain output. It has no LiveKit Agents runtime, media, model, data, or live-routing dependency.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -71,11 +72,11 @@ and release authority is explicitly granted.
 
 # Next Action
 
-Build and test a local LiveKit worker runtime that receives SIP participant
-events and invokes the B11 adapter. The verified local changes are published
-as signed release candidate `v0.2.0-rc.1`. Cloud deployment occurs only at the
-end of the project; application-data access, actions, outbound calling, and
-Twilio remain separately deferred.
+Install and validate the LiveKit Agents runtime, then connect its SIP
+participant callbacks to the local B11 worker harness. The verified local
+changes are published as signed release candidate `v0.2.0-rc.1`. Cloud
+deployment occurs only at the end of the project; application-data access,
+actions, outbound calling, and Twilio remain separately deferred.
 
 # Session Checkpoint
 
@@ -110,6 +111,7 @@ actions, outbound calling, and Twilio remain separately gated.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.10 | 2026-08-23 | Added and tested the local inbound-telephone worker harness: call idempotency, scope-conflict rejection, and uncertain disconnect cleanup. |
 | 5.9 | 2026-08-23 | Added and tested the local LiveKit SIP-event adapter: valid called-number admission only, with caller attributes ignored. |
 | 5.8 | 2026-08-23 | Implemented and tested provider-neutral inbound-call admission: configured tenant routing, canonical Conversation creation, fail-closed unknown routes, and uncertain disconnect handling. |
 | 5.7 | 2026-08-23 | Completed the controlled inbound LiveKit phone rehearsal: the owner heard the dispatched support agent and LiveKit recorded the inbound room/session. |

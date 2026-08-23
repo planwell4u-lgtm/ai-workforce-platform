@@ -44,3 +44,9 @@ class LiveKitInboundTelephoneAdapter:
         return self._telephone.admit(
             InboundTelephoneCall(event.call_ref, called_number, event.room_ref)
         )
+
+    def begin_output(self, interaction: InboundTelephoneInteraction, turn_ref: str) -> None:
+        self._telephone.begin_output(interaction, turn_ref)
+
+    def disconnect(self, interaction: InboundTelephoneInteraction) -> None:
+        self._telephone.disconnect(interaction)
