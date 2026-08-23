@@ -40,6 +40,13 @@ disconnected output turn remains `uncertain`.
   profiles, actions, human transfer, outbound calling, and Twilio.
 - Any external telephone routing change beyond the owner-approved pilot rule.
 
+## Minimal Media Subscription
+
+The owner approved a narrowly scoped LiveKit `AgentSession` for the local
+telephone worker. It subscribes transiently to caller audio so LiveKit can
+answer an inbound SIP call. It configures no STT, VAD, LLM, TTS, recording,
+transcription, data access, action, storage, or generated response.
+
 ## Local Evidence
 
 - Configured-number admission creates the expected tenant-scoped canonical
@@ -51,27 +58,25 @@ disconnected output turn remains `uncertain`.
 - The local worker harness keeps one interaction per LiveKit call reference,
   rejects a reused call reference in another room, and clears an interaction
   with uncertain output on disconnect.
-- The separate LiveKit Agents entrypoint waits only for a SIP participant,
-  derives a provider call reference from SIP attributes, and invokes the local
-  worker harness. Its default agent name is distinct from the active pilot
-  dispatch and it starts no model, media, recording, transcript, data, action,
-  or outbound-call capability.
+- The separate LiveKit Agents entrypoint starts the owner-approved model-free
+  `AgentSession`, connects to the room, waits for a SIP participant, derives a
+  provider call reference from SIP attributes, and invokes the local worker
+  harness. Its default agent name is distinct from the active pilot dispatch.
 - The local worker registered under the separate `planwell-inbound-local`
-  agent name with a test-only tenant route. A temporary explicit empty-room
-  dispatch reached the worker and started its handler, proving that its name
-  and registration match. During the owner-approved LiveKit Phone Number/SIP
-  dispatch test, however, LiveKit accepted the inbound call but created no room
-  or session, and the worker received no job. The diagnostic worker was stopped
-  and the known-good pilot dispatch was immediately restored.
+  agent name with a test-only tenant route. Empty-room dispatch confirmed the
+  session starts successfully. The LiveKit Phone Number/SIP test also delivered
+  a SIP participant, but the managed-phone participant omitted the required
+  called-number attribute, so B11 correctly failed closed. The diagnostic
+  worker was stopped and the known-good pilot dispatch was immediately restored.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Resolve the LiveKit Phone Number/SIP-to-self-hosted-worker dispatch gap before
-another real-call test. This requires current provider support or a documented
-provider configuration path; the worker's explicit dispatch registration is
-already verified. It must not retrieve application data. Any subsequent FAQ context for a
+Choose and approve a trusted route-binding design for LiveKit-managed Phone
+Numbers that omit the called-number attribute before another real-call test.
+The minimal media session is verified; it must not retrieve application data.
+Any subsequent FAQ context for a
 telephone call requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 

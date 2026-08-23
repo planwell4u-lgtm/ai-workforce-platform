@@ -16,7 +16,7 @@ from collections.abc import Mapping
 from pathlib import Path
 
 from livekit import rtc
-from livekit.agents import AgentServer, JobContext, cli
+from livekit.agents import Agent, AgentServer, AgentSession, JobContext, cli
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "packages" / "conversation" / "python" / "src"))
@@ -58,6 +58,15 @@ server = AgentServer()
 
 @server.rtc_session(agent_name=os.environ.get("LIVEKIT_INBOUND_AGENT_NAME", "planwell-inbound-local"))
 async def inbound_telephone_session(ctx: JobContext) -> None:
+    # This session is intentionally model-free: it subscribes to the caller's
+    # audio so LiveKit can answer the SIP call, but performs no speech,
+    # transcription, generation, recording, storage, or outbound media.
+    session = AgentSession()
+    await session.start(
+        agent=Agent(instructions="Maintain the LiveKit telephone connection without responding."),
+        room=ctx.room,
+        record=False,
+    )
     await ctx.connect()
     participant = await ctx.wait_for_participant(kind=rtc.ParticipantKind.PARTICIPANT_KIND_SIP)
     event = LiveKitInboundCallEvent(

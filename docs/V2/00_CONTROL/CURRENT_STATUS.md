@@ -62,8 +62,8 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - B11 local telephone admission primitives are implemented and tested: only configured called-number-to-tenant routes create canonical Conversations, telephone numbers are excluded from canonical session scope, unknown routes fail closed, and disconnected output remains uncertain. The active LiveKit pilot route is unchanged.
 - The local LiveKit telephone event adapter is implemented and tested: only SIP participants with a valid called-number attribute reach B11 admission, and caller-number attributes are ignored.
 - The local inbound-telephone worker harness is implemented and tested: it keeps one interaction per call, rejects cross-room call-reference reuse, and clears disconnected calls with uncertain output. It has no LiveKit Agents runtime, media, model, data, or live-routing dependency.
-- The local LiveKit Agents admission entrypoint is implemented with a distinct non-pilot agent name. It waits only for a SIP participant, derives provider call identity from SIP attributes, and invokes the B11 harness; no model, media, recording, transcript, data, action, or outbound-call capability is enabled.
-- A controlled temporary dispatch to the local non-pilot worker did not create a LiveKit room or session: the inbound call was accepted by LiveKit but rang until closed. A separate empty-room explicit dispatch did reach the same worker, proving its registration and handler startup. The failure is isolated to LiveKit Phone Number/SIP dispatch to a self-hosted worker. The worker was stopped and the known-good pilot dispatch was restored and verified.
+- The local LiveKit Agents admission entrypoint has a distinct non-pilot agent name and an owner-approved model-free `AgentSession`. The session subscribes transiently to caller audio so LiveKit can answer an inbound call; it configures no STT, VAD, LLM, TTS, recording, transcript, data access, action, storage, or generated response.
+- LiveKit Phone Number dispatch does reach the local worker and deliver a SIP participant. The safe B11 admission then fails closed because this managed-phone flow does not supply the expected called-number attribute. The known-good pilot route is restored and the local worker is stopped pending an approved trusted route-binding design.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -114,6 +114,7 @@ actions, outbound calling, and Twilio remain separately gated.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.15 | 2026-08-23 | Corrected the telephone diagnosis: SIP dispatch reaches the local worker, but its managed-phone participant lacks the configured called-number attribute. Added and empty-room-tested the owner-approved model-free audio subscription required to answer calls. |
 | 5.14 | 2026-08-23 | Verified that direct empty-room dispatch reaches the local worker, then repeated the handset test. SIP dispatch still created no room/session; normal pilot route restored. |
 | 5.13 | 2026-08-23 | Controlled local-worker telephone test failed safely: the call created no room/session; stopped the diagnostic worker and restored the verified pilot dispatch. |
 | 5.12 | 2026-08-23 | Started the separate local LiveKit Agents admission worker with a test-only tenant mapping; active pilot routing remains unchanged. |
