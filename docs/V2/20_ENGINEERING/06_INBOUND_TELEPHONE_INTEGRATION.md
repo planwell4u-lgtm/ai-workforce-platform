@@ -1,6 +1,6 @@
 # Inbound Telephone Integration
 
-**Status:** Implemented locally — LiveKit Agents admission entrypoint, event adapter, and worker harness complete; production routing deferred
+**Status:** Local worker running — LiveKit Agents admission entrypoint, event adapter, and worker harness complete; test routing deferred
 **Date:** 2026-08-23  
 **Scope:** Tenant-safe admission of an inbound telephone call into canonical Voice and Conversation state
 
@@ -56,14 +56,17 @@ disconnected output turn remains `uncertain`.
   worker harness. Its default agent name is distinct from the active pilot
   dispatch and it starts no model, media, recording, transcript, data, action,
   or outbound-call capability.
+- The local worker is running under the separate `planwell-inbound-local`
+  agent name with a test-only tenant route. It is not targeted by the active
+  pilot dispatch rule.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Run a local LiveKit Agents rehearsal with a dedicated, non-pilot dispatch rule
-and an explicit test-only tenant mapping. It must not retrieve application data
-or modify the active cloud dispatch rule. Any subsequent FAQ context for a
+Choose a safe real-call test route: a second non-pilot phone number, or a
+temporary, explicitly approved switch of the existing pilot dispatch rule.
+It must not retrieve application data. Any subsequent FAQ context for a
 telephone call requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
