@@ -1,6 +1,6 @@
 # Inbound Telephone Integration
 
-**Status:** Local worker running — LiveKit Agents admission entrypoint, event adapter, and worker harness complete; test routing deferred
+**Status:** Local admission implementation complete; controlled dispatch test did not reach the worker and the pilot route was restored
 **Date:** 2026-08-23  
 **Scope:** Tenant-safe admission of an inbound telephone call into canonical Voice and Conversation state
 
@@ -56,17 +56,21 @@ disconnected output turn remains `uncertain`.
   worker harness. Its default agent name is distinct from the active pilot
   dispatch and it starts no model, media, recording, transcript, data, action,
   or outbound-call capability.
-- The local worker is running under the separate `planwell-inbound-local`
-  agent name with a test-only tenant route. It is not targeted by the active
-  pilot dispatch rule.
+- The local worker registered under the separate `planwell-inbound-local`
+  agent name with a test-only tenant route. During the owner-approved temporary
+  dispatch test, LiveKit accepted the inbound call but created no room or
+  session, and the registered worker received no job. The diagnostic worker was
+  stopped and the known-good pilot dispatch was immediately restored.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Choose a safe real-call test route: a second non-pilot phone number, or a
-temporary, explicitly approved switch of the existing pilot dispatch rule.
-It must not retrieve application data. Any subsequent FAQ context for a
+Resolve the LiveKit dispatch-registration mismatch before another real-call
+test. Confirm the required worker deployment/dispatch configuration against
+the current LiveKit documentation, then repeat only on a second non-pilot
+phone number or through a separately approved temporary switch. It must not
+retrieve application data. Any subsequent FAQ context for a
 telephone call requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
