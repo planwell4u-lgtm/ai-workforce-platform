@@ -12,6 +12,7 @@ from ai_workforce_conversation.control import ConversationError, ConversationSer
 from ai_workforce_voice.livekit_telephony import (
     LiveKitInboundCallEvent,
     LiveKitInboundTelephoneAdapter,
+    call_ref_from_sip_attributes,
 )
 from ai_workforce_voice.telephony import InboundTelephoneAdapter
 
@@ -49,3 +50,18 @@ class LiveKitInboundTelephoneAdapterTests(unittest.TestCase):
             with self.subTest(attributes=attributes):
                 with self.assertRaisesRegex(ConversationError, "livekit_called_number_required"):
                     self.adapter.admit(LiveKitInboundCallEvent("call-c", "room-c", "sip", attributes))
+
+    def test_prefers_provider_global_call_reference_without_reading_caller_number(self) -> None:
+        call_ref = call_ref_from_sip_attributes(
+            {
+                "sip.callID": "local-call-id",
+                "sip.callIDFull": "provider-call-id",
+                "sip.phoneNumber": "+15555550123",
+            }
+        )
+
+        self.assertEqual(call_ref, "provider-call-id")
+
+    def test_requires_a_sip_call_reference(self) -> None:
+        with self.assertRaisesRegex(ConversationError, "livekit_call_reference_required"):
+            call_ref_from_sip_attributes({"sip.phoneNumber": "+15555550123"})

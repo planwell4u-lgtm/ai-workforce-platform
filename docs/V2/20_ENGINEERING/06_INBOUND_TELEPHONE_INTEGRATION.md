@@ -1,6 +1,6 @@
 # Inbound Telephone Integration
 
-**Status:** Implemented locally — event adapter and worker harness complete; LiveKit Agents runtime and production routing deferred
+**Status:** Implemented locally — LiveKit Agents admission entrypoint, event adapter, and worker harness complete; production routing deferred
 **Date:** 2026-08-23  
 **Scope:** Tenant-safe admission of an inbound telephone call into canonical Voice and Conversation state
 
@@ -51,15 +51,20 @@ disconnected output turn remains `uncertain`.
 - The local worker harness keeps one interaction per LiveKit call reference,
   rejects a reused call reference in another room, and clears an interaction
   with uncertain output on disconnect.
+- The separate LiveKit Agents entrypoint waits only for a SIP participant,
+  derives a provider call reference from SIP attributes, and invokes the local
+  worker harness. Its default agent name is distinct from the active pilot
+  dispatch and it starts no model, media, recording, transcript, data, action,
+  or outbound-call capability.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Install and validate the LiveKit Agents runtime, then connect its SIP
-participant callbacks to this worker harness. It must not retrieve application
-data or modify the active cloud dispatch rule. Any subsequent FAQ context for
-a telephone call requires a separate extension of
+Run a local LiveKit Agents rehearsal with a dedicated, non-pilot dispatch rule
+and an explicit test-only tenant mapping. It must not retrieve application data
+or modify the active cloud dispatch rule. Any subsequent FAQ context for a
+telephone call requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
 ## References

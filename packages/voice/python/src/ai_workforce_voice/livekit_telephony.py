@@ -17,6 +17,7 @@ from .telephony import InboundTelephoneAdapter, InboundTelephoneInteraction, Inb
 
 _E164 = re.compile(r"^\+[1-9][0-9]{7,14}$")
 _CALLED_NUMBER_ATTRIBUTE = "sip.trunkPhoneNumber"
+_CALL_REF_ATTRIBUTES = ("sip.callIDFull", "sip.callID")
 
 
 @dataclass(frozen=True)
@@ -50,3 +51,13 @@ class LiveKitInboundTelephoneAdapter:
 
     def disconnect(self, interaction: InboundTelephoneInteraction) -> None:
         self._telephone.disconnect(interaction)
+
+
+def call_ref_from_sip_attributes(attributes: Mapping[str, str]) -> str:
+    """Return a provider call identifier without reading caller identity."""
+
+    for attribute in _CALL_REF_ATTRIBUTES:
+        value = attributes.get(attribute)
+        if isinstance(value, str) and value:
+            return value
+    raise ConversationError("livekit_call_reference_required")
