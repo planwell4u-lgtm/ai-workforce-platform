@@ -57,20 +57,21 @@ disconnected output turn remains `uncertain`.
   dispatch and it starts no model, media, recording, transcript, data, action,
   or outbound-call capability.
 - The local worker registered under the separate `planwell-inbound-local`
-  agent name with a test-only tenant route. During the owner-approved temporary
-  dispatch test, LiveKit accepted the inbound call but created no room or
-  session, and the registered worker received no job. The diagnostic worker was
-  stopped and the known-good pilot dispatch was immediately restored.
+  agent name with a test-only tenant route. A temporary explicit empty-room
+  dispatch reached the worker and started its handler, proving that its name
+  and registration match. During the owner-approved LiveKit Phone Number/SIP
+  dispatch test, however, LiveKit accepted the inbound call but created no room
+  or session, and the worker received no job. The diagnostic worker was stopped
+  and the known-good pilot dispatch was immediately restored.
 
 Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
 
 ## Next Implementation Slice
 
-Resolve the LiveKit dispatch-registration mismatch before another real-call
-test. Confirm the required worker deployment/dispatch configuration against
-the current LiveKit documentation, then repeat only on a second non-pilot
-phone number or through a separately approved temporary switch. It must not
-retrieve application data. Any subsequent FAQ context for a
+Resolve the LiveKit Phone Number/SIP-to-self-hosted-worker dispatch gap before
+another real-call test. This requires current provider support or a documented
+provider configuration path; the worker's explicit dispatch registration is
+already verified. It must not retrieve application data. Any subsequent FAQ context for a
 telephone call requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
