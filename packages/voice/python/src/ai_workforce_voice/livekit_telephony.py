@@ -28,18 +28,30 @@ class LiveKitInboundCallEvent:
     room_ref: str
     participant_kind: str
     attributes: Mapping[str, str]
+    dispatch_metadata: str = ""
 
 
 class LiveKitInboundTelephoneAdapter:
-    """Accept only SIP participants with a valid called-number attribute."""
+    """Accept SIP participants only through an explicit configured route."""
 
-    def __init__(self, telephone: InboundTelephoneAdapter) -> None:
+    def __init__(
+        self,
+        telephone: InboundTelephoneAdapter,
+        called_number_by_dispatch_metadata: Mapping[str, str] | None = None,
+    ) -> None:
         self._telephone = telephone
+        self._called_number_by_dispatch_metadata = dict(called_number_by_dispatch_metadata or {})
 
     def admit(self, event: LiveKitInboundCallEvent) -> InboundTelephoneInteraction:
         if event.participant_kind.lower() != "sip":
             raise ConversationError("livekit_sip_participant_required")
         called_number = event.attributes.get(_CALLED_NUMBER_ATTRIBUTE)
+        if not isinstance(called_number, str) or not _E164.fullmatch(called_number):
+            # LiveKit-managed numbers can omit sip.trunkPhoneNumber.  In that
+            # case, accept only an exact dispatch-metadata value configured by
+            # the owner, then use its configured number-to-tenant route.  Do
+            # not derive a route from caller attributes or room names.
+            called_number = self._called_number_by_dispatch_metadata.get(event.dispatch_metadata)
         if not isinstance(called_number, str) or not _E164.fullmatch(called_number):
             raise ConversationError("livekit_called_number_required")
         return self._telephone.admit(

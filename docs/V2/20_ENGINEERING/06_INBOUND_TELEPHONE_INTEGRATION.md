@@ -1,7 +1,7 @@
 # Inbound Telephone Integration
 
-**Status:** Local admission implementation complete; controlled dispatch test did not reach the worker and the pilot route was restored
-**Date:** 2026-08-23  
+**Status:** Local admission and isolated LiveKit proof complete; original managed route preserved
+**Date:** 2026-08-24
 **Scope:** Tenant-safe admission of an inbound telephone call into canonical Voice and Conversation state
 
 ---
@@ -34,18 +34,19 @@ disconnected output turn remains `uncertain`.
 
 ## Explicitly Deferred
 
-- A LiveKit Agents worker, SIP-event validation, and production deployment.
-- Adding the new boundary to the active LiveKit dispatch rule.
+- Production deployment of the local worker.
+- Co-dispatching the local worker with the active managed support agent.
 - Application-data context, FAQ retrieval, transcripts, recordings, caller
   profiles, actions, human transfer, outbound calling, and Twilio.
 - Any external telephone routing change beyond the owner-approved pilot rule.
 
-## Minimal Media Subscription
+## Admission-Only Worker
 
-The owner approved a narrowly scoped LiveKit `AgentSession` for the local
-telephone worker. It subscribes transiently to caller audio so LiveKit can
-answer an inbound SIP call. It configures no STT, VAD, LLM, TTS, recording,
-transcription, data access, action, storage, or generated response.
+The local worker connects to its assigned room only to admit the SIP event. It
+does not create an `AgentSession`, subscribe to audio, process turn signals,
+record, transcribe, access application data, take actions, or publish a
+response. In a shared room, LiveKit broadcasts other participants' data streams
+to all participants, so this worker must use an isolated worker-only route.
 
 ## Local Evidence
 
@@ -58,26 +59,30 @@ transcription, data access, action, storage, or generated response.
 - The local worker harness keeps one interaction per LiveKit call reference,
   rejects a reused call reference in another room, and clears an interaction
   with uncertain output on disconnect.
-- The separate LiveKit Agents entrypoint starts the owner-approved model-free
-  `AgentSession`, connects to the room, waits for a SIP participant, derives a
-  provider call reference from SIP attributes, and invokes the local worker
-  harness. Its default agent name is distinct from the active pilot dispatch.
-- The local worker registered under the separate `planwell-inbound-local`
-  agent name with a test-only tenant route. Empty-room dispatch confirmed the
-  session starts successfully. The LiveKit Phone Number/SIP test also delivered
-  a SIP participant, but the managed-phone participant omitted the required
-  called-number attribute, so B11 correctly failed closed. The diagnostic
-  worker was stopped and the known-good pilot dispatch was immediately restored.
+- The separate LiveKit Agents entrypoint connects to the room, waits for a SIP
+  participant, derives a provider call reference from SIP attributes, and
+  invokes the local worker harness. Its default agent name is distinct from
+  the active pilot dispatch.
+- Managed LiveKit phone participants can provide an invalid or unusable
+  `sip.trunkPhoneNumber`. The adapter then accepts only an exact,
+  deployment-configured dispatch-metadata token that maps to a configured
+  called-number-to-tenant route. Unknown or missing tokens fail closed.
+- A controlled isolated-project call reached the local worker, supplied the
+  trusted token, and admitted without error. No managed agent shared that room;
+  the worker was stopped immediately after the proof.
+- The original managed phone route is restored to its support agent only.
+  The worker logs only dispatch-metadata presence/length and SIP attribute
+  names, never metadata values, phone numbers, audio, or transcript contents.
 
-Focused tests: `tests.voice.test_telephony` and `tests.voice.test_adapter`.
+Focused tests: `tests.voice.test_livekit_telephony` and
+`tests.voice.test_telephone_worker`.
 
 ## Next Implementation Slice
 
-Choose and approve a trusted route-binding design for LiveKit-managed Phone
-Numbers that omit the called-number attribute before another real-call test.
-The minimal media session is verified; it must not retrieve application data.
-Any subsequent FAQ context for a
-telephone call requires a separate extension of
+The isolated local-worker proof is complete. Keep the worker stopped unless a
+new isolated rehearsal is explicitly approved. Do not co-dispatch it with the
+managed agent under the strict no-transcript-data boundary. Any subsequent FAQ
+context requires a separate extension of
 `05_READ_ONLY_APPLICATION_DATA_BOUNDARY.md`.
 
 ## References

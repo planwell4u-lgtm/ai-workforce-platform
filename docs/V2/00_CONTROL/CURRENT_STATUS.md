@@ -1,9 +1,9 @@
 # Current Project Status
 
-**Version:** 5.12
+**Version:** 5.28
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
-**Last Updated:** 2026-08-23
+**Last Updated:** 2026-08-24
 
 ---
 
@@ -58,12 +58,24 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - The local frontend now retains the Auth0 session cache across a browser refresh. The signed-in browser rehearsal verified that refresh restored the session while ending microphone sharing; a new local voice session then started and stopped cleanly.
 - The approved read-only Cloud-agent FAQ context boundary is locally verified: an order-tracking answer matched the approved excerpt, and an unmatched refund-policy topic safely offered human support without inventing an answer or taking an action.
 - Exact signed-release rehearsal passed for `v0.2.0-rc.1`: the corrected runtime Auth0 configuration authenticated successfully, the Cloud agent received the explicit order-tracking FAQ topic, audio was received, and Stop released microphone sharing.
-- The owner-designated LiveKit phone number is active with an inbound-only individual-room dispatch rule for the existing support agent. The controlled inbound caller rehearsal passed: LiveKit recorded the inbound room/session and the owner heard the agent. Recording, actions, outbound calling, and Twilio are not enabled.
+- The owner-designated LiveKit phone number is active with an inbound-only individual-room dispatch rule for the existing support agent. The controlled inbound caller rehearsal passed: LiveKit recorded the inbound room/session and the owner heard the agent. Recording, actions, outbound calling, and Twilio integration are not enabled.
 - B11 local telephone admission primitives are implemented and tested: only configured called-number-to-tenant routes create canonical Conversations, telephone numbers are excluded from canonical session scope, unknown routes fail closed, and disconnected output remains uncertain. The active LiveKit pilot route is unchanged.
 - The local LiveKit telephone event adapter is implemented and tested: only SIP participants with a valid called-number attribute reach B11 admission, and caller-number attributes are ignored.
 - The local inbound-telephone worker harness is implemented and tested: it keeps one interaction per call, rejects cross-room call-reference reuse, and clears disconnected calls with uncertain output. It has no LiveKit Agents runtime, media, model, data, or live-routing dependency.
-- The local LiveKit Agents admission entrypoint has a distinct non-pilot agent name and an owner-approved model-free `AgentSession`. The session subscribes transiently to caller audio so LiveKit can answer an inbound call; it configures no STT, VAD, LLM, TTS, recording, transcript, data access, action, storage, or generated response.
+- The local LiveKit Agents admission entrypoint has a distinct non-pilot agent name and is admission-only: it creates no media session, audio subscription, turn detector, model, recording, storage, action, or generated response. When co-dispatched into a room with the managed agent, LiveKit still broadcasts that room's transcript data stream to all participants; the worker ignores it without callbacks or content logging and is stopped pending a stricter isolation design.
 - LiveKit Phone Number dispatch does reach the local worker and deliver a SIP participant. The safe B11 admission then fails closed because this managed-phone flow does not supply the expected called-number attribute. The known-good pilot route is restored and the local worker is stopped pending an approved trusted route-binding design.
+- The normal managed LiveKit phone route was rechecked successfully: the owner heard the support agent on an inbound call. This confirms the phone-number, individual dispatch-rule, and managed-agent path remain healthy.
+- A privacy-safe local-worker diagnostic is ready for one controlled retry. It records only dispatch-metadata presence/length and SIP attribute names—not phone numbers, audio, metadata contents, transcripts, recordings, or secrets. Focused telephone tests pass (12 tests).
+- A separate Twilio free-trial inbound Voice rehearsal passed: the owner's verified handset called the trial number, received the required trial notice, and received the selected test response. No API key, custom code, recording, data access, or external application routing was created.
+- The earlier Twilio Console upgrade gate was a console-routing issue, not a trial entitlement block. The legacy Console allowed creation of one trial Elastic SIP Trunk without an upgrade or API credentials.
+- The trial trunk has LiveKit Cloud's project SIP endpoint configured as its enabled inbound Origination URI. The Twilio trial number is attached to the trunk, so inbound routing is active; the existing LiveKit-native number route remains unchanged.
+- A separate LiveKit inbound trunk accepts only the configured Twilio trial number and trusted Twilio SIP signaling and media ranges. Its dedicated individual-room dispatch rule is scoped to that trunk and dispatches the existing support agent; the working LiveKit-native phone-number rule was not changed.
+- One trial inbound call reached the Twilio-specific LiveKit room and the existing agent produced its configured greeting. The caller reported continued ringing, so the trusted Twilio media range was added before the next controlled retry. No recording, data access, tools, or outbound calling was enabled.
+- The controlled retry passed: the owner heard the greeting and held a responsive conversation with the existing support agent over the Twilio-to-LiveKit route. Recording, data access, tools, and outbound calling remain disabled.
+- The native-number local-worker admission now supports an exact, deployment-configured LiveKit dispatch-metadata route when the managed-number SIP participant omits the called-number attribute. Unknown or missing metadata still fails closed, caller attributes remain ignored, and 11 focused telephone tests pass. The active native-number dispatch is not yet pointed to this local worker.
+- The controlled native-number rehearsal reached the local worker and validated the exact dispatch token. LiveKit supplied an unusable called-number field, so the trusted fallback was extended to invalid as well as missing values. The hardened worker admitted the final call without media processing, but LiveKit broadcast the managed agent's transcript data stream to the co-dispatched participant; the worker ignored it and was stopped immediately. The native admission route is functionally fixed, while concurrent use with the managed agent requires a stricter isolation decision.
+- The approved isolated-number attempt was blocked by the LiveKit project phone-number quota before any rental or usage charge was created. The native dispatch rule was restored to the managed support agent only, and the local worker remains stopped.
+- A separate LiveKit project was created for the isolation proof with its included first local number and a local-worker-only dispatch rule. The hardened admission-only worker connected only to that project; one controlled call reached it, supplied the exact trusted dispatch token, and admitted without error or co-dispatched transcript traffic. The worker was stopped immediately after the proof.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
 
 # Deployment Decision
@@ -74,12 +86,16 @@ and release authority is explicitly granted.
 
 # Next Action
 
-Choose a safe real-call test route: a second non-pilot phone number, or a
-temporary, explicitly approved switch of the existing pilot dispatch rule.
-The verified local changes are published as signed release candidate
-`v0.2.0-rc.1`. Cloud deployment occurs only at the end of the project;
-application-data access, actions, outbound calling, and Twilio remain
-separately deferred.
+The Twilio-to-LiveKit inbound pilot is verified. Preserve its narrow trunk
+allowlist, separate dispatch rule, and trial-only scope. Any expansion—such as
+recording, outbound calling, application-data access, production traffic, or a
+second number—requires separate owner approval. The LiveKit-number
+The native local-worker route and its isolated proof are complete. Preserve the
+separate-project boundary for any future local-worker rehearsal; do not
+co-dispatch it with the managed agent in the same room under the strict
+no-transcript-data boundary. Any expansion to speech, data access, tools,
+recording, outbound calling, or production traffic requires separate owner
+approval. Cloud deployment remains an end-of-project activity.
 
 # Session Checkpoint
 
@@ -95,6 +111,30 @@ protected local-browser-to-Cloud-agent rehearsal are complete.
 The owner has approved the pilot-number rental and inbound routing, and the
 controlled inbound caller rehearsal is complete. Application-data expansion,
 actions, outbound calling, and Twilio remain separately gated.
+
+Twilio trial checkpoint: account access and verified-handset inbound testing
+are complete. The trial voice test played the notice and selected response.
+TwiML may support simple trial IVR functions, but trial policy blocks
+`<Dial><Sip>`, so it cannot connect the call to LiveKit. The legacy Console
+confirmed the available trial trunk path: one Elastic SIP Trunk exists with
+the LiveKit project endpoint as its Origination URI. LiveKit now has a
+separate, trunk-scoped inbound route to the existing support agent. The Twilio
+number is attached. The controlled retry passed: caller-audible greeting and
+responsive agent conversation were confirmed after adding the Twilio media
+range to the narrow LiveKit allowlist.
+
+Native-number local-worker checkpoint: the safe admission fix is implemented
+and focused tests pass. It substitutes an exact, deployment-configured
+dispatch-route token only when the LiveKit-managed SIP event omits the called
+number or supplies an invalid value; unknown/missing tokens still reject the
+call. The hardened worker then admitted a controlled call without media
+processing. It was stopped because co-dispatch causes LiveKit to broadcast the
+managed agent's transcript data stream to every room participant; an isolation
+decision is required before it can run again. The attempted second LiveKit
+number was blocked by the project quota before rental; the managed native rule
+was restored and the local worker is stopped. A separate LiveKit project then
+provided the isolated proof: the admission-only worker accepted one trusted
+call without co-participant transcript traffic and was stopped afterward.
 
 # Delivery Guardrails
 
@@ -114,6 +154,19 @@ actions, outbound calling, and Twilio remain separately gated.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.28 | 2026-08-24 | Completed the isolated native-worker proof in a separate LiveKit project: one local-worker-only inbound call reached the trusted route and admitted without error or co-dispatched transcript traffic. The worker was stopped immediately afterward; the original native route remains managed-agent-only. |
+| 5.27 | 2026-08-24 | Attempted the approved $1/month isolated LiveKit number, but the project quota blocked purchase before any charge. Restored the native dispatch to the managed support agent only and confirmed the local worker is stopped. |
+| 5.26 | 2026-08-24 | Functionally verified native-number local-worker admission with the exact dispatch token and fail-closed invalid/missing-number fallback. Stopped the worker after confirming that LiveKit broadcasts managed-agent transcript data to co-dispatched room participants; strict isolation is now required before any restart. |
+| 5.25 | 2026-08-24 | Confirmed the native dispatch token reaches the local worker and extended the fail-closed fallback to invalid as well as missing managed SIP called-number values. Stopped the first worker after detecting transient turn/transcript plumbing, then hardened it to admission-only operation; compilation and 11 focused tests pass. |
+| 5.24 | 2026-08-24 | Implemented and tested a fail-closed native-number local-worker route binding using exact, deployment-configured LiveKit dispatch metadata when the managed SIP event lacks a called-number attribute. The active native route remains unchanged pending a separately approved live rehearsal. |
+| 5.23 | 2026-08-24 | Completed the controlled Twilio-to-LiveKit inbound validation: the owner heard the greeting and confirmed responsive agent conversation. The route remains trial-only with a narrow allowlist, separate dispatch, and no recording, data access, tools, or outbound calling. |
+| 5.22 | 2026-08-24 | Diagnosed the first Twilio-to-LiveKit call: SIP delivery, room creation, agent dispatch, and agent greeting all succeeded. Added Twilio's documented media CIDR to the existing narrow LiveKit allowlist before one controlled caller-audible retry. |
+| 5.21 | 2026-08-24 | Verified that the Twilio trial number is attached to the Elastic SIP Trunk, activating the prepared inbound route. No call has been made through it. The next approved action is one verified-handset inbound call to confirm agent answer. |
+| 5.20 | 2026-08-24 | Created a separate, Twilio-limited LiveKit inbound trunk and a dedicated dispatch rule scoped to that trunk. It uses the existing support agent with a separate room prefix; the working LiveKit-native route was preserved. The next gated step is one trial inbound call after number attachment. |
+| 5.19 | 2026-08-24 | Resolved the apparent Elastic SIP Trunk trial block as a Console-routing issue. Created the allowed trial trunk and configured the LiveKit Cloud SIP endpoint as its Origination URI; no number is attached and no traffic has been sent. Next is a separate, scoped LiveKit inbound trunk and dispatch rule. |
+| 5.18 | 2026-08-24 | Completed the Twilio free-trial inbound Voice rehearsal using the verified handset; no credentials, code, recordings, or routing were added. Recorded the Elastic SIP Trunk Console upgrade-gate conflict with published trial guidance; support clarification is the restart point. |
+| 5.17 | 2026-08-24 | Deferred the LiveKit-number local-worker diagnostic at the owner's direction and started a separate, no-traffic Twilio evaluation. First action: account access and a dedicated restricted API key; number rental, routing, recording, and outbound traffic remain gated. |
+| 5.16 | 2026-08-23 | Reconfirmed the normal managed inbound-phone route by owner-heard agent audio. Added a privacy-safe local-worker routing-context diagnostic (metadata presence/length and SIP attribute names only); 12 focused tests pass. The next action is one controlled local-worker call followed by immediate pilot-route restoration. |
 | 5.15 | 2026-08-23 | Corrected the telephone diagnosis: SIP dispatch reaches the local worker, but its managed-phone participant lacks the configured called-number attribute. Added and empty-room-tested the owner-approved model-free audio subscription required to answer calls. |
 | 5.14 | 2026-08-23 | Verified that direct empty-room dispatch reaches the local worker, then repeated the handset test. SIP dispatch still created no room/session; normal pilot route restored. |
 | 5.13 | 2026-08-23 | Controlled local-worker telephone test failed safely: the call created no room/session; stopped the diagnostic worker and restored the verified pilot dispatch. |

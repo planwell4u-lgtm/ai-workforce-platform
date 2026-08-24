@@ -51,6 +51,48 @@ class LiveKitInboundTelephoneAdapterTests(unittest.TestCase):
                 with self.assertRaisesRegex(ConversationError, "livekit_called_number_required"):
                     self.adapter.admit(LiveKitInboundCallEvent("call-c", "room-c", "sip", attributes))
 
+    def test_admits_managed_number_only_with_an_exact_trusted_dispatch_route(self) -> None:
+        routed_adapter = LiveKitInboundTelephoneAdapter(
+            InboundTelephoneAdapter(
+                ConversationService(), {"+12402251204": "staging-demo"}
+            ),
+            {"planwell-native-support-v1": "+12402251204"},
+        )
+
+        for attributes in ({"sip.callFrom": "+15555550123"}, {"sip.trunkPhoneNumber": ""}):
+            with self.subTest(attributes=attributes):
+                interaction = routed_adapter.admit(
+                    LiveKitInboundCallEvent(
+                        "call-managed",
+                        "phone-support-private-managed",
+                        "sip",
+                        attributes,
+                        "planwell-native-support-v1",
+                    )
+                )
+
+                self.assertEqual(interaction.conversation.tenant_ref, "staging-demo")
+                self.assertNotIn("+15555550123", interaction.conversation.session_ref)
+
+    def test_rejects_unknown_dispatch_metadata_when_called_number_is_missing(self) -> None:
+        routed_adapter = LiveKitInboundTelephoneAdapter(
+            InboundTelephoneAdapter(
+                ConversationService(), {"+12402251204": "staging-demo"}
+            ),
+            {"planwell-native-support-v1": "+12402251204"},
+        )
+
+        with self.assertRaisesRegex(ConversationError, "livekit_called_number_required"):
+            routed_adapter.admit(
+                LiveKitInboundCallEvent(
+                    "call-untrusted",
+                    "room-untrusted",
+                    "sip",
+                    {"sip.callFrom": "+15555550123"},
+                    "other-route",
+                )
+            )
+
     def test_prefers_provider_global_call_reference_without_reading_caller_number(self) -> None:
         call_ref = call_ref_from_sip_attributes(
             {

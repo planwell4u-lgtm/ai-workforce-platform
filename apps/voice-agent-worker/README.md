@@ -22,6 +22,7 @@ It requires an explicit deployment-only mapping such as:
 
 ```text
 INBOUND_TELEPHONE_TENANT_MAP_JSON={"+1...":"staging-demo"}
+LIVEKIT_TRUSTED_DISPATCH_ROUTE_MAP_JSON={"planwell-native-support-v1":"+1..."}
 LIVEKIT_INBOUND_AGENT_NAME=planwell-inbound-local
 ```
 
