@@ -10,6 +10,35 @@ from typing import Literal
 
 Classification = Literal["internal"]
 
+_QUESTION_STOP_WORDS = frozenset(
+    {
+        "a",
+        "an",
+        "and",
+        "are",
+        "can",
+        "do",
+        "for",
+        "how",
+        "i",
+        "if",
+        "in",
+        "is",
+        "it",
+        "me",
+        "my",
+        "of",
+        "on",
+        "or",
+        "the",
+        "to",
+        "what",
+        "with",
+        "you",
+        "your",
+    }
+)
+
 
 class ContextDenied(PermissionError):
     """Requested agent, knowledge, or memory context is not currently eligible."""
@@ -104,8 +133,12 @@ class LocalKnowledgeSource:
         )
 
     def search(self, tenant_ref: str, question: str) -> KnowledgeEntry | None:
-        """Return the best approved same-tenant FAQ match, without semantic inference."""
-        terms = set(re.findall(r"[a-z0-9]+", question.lower()))
+        """Return a high-confidence approved FAQ match, without semantic inference."""
+        terms = {
+            term
+            for term in re.findall(r"[a-z0-9]+", question.lower())
+            if term not in _QUESTION_STOP_WORDS
+        }
         if not terms:
             return None
         candidates = (
@@ -118,7 +151,8 @@ class LocalKnowledgeSource:
         ranked = sorted(
             (
                 (
-                    len(terms & set(re.findall(r"[a-z0-9]+", entry.excerpt.lower()))),
+                    len(terms & set(re.findall(r"[a-z0-9]+", entry.excerpt.lower())))
+                    / len(terms),
                     entry,
                 )
                 for entry in candidates
@@ -126,7 +160,7 @@ class LocalKnowledgeSource:
             key=lambda item: item[0],
             reverse=True,
         )
-        if not ranked or ranked[0][0] == 0:
+        if not ranked or ranked[0][0] < 0.6:
             return None
         return ranked[0][1]
 

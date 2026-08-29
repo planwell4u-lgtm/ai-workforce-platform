@@ -260,6 +260,12 @@ def create_app() -> BackendApplication:
     livekit_cloud_api_key = os.environ.get("LIVEKIT_CLOUD_API_KEY")
     livekit_cloud_api_secret = os.environ.get("LIVEKIT_CLOUD_API_SECRET")
     livekit_cloud_agent_name = os.environ.get("LIVEKIT_CLOUD_AGENT_NAME")
+    livekit_isolation_url = os.environ.get("LIVEKIT_ISOLATION_URL")
+    livekit_isolation_api_key = os.environ.get("LIVEKIT_ISOLATION_API_KEY")
+    livekit_isolation_api_secret = os.environ.get("LIVEKIT_ISOLATION_API_SECRET")
+    livekit_isolation_agent_name = (
+        os.environ.get("LIVEKIT_ISOLATION_AGENT_NAME") or "customer-support-realtime-v1"
+    )
     missing = [
         name
         for name, value in (
@@ -278,15 +284,23 @@ def create_app() -> BackendApplication:
         raise RuntimeError(
             "LIVEKIT_SANDBOX_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET must be set together"
         )
-    livekit_cloud_values = (
-        livekit_cloud_url,
-        livekit_cloud_api_key,
-        livekit_cloud_api_secret,
-        livekit_cloud_agent_name,
+    isolation_values = (
+        livekit_isolation_url,
+        livekit_isolation_api_key,
+        livekit_isolation_api_secret,
     )
+    if any(isolation_values):
+        livekit_cloud_values = (*isolation_values, livekit_isolation_agent_name)
+    else:
+        livekit_cloud_values = (
+            livekit_cloud_url,
+            livekit_cloud_api_key,
+            livekit_cloud_api_secret,
+            livekit_cloud_agent_name,
+        )
     if any(livekit_cloud_values) and not all(livekit_cloud_values):
         raise RuntimeError(
-            "LIVEKIT_CLOUD_URL, LIVEKIT_CLOUD_API_KEY, LIVEKIT_CLOUD_API_SECRET, and LIVEKIT_CLOUD_AGENT_NAME must be set together"
+            "the selected LiveKit Cloud profile must include URL, API key, API secret, and agent name"
         )
     tenant_store = create_tenant_store(environment_ref, os.environ)
     verifier = Auth0JwtVerifier(domain, audience, environment_ref)
@@ -301,8 +315,8 @@ def create_app() -> BackendApplication:
         AgentContextService(
             (
                 AgentVersion(
-                    "support-agent",
-                    "support-agent:faq-v1",
+                    "customer-support-worker",
+                    "customer-support-worker:faq-v1",
                     cast(str, support_tenant_ref),
                     "released",
                     frozenset({"knowledge.retrieve"}),

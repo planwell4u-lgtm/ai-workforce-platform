@@ -6,10 +6,14 @@ from dataclasses import dataclass
 
 from .context import AgentContextService, LocalKnowledgeSource
 
+SAFE_UNAVAILABLE_ANSWER = (
+    "I can't access an approved answer for that. I can connect you with human support."
+)
+
 
 @dataclass(frozen=True)
 class SupportAnswer:
-    answer: str | None
+    answer: str
     source_ref: str | None
     ticket_recommended: bool
 
@@ -39,9 +43,9 @@ class FaqSupportAgent:
             permissions=permissions,
         )
         if not context.knowledge_excerpts:
-            return SupportAnswer(None, None, True)
+            return SupportAnswer(SAFE_UNAVAILABLE_ANSWER, None, True)
         entry = self._knowledge.search(tenant_ref, question)
         if entry is None:
-            return SupportAnswer(None, None, True)
+            return SupportAnswer(SAFE_UNAVAILABLE_ANSWER, None, True)
         answer = entry.excerpt.partition("\nA: ")[2] or entry.excerpt
         return SupportAnswer(answer, entry.source_ref, False)
