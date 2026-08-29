@@ -26,6 +26,8 @@ from .b1 import (
     ProtectedApi,
 )
 from .persistent_conversation import PersistentConversationService
+from .front_desk_routing import ActiveDestinationRegistry, FrontDeskHumanSalesRequestsApi, FrontDeskRoutingApi
+from .front_desk_destinations import FrontDeskDestinationsApi
 from .runtime import (
     PostgresAuditSink,
     PostgresMembershipDirectory,
@@ -51,6 +53,9 @@ class BackendApplication:
         sales_answer_api: SalesAnswerApi | None,
         sales_lead_api: SalesLeadApi | None,
         admin_conversations_api: AdminConversationsApi,
+        front_desk_routing_api: FrontDeskRoutingApi,
+        front_desk_human_sales_requests_api: FrontDeskHumanSalesRequestsApi,
+        front_desk_destinations_api: FrontDeskDestinationsApi,
         voice_sandbox_token_api: VoiceSandboxTokenApi | None,
         voice_cloud_agent_token_api: VoiceCloudAgentTokenApi | None,
         tenant_store: TenantStore,
@@ -61,6 +66,9 @@ class BackendApplication:
         self.sales_answer_api = sales_answer_api
         self.sales_lead_api = sales_lead_api
         self.admin_conversations_api = admin_conversations_api
+        self.front_desk_routing_api = front_desk_routing_api
+        self.front_desk_human_sales_requests_api = front_desk_human_sales_requests_api
+        self.front_desk_destinations_api = front_desk_destinations_api
         self.voice_sandbox_token_api = voice_sandbox_token_api
         self.voice_cloud_agent_token_api = voice_cloud_agent_token_api
         self.tenant_store = tenant_store
@@ -86,8 +94,13 @@ class BackendApplication:
             "/v1/voice-sandbox-token",
             "/v1/livekit-cloud-agent-token",
         }
+        front_desk_cors_path = (
+            path_info == "/v1/conversation-routing-requests"
+            or path_info.startswith(FrontDeskHumanSalesRequestsApi.path)
+            or path_info.startswith(FrontDeskDestinationsApi.path)
+        )
         if environ.get("REQUEST_METHOD") == "OPTIONS" and (
-            path_info in protected_cors_paths
+            path_info in protected_cors_paths or front_desk_cors_path
         ):
             if origin != "http://localhost:3000":
                 start_response("403 Forbidden", [("Content-Length", "0")])
@@ -109,6 +122,41 @@ class BackendApplication:
                 [("Content-Type", "application/json"), ("Content-Length", str(len(body)))],
             )
             return [body]
+        if (
+            environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and cast(str, environ.get("PATH_INFO", "")).startswith(FrontDeskDestinationsApi.path)
+        ):
+
+            def destinations_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == "http://localhost:3000":
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+
+            return self.front_desk_destinations_api(environ, destinations_start)
+        if (
+            environ.get("REQUEST_METHOD") == "POST"
+            and environ.get("PATH_INFO") == FrontDeskRoutingApi.path
+        ):
+
+            def routing_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == "http://localhost:3000":
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+
+            return self.front_desk_routing_api(environ, routing_start)
+        if (
+            environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and environ.get("PATH_INFO") == FrontDeskHumanSalesRequestsApi.path
+            or environ.get("REQUEST_METHOD") == "POST"
+            and environ.get("PATH_INFO", "").startswith(f"{FrontDeskHumanSalesRequestsApi.path}/")
+        ):
+
+            def human_sales_requests_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == "http://localhost:3000":
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+
+            return self.front_desk_human_sales_requests_api(environ, human_sales_requests_start)
         if (
             environ.get("REQUEST_METHOD") == "POST"
             and environ.get("PATH_INFO") == "/v1/support-tickets"
@@ -321,6 +369,15 @@ def create_app() -> BackendApplication:
         AdminConversationsApi(
             verifier, memberships, audit_sink, tenant_store, cast(str, environment_ref)
         ),
+        FrontDeskRoutingApi(
+            verifier,
+            memberships,
+            audit_sink,
+            tenant_store,
+            ActiveDestinationRegistry(tenant_store),
+        ),
+        FrontDeskHumanSalesRequestsApi(verifier, memberships, audit_sink, tenant_store),
+        FrontDeskDestinationsApi(verifier, memberships, audit_sink, tenant_store),
         VoiceSandboxTokenApi(
             verifier,
             memberships,
