@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-RecordKind = Literal["agent", "conversation", "action"]
+RecordKind = Literal["agent", "conversation", "action", "routing"]
 SUPPORTED_CONTRACT_VERSION = "v1"
 
 
@@ -69,6 +69,19 @@ MIGRATIONS: tuple[tuple[int, str], ...] = (
         );
         CREATE INDEX IF NOT EXISTS tenant_records_scope_idx
             ON tenant_records (tenant_ref, environment_ref, record_kind, record_ref);
+        """,
+    ),
+    (
+        2,
+        """
+        CREATE TABLE IF NOT EXISTS front_desk_active_destinations (
+            tenant_ref TEXT NOT NULL,
+            environment_ref TEXT NOT NULL,
+            route_purpose TEXT NOT NULL,
+            destination_ref TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            PRIMARY KEY (tenant_ref, environment_ref, route_purpose)
+        );
         """,
     ),
 )
@@ -223,7 +236,148 @@ class SqliteTenantStore:
             self._connection.rollback()
             raise
 
+    def compare_and_swap_versioned(
+        self, scope: TenantScope, kind: RecordKind, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Update one configuration record only when its version still matches."""
+        self._validate_kind(kind)
+        if expected_version < 1:
+            raise ContractError("expected version must be positive")
+        next_version = record.payload.get("configuration_version")
+        if not isinstance(next_version, int) or next_version != expected_version + 1:
+            raise ContractError("configuration_version must increment exactly once")
+        payload_json = json.dumps(record.payload, separators=(",", ":"), sort_keys=True)
+        try:
+            cursor = self._connection.execute(
+                """
+                UPDATE tenant_records
+                SET contract_version = ?, payload_json = ?, correlation_ref = ?, created_at = ?
+                WHERE record_kind = ? AND record_ref = ? AND tenant_ref = ? AND environment_ref = ?
+                  AND json_extract(payload_json, '$.configuration_version') = ?
+                """,
+                (
+                    record.contract_version, payload_json, scope.correlation_ref, int(time.time()),
+                    kind, record.record_ref, scope.tenant_ref, scope.environment_ref, expected_version,
+                ),
+            )
+            self._connection.commit()
+            return cursor.rowcount == 1
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def activate_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically activate a destination and claim its tenant/purpose slot."""
+        purpose = self._destination_transition_inputs(record, expected_version, "active")
+        try:
+            self._connection.execute("BEGIN IMMEDIATE")
+            if not self._update_configuration(scope, record, expected_version):
+                self._connection.rollback()
+                return False
+            claim = self._connection.execute(
+                """
+                INSERT OR IGNORE INTO front_desk_active_destinations (
+                    tenant_ref, environment_ref, route_purpose, destination_ref, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref, int(time.time())),
+            )
+            if claim.rowcount != 1:
+                self._connection.rollback()
+                return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def suspend_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically suspend a destination and release only its own active claim."""
+        purpose = self._destination_transition_inputs(record, expected_version, "suspended")
+        try:
+            self._connection.execute("BEGIN IMMEDIATE")
+            if not self._update_configuration(scope, record, expected_version):
+                self._connection.rollback()
+                return False
+            released = self._connection.execute(
+                """
+                DELETE FROM front_desk_active_destinations
+                WHERE tenant_ref = ? AND environment_ref = ? AND route_purpose = ? AND destination_ref = ?
+                """,
+                (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref),
+            )
+            if released.rowcount != 1:
+                self._connection.rollback()
+                return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def withdraw_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically withdraw an active destination and release its claim."""
+        purpose = self._destination_transition_inputs(record, expected_version, "withdrawn")
+        try:
+            self._connection.execute("BEGIN IMMEDIATE")
+            if not self._update_configuration(scope, record, expected_version):
+                self._connection.rollback()
+                return False
+            released = self._connection.execute(
+                """
+                DELETE FROM front_desk_active_destinations
+                WHERE tenant_ref = ? AND environment_ref = ? AND route_purpose = ? AND destination_ref = ?
+                """,
+                (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref),
+            )
+            if released.rowcount != 1:
+                self._connection.rollback()
+                return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def _update_configuration(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        payload_json = json.dumps(record.payload, separators=(",", ":"), sort_keys=True)
+        cursor = self._connection.execute(
+            """
+            UPDATE tenant_records
+            SET contract_version = ?, payload_json = ?, correlation_ref = ?, created_at = ?
+            WHERE record_kind = 'routing' AND record_ref = ? AND tenant_ref = ? AND environment_ref = ?
+              AND json_extract(payload_json, '$.configuration_version') = ?
+            """,
+            (
+                record.contract_version, payload_json, scope.correlation_ref, int(time.time()),
+                record.record_ref, scope.tenant_ref, scope.environment_ref, expected_version,
+            ),
+        )
+        return cursor.rowcount == 1
+
+    @staticmethod
+    def _destination_transition_inputs(
+        record: VersionedRecord, expected_version: int, expected_state: str
+    ) -> str:
+        payload = record.payload
+        purpose = payload.get("route_purpose")
+        if (
+            not isinstance(purpose, str)
+            or payload.get("lifecycle_state") != expected_state
+            or payload.get("configuration_version") != expected_version + 1
+        ):
+            raise ContractError("invalid destination transition")
+        return purpose
+
     @staticmethod
     def _validate_kind(kind: str) -> None:
-        if kind not in {"agent", "conversation", "action"}:
+        if kind not in {"agent", "conversation", "action", "routing"}:
             raise ContractError("unsupported record kind")

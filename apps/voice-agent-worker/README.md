@@ -26,5 +26,17 @@ LIVEKIT_TRUSTED_DISPATCH_ROUTE_MAP_JSON={"planwell-native-support-v1":"+1..."}
 LIVEKIT_INBOUND_AGENT_NAME=planwell-inbound-local
 ```
 
+## Minimal OpenAI Realtime support agent
+
+`../realtime-support-agent/agent.py` defines the separately named
+`customer-support-realtime-v1` agent for a controlled LiveKit test. It uses
+the OpenAI Realtime API only. It has no tools, customer-data access, recording,
+transcript persistence, escalation, outbound calling, or dispatch-rule change.
+
+It needs local/deployment secrets for `OPENAI_API_KEY` and either the standard
+`LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` variables or the existing
+`LIVEKIT_CLOUD_URL`, `LIVEKIT_CLOUD_API_KEY`, `LIVEKIT_CLOUD_API_SECRET` names.
+This source file does not deploy the agent or enable a LiveKit dispatch rule.
+
 Do not point the active phone dispatch rule at this worker until its local
 runtime rehearsal and a separate routing approval are complete.

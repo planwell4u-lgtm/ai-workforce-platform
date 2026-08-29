@@ -37,6 +37,7 @@ class SupportTicketResult:
     outcome: ActionOutcome
     idempotency_ref: str
     ticket_ref: str | None = None
+    reason: str | None = None
 
 
 @dataclass(frozen=True)
@@ -147,10 +148,10 @@ class JiraSupportTicketAction:
             result = SupportTicketResult(
                 "succeeded", request.idempotency_ref, self._client.create_request(request)
             )
-        except JiraRequestRejected:
-            result = SupportTicketResult("failed", request.idempotency_ref)
-        except JiraRequestUncertain:
-            result = SupportTicketResult("uncertain", request.idempotency_ref)
+        except JiraRequestRejected as error:
+            result = SupportTicketResult("failed", request.idempotency_ref, reason=str(error))
+        except JiraRequestUncertain as error:
+            result = SupportTicketResult("uncertain", request.idempotency_ref, reason=str(error))
         self._results[request.idempotency_ref] = result
         return result
 

@@ -87,3 +87,4 @@ class AdminConversationTests(unittest.TestCase):
 
         self.assertEqual(captured["status"], "200 OK")
         self.assertEqual(json.loads(body)["conversations"][0]["ticket_ref"], "CS-4")
+        self.assertEqual(json.loads(body)["conversations"][0]["ticket_outcome"], "succeeded")

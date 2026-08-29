@@ -70,6 +70,7 @@ class SupportAnswerApi:
                     "200 OK",
                     headers,
                     {
+                        "conversation_ref": conversation.conversation_ref,
                         "messages": [
                             {"sender": entry.sender, "text": entry.text}
                             for entry in self._conversations.transcript(conversation)
@@ -153,6 +154,7 @@ class SupportAnswerApi:
                 "answer": result.answer,
                 "source_ref": result.source_ref,
                 "ticket_recommended": result.ticket_recommended,
+                "conversation_ref": conversation.conversation_ref,
                 "correlation_ref": correlation_ref,
             },
         )

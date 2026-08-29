@@ -80,7 +80,9 @@ class SupportTicketApi:
         scope = TenantScope(membership.tenant_ref, identity.environment_ref, correlation_ref)
         existing = self._store.get(scope, "action", request.idempotency_ref)
         if existing is not None:
-            return self._respond(start_response, "200 OK", headers, existing.payload)
+            return self._respond(
+                start_response, self._result_status(existing.payload, repeated=True), headers, existing.payload
+            )
         self._store.save(
             scope, "action", VersionedRecord(request.idempotency_ref, "v1", {"outcome": "pending"})
         )
@@ -89,6 +91,7 @@ class SupportTicketApi:
             "outcome": result.outcome,
             "idempotency_ref": result.idempotency_ref,
             "ticket_ref": result.ticket_ref,
+            "reason": result.reason,
             "correlation_ref": correlation_ref,
         }
         self._store.save(scope, "action", VersionedRecord(request.idempotency_ref, "v1", body))
@@ -102,7 +105,17 @@ class SupportTicketApi:
                 membership.tenant_ref,
             )
         )
-        return self._respond(start_response, "201 Created", headers, body)
+        return self._respond(start_response, self._result_status(body), headers, body)
+
+    @staticmethod
+    def _result_status(result: Mapping[str, object], *, repeated: bool = False) -> str:
+        """Expose Jira's outcome accurately without retrying an idempotent request."""
+        outcome = result.get("outcome")
+        if outcome == "succeeded" and isinstance(result.get("ticket_ref"), str):
+            return "200 OK" if repeated else "201 Created"
+        if outcome == "uncertain":
+            return "202 Accepted"
+        return "502 Bad Gateway"
 
     @staticmethod
     def _parse_request(environ: Mapping[str, object], tenant_ref: str) -> SupportTicketRequest:

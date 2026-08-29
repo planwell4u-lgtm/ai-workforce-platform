@@ -67,6 +67,19 @@ POSTGRES_MIGRATIONS: tuple[tuple[int, str], ...] = (
             ON audit_events (correlation_ref, occurred_at);
         """,
     ),
+    (
+        4,
+        """
+        CREATE TABLE IF NOT EXISTS front_desk_active_destinations (
+            tenant_ref TEXT NOT NULL,
+            environment_ref TEXT NOT NULL,
+            route_purpose TEXT NOT NULL,
+            destination_ref TEXT NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (tenant_ref, environment_ref, route_purpose)
+        );
+        """,
+    ),
 )
 
 
@@ -84,12 +97,14 @@ class PostgresTenantStore:
     def __init__(self, database_url: str) -> None:
         if not database_url:
             raise MigrationError("DATABASE_URL is required for PostgreSQL storage")
-        self._connection = psycopg.connect(database_url, row_factory=dict_row)
+        self._database_url = database_url
+        self._connection = self._connect()
 
     def close(self) -> None:
         self._connection.close()
 
     def apply_migrations(self) -> None:
+        self._ensure_connection()
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(
@@ -117,6 +132,7 @@ class PostgresTenantStore:
             raise
 
     def verify_schema(self) -> None:
+        self._ensure_connection()
         with self._connection.cursor() as cursor:
             cursor.execute("SELECT version FROM schema_migrations")
             applied = {cast(int, row["version"]) for row in cursor.fetchall()}
@@ -125,6 +141,7 @@ class PostgresTenantStore:
             raise MigrationError("schema migration ledger does not match the approved plan")
 
     def save(self, scope: TenantScope, kind: RecordKind, record: VersionedRecord) -> None:
+        self._ensure_connection()
         self._validate_kind(kind)
         payload = json.loads(json.dumps(record.payload))
         with self._connection.cursor() as cursor:
@@ -153,6 +170,7 @@ class PostgresTenantStore:
         self._connection.commit()
 
     def get(self, scope: TenantScope, kind: RecordKind, record_ref: str) -> VersionedRecord | None:
+        self._ensure_connection()
         self._validate_kind(kind)
         if not record_ref:
             raise ContractError("record_ref is required")
@@ -180,6 +198,7 @@ class PostgresTenantStore:
 
     def list(self, scope: TenantScope, kind: RecordKind, limit: int = 25) -> list[VersionedRecord]:
         """Return recent records only from the trusted tenant and environment scope."""
+        self._ensure_connection()
         self._validate_kind(kind)
         if not 1 <= limit <= 100:
             raise ContractError("limit must be between 1 and 100")
@@ -213,6 +232,7 @@ class PostgresTenantStore:
         expected_state_version: int,
     ) -> bool:
         """Persist one versioned conversation transition without last-write-wins behavior."""
+        self._ensure_connection()
         self._validate_kind(kind)
         if kind != "conversation" or expected_state_version < 0:
             raise ContractError("conversation state version is required")
@@ -265,7 +285,173 @@ class PostgresTenantStore:
         self._connection.commit()
         return changed
 
+    def compare_and_swap_versioned(
+        self, scope: TenantScope, kind: RecordKind, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Update one configuration record only when its version still matches."""
+        self._ensure_connection()
+        self._validate_kind(kind)
+        if expected_version < 1:
+            raise ContractError("expected version must be positive")
+        next_version = record.payload.get("configuration_version")
+        if not isinstance(next_version, int) or next_version != expected_version + 1:
+            raise ContractError("configuration_version must increment exactly once")
+        payload = json.loads(json.dumps(record.payload))
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE tenant_records
+                    SET contract_version = %s, payload_json = %s, correlation_ref = %s,
+                        created_at = CURRENT_TIMESTAMP
+                    WHERE record_kind = %s AND record_ref = %s AND tenant_ref = %s
+                      AND environment_ref = %s
+                      AND (payload_json ->> 'configuration_version')::integer = %s
+                    """,
+                    (
+                        record.contract_version, Json(payload), scope.correlation_ref, kind,
+                        record.record_ref, scope.tenant_ref, scope.environment_ref, expected_version,
+                    ),
+                )
+            self._connection.commit()
+            return cursor.rowcount == 1
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def activate_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically activate a destination and claim its tenant/purpose slot."""
+        purpose = self._destination_transition_inputs(record, expected_version, "active")
+        payload = json.loads(json.dumps(record.payload))
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE tenant_records SET contract_version = %s, payload_json = %s,
+                        correlation_ref = %s, created_at = CURRENT_TIMESTAMP
+                    WHERE record_kind = 'routing' AND record_ref = %s AND tenant_ref = %s
+                      AND environment_ref = %s
+                      AND (payload_json ->> 'configuration_version')::integer = %s
+                    """,
+                    (record.contract_version, Json(payload), scope.correlation_ref, record.record_ref,
+                     scope.tenant_ref, scope.environment_ref, expected_version),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+                cursor.execute(
+                    """
+                    INSERT INTO front_desk_active_destinations (
+                        tenant_ref, environment_ref, route_purpose, destination_ref
+                    ) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING
+                    """,
+                    (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def suspend_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically suspend a destination and release only its own active claim."""
+        purpose = self._destination_transition_inputs(record, expected_version, "suspended")
+        payload = json.loads(json.dumps(record.payload))
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE tenant_records SET contract_version = %s, payload_json = %s,
+                        correlation_ref = %s, created_at = CURRENT_TIMESTAMP
+                    WHERE record_kind = 'routing' AND record_ref = %s AND tenant_ref = %s
+                      AND environment_ref = %s
+                      AND (payload_json ->> 'configuration_version')::integer = %s
+                    """,
+                    (record.contract_version, Json(payload), scope.correlation_ref, record.record_ref,
+                     scope.tenant_ref, scope.environment_ref, expected_version),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+                cursor.execute(
+                    """
+                    DELETE FROM front_desk_active_destinations
+                    WHERE tenant_ref = %s AND environment_ref = %s AND route_purpose = %s
+                      AND destination_ref = %s
+                    """,
+                    (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    def withdraw_front_desk_destination(
+        self, scope: TenantScope, record: VersionedRecord, expected_version: int
+    ) -> bool:
+        """Atomically withdraw an active destination and release its claim."""
+        purpose = self._destination_transition_inputs(record, expected_version, "withdrawn")
+        payload = json.loads(json.dumps(record.payload))
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE tenant_records SET contract_version = %s, payload_json = %s,
+                        correlation_ref = %s, created_at = CURRENT_TIMESTAMP
+                    WHERE record_kind = 'routing' AND record_ref = %s AND tenant_ref = %s
+                      AND environment_ref = %s
+                      AND (payload_json ->> 'configuration_version')::integer = %s
+                    """,
+                    (record.contract_version, Json(payload), scope.correlation_ref, record.record_ref,
+                     scope.tenant_ref, scope.environment_ref, expected_version),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+                cursor.execute(
+                    """
+                    DELETE FROM front_desk_active_destinations
+                    WHERE tenant_ref = %s AND environment_ref = %s AND route_purpose = %s
+                      AND destination_ref = %s
+                    """,
+                    (scope.tenant_ref, scope.environment_ref, purpose, record.record_ref),
+                )
+                if cursor.rowcount != 1:
+                    self._connection.rollback()
+                    return False
+            self._connection.commit()
+            return True
+        except Exception:
+            self._connection.rollback()
+            raise
+
+    @staticmethod
+    def _destination_transition_inputs(
+        record: VersionedRecord, expected_version: int, expected_state: str
+    ) -> str:
+        payload = record.payload
+        purpose = payload.get("route_purpose")
+        if (
+            not isinstance(purpose, str)
+            or payload.get("lifecycle_state") != expected_state
+            or payload.get("configuration_version") != expected_version + 1
+        ):
+            raise ContractError("invalid destination transition")
+        return purpose
+
     def resolve_principal_membership(self, principal_ref: str) -> PrincipalMembershipRecord | None:
+        self._ensure_connection()
         if not principal_ref:
             raise ContractError("principal_ref is required")
         with self._connection.cursor() as cursor:
@@ -295,6 +481,7 @@ class PostgresTenantStore:
     def upsert_principal_membership(
         self, principal_ref: str, tenant_ref: str, permissions: frozenset[str]
     ) -> None:
+        self._ensure_connection()
         if not principal_ref or not tenant_ref or not permissions:
             raise ContractError("principal_ref, tenant_ref, and permissions are required")
         with self._connection.cursor() as cursor:
@@ -314,6 +501,7 @@ class PostgresTenantStore:
 
     def revoke_principal_membership(self, principal_ref: str, tenant_ref: str) -> None:
         """Revoke one active principal membership without deleting its history."""
+        self._ensure_connection()
         if not principal_ref or not tenant_ref:
             raise ContractError("principal_ref and tenant_ref are required")
         with self._connection.cursor() as cursor:
@@ -340,6 +528,7 @@ class PostgresTenantStore:
         principal_ref: str | None,
         tenant_ref: str | None,
     ) -> None:
+        self._ensure_connection()
         with self._connection.cursor() as cursor:
             cursor.execute(
                 """
@@ -351,7 +540,14 @@ class PostgresTenantStore:
             )
         self._connection.commit()
 
+    def _connect(self) -> psycopg.Connection[dict[str, object]]:
+        return psycopg.connect(self._database_url, row_factory=dict_row)
+
+    def _ensure_connection(self) -> None:
+        if self._connection.closed:
+            self._connection = self._connect()
+
     @staticmethod
     def _validate_kind(kind: str) -> None:
-        if kind not in {"agent", "conversation", "action"}:
+        if kind not in {"agent", "conversation", "action", "routing"}:
             raise ContractError("unsupported record kind")

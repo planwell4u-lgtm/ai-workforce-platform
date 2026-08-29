@@ -77,10 +77,12 @@ class JiraSupportTicketActionTests(unittest.TestCase):
             action.request(REQUEST, frozenset())
         rejected_sender = Mock(side_effect=HTTPError("url", 400, "bad request", {}, BytesIO()))
         rejected = JiraSupportTicketAction(JiraServiceManagementClient(SETTINGS, rejected_sender))
-        self.assertEqual(rejected.request(REQUEST, PERMISSION).outcome, "failed")
+        rejected_result = rejected.request(REQUEST, PERMISSION)
+        self.assertEqual((rejected_result.outcome, rejected_result.reason), ("failed", "jira_rejected_400"))
         uncertain_sender = Mock(side_effect=URLError("unavailable"))
         uncertain = JiraSupportTicketAction(JiraServiceManagementClient(SETTINGS, uncertain_sender))
-        self.assertEqual(uncertain.request(REQUEST, PERMISSION).outcome, "uncertain")
+        uncertain_result = uncertain.request(REQUEST, PERMISSION)
+        self.assertEqual((uncertain_result.outcome, uncertain_result.reason), ("uncertain", "jira_request_outcome_unknown"))
 
     def test_settings_require_an_atlassian_cloud_secret_configuration(self) -> None:
         with self.assertRaises(ValueError):

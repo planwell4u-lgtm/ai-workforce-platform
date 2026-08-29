@@ -1,9 +1,9 @@
 # Current Project Status
 
-**Version:** 5.28
+**Version:** 5.46
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
-**Last Updated:** 2026-08-24
+**Last Updated:** 2026-08-27
 
 ---
 
@@ -77,6 +77,12 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - The approved isolated-number attempt was blocked by the LiveKit project phone-number quota before any rental or usage charge was created. The native dispatch rule was restored to the managed support agent only, and the local worker remains stopped.
 - A separate LiveKit project was created for the isolation proof with its included first local number and a local-worker-only dispatch rule. The hardened admission-only worker connected only to that project; one controlled call reached it, supplied the exact trusted dispatch token, and admitted without error or co-dispatched transcript traffic. The worker was stopped immediately after the proof.
 - The unused `pgadmin-container` was removed at the owner's request, freeing local port `8080` for the backend rehearsal.
+- The separate `customer-support-realtime-v1` LiveKit agent source is configured for the OpenAI Realtime API. It has no tools, customer-data access, recording, transcript persistence, escalation, outbound calling, deployment, or dispatch-rule change. Local configuration recognition and the complete Python suite pass (71 tests; 3 environment-dependent skips).
+- The LiveKit Cloud deployment attempt for `customer-support-realtime-v1` was blocked before agent creation because the account has reached its agent limit (`1/1`). The target project has no listed deployment to replace. No OpenAI key was stored in LiveKit Cloud, and no phone route or call changed.
+- CLI evidence then showed that the local `LIVEKIT_CLOUD_*` credentials target a different LiveKit project than the browser's `Planwell Local Worker Isolation` project. That credential-target project contains the existing managed `customer-support-1fc2` agent and two incomplete unnamed `Setting Up` agent records from the failed deployment attempts. Do not delete or retry until the owner selects the exact cleanup target and confirms; no phone route or call changed.
+- The second-account isolation credentials were configured locally and used to deploy `customer-support-realtime-v1` to the `ap-south` LiveKit Cloud region. The container is running and the worker registered under that exact agent name. It remains isolated: no telephone dispatch rule, phone route, recording, customer-data access, tool, escalation, or outbound-call capability is attached.
+- A private LiveKit Agent Console rehearsal selected `customer-support-realtime-v1`, confirmed its OpenAI Realtime greeting and a generic order-tracking reply, and then ended the session. The Console showed recording off during the active test. No telephone routing, customer-data access, tools, escalation, or outbound call was enabled.
+- The realtime agent now accepts only a bounded, explicitly labelled approved FAQ excerpt from the existing authenticated dispatch metadata. Missing, malformed, mismatched, or oversized context is ignored and retains the safe human-support fallback. The isolated LiveKit deployment is running the updated version `ENnCuTZt6pHK`; the local app now prefers that isolated profile when present. The final caller-audible FAQ rehearsal remains gated by fresh microphone approval.
 
 # Deployment Decision
 
@@ -86,16 +92,71 @@ and release authority is explicitly granted.
 
 # Next Action
 
-The Twilio-to-LiveKit inbound pilot is verified. Preserve its narrow trunk
-allowlist, separate dispatch rule, and trial-only scope. Any expansion—such as
-recording, outbound calling, application-data access, production traffic, or a
-second number—requires separate owner approval. The LiveKit-number
-The native local-worker route and its isolated proof are complete. Preserve the
-separate-project boundary for any future local-worker rehearsal; do not
-co-dispatch it with the managed agent in the same room under the strict
-no-transcript-data boundary. Any expansion to speech, data access, tools,
+The Customer Support Worker V1 web-chat configuration is implemented with an
+explicit versioned identity and a safe-unavailable response that offers human
+support. The complete Python suite and frontend lint/build/rendered-page checks
+pass. Signed-in Docker web-chat acceptance passed for an approved order-tracking
+answer and an unsupported refund request that safely offered human support.
+The local Admin-to-Jira result handling now distinguishes a created Jira ticket
+from a Jira rejection or an outcome that cannot be confirmed, and prevents the
+UI from claiming that a ticket was created without a Jira reference. The
+corrected Admin-to-Jira rehearsal passed: Jira ticket `CS-16` was created and
+saved for a new unsupported refund-policy conversation. The Twilio-to-LiveKit pilot remains
+trial-only with its
+narrow allowlist and separate dispatch. The native local-worker route and its
+isolated proof remain separate-project only; do not co-dispatch it with the
+managed agent in the same room under the strict no-transcript-data boundary.
+Any expansion to speech, data access, tools,
 recording, outbound calling, or production traffic requires separate owner
 approval. Cloud deployment remains an end-of-project activity.
+
+The owner approved design of a separate outbound-calling pilot. It is limited
+to one consented, owner-designated test recipient and static greeting; no call,
+credential, number, deployment, recording, AI conversation, customer-data
+access, retry, or follow-up is authorized until the stated pre-call gates and
+action-time approval are complete.
+
+The disabled-by-default outbound-pilot guard is implemented and tested. It
+permits only the designated verified recipient and caller identity, exact
+disclosed greeting, consent, trial verification, 08:00–21:00 recipient-local
+time, and final action-time approval. It has no retry, recording, voicemail,
+AMD, AI, or UI/API invocation. A dedicated Twilio credential configuration and
+fresh final approval remain required before any provider request.
+
+The owner has stored the dedicated Twilio Account SID, API Key SID, and API
+Key Secret locally. The pilot client now uses API-key Basic authentication
+rather than the broader Account Auth Token. Credentials were not displayed,
+tested against Twilio, or committed. Final action-time approval remains the
+only gate before the single provider request.
+
+One owner-confirmed pilot request was submitted during the approved recipient
+local-time window. Twilio rejected authentication with HTTP 401 before any
+call reference was returned, so no call was created or delivered. The Account
+SID and API Key SID have valid identifiers; the remaining credential correction
+is local and requires no call retry until the owner confirms again.
+
+After the credential correction and fresh final approval, Twilio accepted one
+outbound pilot request with provider call reference
+`CA76b29e7fcca3da88ba7d7091a724f075` and initial status `queued`. No
+recording, voicemail, AI conversation, retry, or follow-up was requested.
+
+The owner then created a TwiML Bin for the same static greeting. Its handler
+URL is stored only in ignored local configuration, and the pilot client accepts
+only the Twilio TwiML Bin handler URL form. After renewed action-time approval,
+a second pilot request was accepted with provider call reference
+`CA5c9b8ea3dda66a956957bd9db9af7505`; it reached terminal status `completed`
+after 17 seconds with no provider error. Twilio's trial notice precedes the
+configured greeting until the account is upgraded. No recording, voicemail,
+AI conversation, retry, or follow-up was requested.
+
+The owner approved a minimal OpenAI Realtime support-agent setup. The separately
+named `customer-support-realtime-v1` source uses the local OpenAI API key and
+the configured LiveKit connection only when it is explicitly started. Its
+instructions prohibit tools, customer-data access, recording, transcript
+persistence, escalation, outbound calling, and unsupported claims. It is not
+deployed and no LiveKit dispatch rule or phone route has changed. The next
+separately gated step is a LiveKit Cloud deployment followed by one consented,
+generic-support test.
 
 # Session Checkpoint
 
@@ -154,6 +215,24 @@ call without co-participant transcript traffic and was stopped afterward.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.46 | 2026-08-27 | Added a fail-closed read-only FAQ-context gate to `customer-support-realtime-v1`, configured the local application to prefer the isolated LiveKit profile, and deployed version `ENnCuTZt6pHK` successfully. All 71 local tests pass (3 environment-dependent skips). No telephone routing, recording, tools, escalation, or outbound capability changed. |
+| 5.45 | 2026-08-26 | Completed and ended a private Agent Console rehearsal for `customer-support-realtime-v1`. The agent greeted and answered a generic order-tracking prompt through the OpenAI Realtime model; recording was off and no telephone route, customer data, tool, escalation, or outbound capability changed. |
+| 5.44 | 2026-08-25 | Deployed `customer-support-realtime-v1` to the second LiveKit account in `ap-south`. Startup logs confirm the OpenAI plugin loaded and the worker registered under the intended name. The deployment remains isolated with no phone routing, recording, data, tool, escalation, or outbound capability attached. |
+| 5.43 | 2026-08-25 | Corrected the LiveKit deployment diagnosis: local `LIVEKIT_CLOUD_*` credentials target a different project than the browser project. CLI listed the existing managed support agent and two incomplete unnamed `Setting Up` records from failed create attempts. Cleanup is separately owner-confirmed; no phone route or call changed. |
+| 5.42 | 2026-08-25 | Prepared a dedicated deployable container for `customer-support-realtime-v1` and verified 71 tests (3 environment-dependent skips). LiveKit Cloud rejected deployment before creation because the account reached its `1/1` agent limit; the target project contains no agent to replace. No secret, phone route, or call changed. |
+| 5.41 | 2026-08-24 | Added the separately named `customer-support-realtime-v1` OpenAI Realtime agent source. Local configuration loading succeeds and the Python suite passes (71 tests, 3 environment-dependent skips). The agent is not deployed and no dispatch, phone, recording, data, tool, escalation, or outbound capability changed. |
+| 5.40 | 2026-08-24 | Completed the TwiML-Bin outbound-pilot proof. With renewed approval, Twilio accepted `CA5c9b8ea3dda66a956957bd9db9af7505`, which completed after 17 seconds without provider error. The required Twilio trial notice precedes the configured static greeting; no recording, AI conversation, retry, or follow-up was used. |
+| 5.39 | 2026-08-24 | After credential correction and fresh final approval, Twilio accepted the single outbound pilot request (`CA76b29e7fcca3da88ba7d7091a724f075`, initial status `queued`). No recording, voicemail, AI, retry, or follow-up was requested; awaiting owner confirmation of the greeting or terminal result. |
+| 5.38 | 2026-08-24 | The owner-confirmed outbound pilot request reached Twilio during the approved window but authentication was rejected (`401`) before a call reference was issued. No call was created or delivered. Local identifier formats were verified without exposing credentials; correct or replace the API Key Secret/account pairing, then obtain fresh action-time approval before a new request. |
+| 5.37 | 2026-08-24 | Verified locally that the dedicated Twilio Account SID, API Key SID, and API Key Secret are configured. Updated the pilot client to use API-key Basic authentication; 71 tests pass (3 environment-dependent skips). No provider request or call was made. |
+| 5.36 | 2026-08-24 | Implemented and tested the disabled-by-default outbound pilot guard. It rejects missing final approval, unverified or different numbers, a changed greeting, and calls outside recipient-local quiet hours; 70 tests pass (3 environment-dependent skips). No provider request or call was made. |
+| 5.35 | 2026-08-24 | Recorded the approved design for a narrow outbound-calling pilot: one explicitly consented owner-designated recipient, one static disclosed greeting, terminal-status evidence only, and no recording, AI conversation, customer data, retry, or follow-up. No call was placed. |
+| 5.34 | 2026-08-24 | Customer Support Worker V1 Admin-to-Jira acceptance passed: a new unsupported refund-policy conversation safely offered human support, and authorized escalation created and saved Jira ticket `CS-16`. |
+| 5.33 | 2026-08-24 | Added a safe Jira diagnostic code to future failed or unconfirmed escalation results (for example, `jira_rejected_403`), without storing Jira response bodies, credentials, or customer content. The existing failed request was not retried. Python suite (68 tests, 3 environment-dependent skips) and frontend lint/build/rendered-page checks pass; localhost services were refreshed. |
+| 5.32 | 2026-08-24 | Corrected local Admin-to-Jira escalation feedback: only a confirmed Jira issue key is reported as created; Jira rejection and unconfirmed outcomes are explicit and are not presented as success. Python suite (68 tests, 3 environment-dependent skips) and frontend lint/build/rendered-page checks pass; localhost services were refreshed. |
+| 5.31 | 2026-08-24 | Verified the Customer Support Worker V1 web-chat path in local Docker: an approved order-tracking FAQ answered correctly, while an unsupported refund request safely offered human support. Tightened lexical FAQ matching to reject unrelated partial matches and added a reconnect safeguard for closed managed-PostgreSQL connections. The authorized Admin-to-Jira rehearsal remains. |
+| 5.30 | 2026-08-24 | Implemented the Customer Support Worker V1 web-chat configuration as `customer-support-worker:faq-v1`. An unmatched question now returns the approved human-support response with a ticket recommendation instead of an empty support response. No data source, voice route, Jira authorization, or outbound capability changed. |
+| 5.29 | 2026-08-24 | Recorded the approved Customer Support Worker V1 design: authenticated web chat and inbound phone may use approved tenant FAQ only, with an authorized idempotent Jira escalation for unresolved support. Account lookup, payments, recording, outbound contact, and autonomous actions remain excluded. |
 | 5.28 | 2026-08-24 | Completed the isolated native-worker proof in a separate LiveKit project: one local-worker-only inbound call reached the trusted route and admitted without error or co-dispatched transcript traffic. The worker was stopped immediately afterward; the original native route remains managed-agent-only. |
 | 5.27 | 2026-08-24 | Attempted the approved $1/month isolated LiveKit number, but the project quota blocked purchase before any charge. Restored the native dispatch to the managed support agent only and confirmed the local worker is stopped. |
 | 5.26 | 2026-08-24 | Functionally verified native-number local-worker admission with the exact dispatch token and fail-closed invalid/missing-number fallback. Stopped the worker after confirming that LiveKit broadcasts managed-agent transcript data to co-dispatched room participants; strict isolation is now required before any restart. |
