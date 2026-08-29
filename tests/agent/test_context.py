@@ -19,7 +19,7 @@ from ai_workforce_agent.context import (
     MemoryFact,
     SessionMemoryStore,
 )
-from ai_workforce_agent.support import FaqSupportAgent
+from ai_workforce_agent.support import FaqSupportAgent, SAFE_UNAVAILABLE_ANSWER
 
 
 class AgentContextServiceTests(unittest.TestCase):
@@ -39,7 +39,11 @@ class AgentContextServiceTests(unittest.TestCase):
         knowledge = LocalKnowledgeSource(
             (
                 KnowledgeEntry(
-                    "faq-a", "tenant-a", "internal", True, "Reset links expire after 15 minutes."
+                    "faq-a",
+                    "tenant-a",
+                    "internal",
+                    True,
+                    "Q: How long do password reset links last?\nA: Reset links expire after 15 minutes.",
                 ),
                 KnowledgeEntry("faq-b", "tenant-b", "internal", True, "Tenant B private FAQ."),
                 KnowledgeEntry("draft-a", "tenant-a", "internal", False, "Unpublished."),
@@ -71,7 +75,10 @@ class AgentContextServiceTests(unittest.TestCase):
             permissions=frozenset({"agent.context.read"}),
         )
         self.assertEqual(context.agent_version_ref, "agent-1:v1")
-        self.assertEqual(context.knowledge_excerpts, ("Reset links expire after 15 minutes.",))
+        self.assertEqual(
+            context.knowledge_excerpts,
+            ("Q: How long do password reset links last?\nA: Reset links expire after 15 minutes.",),
+        )
         self.assertEqual(context.memory_facts, ("Customer requested email follow-up.",))
 
     def test_unauthorized_or_unavailable_agent_fails_closed(self) -> None:
@@ -131,5 +138,6 @@ class AgentContextServiceTests(unittest.TestCase):
             question="Can you tell me the weather?",
             permissions=frozenset({"agent.context.read"}),
         )
-        self.assertIsNone(no_answer.answer)
+        self.assertEqual(no_answer.answer, SAFE_UNAVAILABLE_ANSWER)
+        self.assertIsNone(no_answer.source_ref)
         self.assertTrue(no_answer.ticket_recommended)
