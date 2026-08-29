@@ -76,7 +76,7 @@ class SalesLeadApi:
     def _status(body: Mapping[str, object], *, repeated: bool = False) -> str:
         if body.get("outcome") == "succeeded": return "200 OK" if repeated else "201 Created"
         if body.get("outcome") == "uncertain": return "202 Accepted"
-        return "502 Bad Gateway"
+        return "422 Unprocessable Content"
 
     @staticmethod
     def _respond(start_response: Callable[..., object], status: str, headers: list[tuple[str, str]], body: object) -> list[bytes]:

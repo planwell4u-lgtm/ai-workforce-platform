@@ -67,4 +67,4 @@ class SalesLeadTests(unittest.TestCase):
     def test_hubspot_rejection_is_not_reported_as_success(self) -> None:
         self.api._client = RejectedClient()
         status, body = self.request({"name": "Test Owner", "email": "owner@example.test", "consent": True, "idempotency_ref": "lead-3"})
-        self.assertEqual((status, body["outcome"]), ("502 Bad Gateway", "failed"))
+        self.assertEqual((status, body["outcome"]), ("422 Unprocessable Content", "failed"))
