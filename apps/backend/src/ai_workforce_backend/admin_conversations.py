@@ -72,6 +72,8 @@ class AdminConversationsApi:
                     # idempotency reference.  Expose only the saved result for this
                     # tenant; the UI must not infer ticket state from local memory.
                     "ticket_ref": self._ticket_ref(actions.get(record.record_ref)),
+                    "ticket_outcome": self._ticket_outcome(actions.get(record.record_ref)),
+                    "ticket_reason": self._ticket_reason(actions.get(record.record_ref)),
                 }
                 for record in records
             ]
@@ -110,6 +112,20 @@ class AdminConversationsApi:
             return None
         ticket_ref = action.get("ticket_ref")
         return ticket_ref if isinstance(ticket_ref, str) and ticket_ref else None
+
+    @staticmethod
+    def _ticket_outcome(action: object) -> str | None:
+        if not isinstance(action, dict):
+            return None
+        outcome = action.get("outcome")
+        return outcome if outcome in {"succeeded", "failed", "uncertain"} else None
+
+    @staticmethod
+    def _ticket_reason(action: object) -> str | None:
+        if not isinstance(action, dict):
+            return None
+        reason = action.get("reason")
+        return reason if isinstance(reason, str) and reason.startswith("jira_") else None
 
     @staticmethod
     def _respond(

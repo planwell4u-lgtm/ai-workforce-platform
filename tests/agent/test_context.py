@@ -19,7 +19,8 @@ from ai_workforce_agent.context import (
     MemoryFact,
     SessionMemoryStore,
 )
-from ai_workforce_agent.support import FaqSupportAgent
+from ai_workforce_agent.support import FaqSupportAgent, SAFE_UNAVAILABLE_ANSWER
+from ai_workforce_agent.sales import CatalogSalesAgent, SAFE_HUMAN_SALES_ANSWER
 
 
 class AgentContextServiceTests(unittest.TestCase):
@@ -39,7 +40,11 @@ class AgentContextServiceTests(unittest.TestCase):
         knowledge = LocalKnowledgeSource(
             (
                 KnowledgeEntry(
-                    "faq-a", "tenant-a", "internal", True, "Reset links expire after 15 minutes."
+                    "faq-a",
+                    "tenant-a",
+                    "internal",
+                    True,
+                    "Q: How long do password reset links last?\nA: Reset links expire after 15 minutes.",
                 ),
                 KnowledgeEntry("faq-b", "tenant-b", "internal", True, "Tenant B private FAQ."),
                 KnowledgeEntry("draft-a", "tenant-a", "internal", False, "Unpublished."),
@@ -61,6 +66,7 @@ class AgentContextServiceTests(unittest.TestCase):
         )
         self.service = AgentContextService(versions, knowledge, memory)
         self.support_agent = FaqSupportAgent(self.service, knowledge)
+        self.sales_agent = CatalogSalesAgent(self.service, knowledge)
 
     def test_authorized_context_is_tenant_scoped_and_versioned(self) -> None:
         context = self.service.assemble(
@@ -71,7 +77,10 @@ class AgentContextServiceTests(unittest.TestCase):
             permissions=frozenset({"agent.context.read"}),
         )
         self.assertEqual(context.agent_version_ref, "agent-1:v1")
-        self.assertEqual(context.knowledge_excerpts, ("Reset links expire after 15 minutes.",))
+        self.assertEqual(
+            context.knowledge_excerpts,
+            ("Q: How long do password reset links last?\nA: Reset links expire after 15 minutes.",),
+        )
         self.assertEqual(context.memory_facts, ("Customer requested email follow-up.",))
 
     def test_unauthorized_or_unavailable_agent_fails_closed(self) -> None:
@@ -131,5 +140,36 @@ class AgentContextServiceTests(unittest.TestCase):
             question="Can you tell me the weather?",
             permissions=frozenset({"agent.context.read"}),
         )
-        self.assertIsNone(no_answer.answer)
+        self.assertEqual(no_answer.answer, SAFE_UNAVAILABLE_ANSWER)
+        self.assertIsNone(no_answer.source_ref)
         self.assertTrue(no_answer.ticket_recommended)
+
+    def test_unrelated_single_word_overlap_does_not_select_an_faq(self) -> None:
+        knowledge = LocalKnowledgeSource(
+            (
+                KnowledgeEntry(
+                    "faq-payment-security",
+                    "tenant-a",
+                    "internal",
+                    True,
+                    "Q: Are my personal and payment details secure?\nA: Contact support.",
+                ),
+            )
+        )
+        self.assertIsNone(knowledge.search("tenant-a", "Can you refund my payment?"))
+
+    def test_sales_agent_uses_only_matching_catalog_content(self) -> None:
+        answer = self.sales_agent.answer(
+            tenant_ref="tenant-a", agent_ref="agent-1", subject_ref="subject-a",
+            session_ref="session-a", question="How long do password reset links last?",
+            permissions=frozenset({"agent.context.read"}),
+        )
+        self.assertEqual(answer.answer, "Reset links expire after 15 minutes.")
+        self.assertFalse(answer.human_sales_recommended)
+        fallback = self.sales_agent.answer(
+            tenant_ref="tenant-a", agent_ref="agent-1", subject_ref="subject-a",
+            session_ref="session-a", question="Can you give me a discount?",
+            permissions=frozenset({"agent.context.read"}),
+        )
+        self.assertEqual(fallback.answer, SAFE_HUMAN_SALES_ANSWER)
+        self.assertTrue(fallback.human_sales_recommended)

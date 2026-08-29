@@ -44,6 +44,7 @@ Frontend Platform does not own:
 11. `11_FRONTEND_OBSERVABILITY_AND_ANALYTICS.md` — client telemetry, product signals, error evidence, and privacy-aware analytics boundaries.
 12. `12_FRONTEND_TESTING_AND_QUALITY.md` — component, contract, accessibility, journey, security, performance, and release evidence.
 13. `13_FRONTEND_TECHNOLOGY_REFERENCE_MAP.md` — React/TypeScript/Next.js roles, references, adoption constraints, and exit requirements.
+14. `14_FRONTEND_DELIVERY_PLAN.md` — planned incremental delivery track for Client Workspace, worker lifecycle, channels, analytics, and Platform Admin.
 
 # Reading Order
 
@@ -110,3 +111,4 @@ The Frontend Platform architecture set, including Documents 01–13, is approved
 | 1.13 | 2026-08-08 | Added the frontend testing and quality draft. |
 | 1.14 | 2026-08-08 | Completed the planned thirteen-document Frontend architecture set as Draft. |
 | 1.15 | 2026-08-08 | Approved the complete Frontend Platform architecture set after cross-platform boundary review. |
+| 1.16 | 2026-08-27 | Linked the planned frontend delivery track; it does not alter the approved architecture set. |

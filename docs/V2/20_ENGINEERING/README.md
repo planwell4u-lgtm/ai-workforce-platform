@@ -37,6 +37,16 @@ It does not own:
 6. `06_INBOUND_TELEPHONE_INTEGRATION.md` — provider-neutral, tenant-safe
    inbound-call admission contract; LiveKit worker and production routing are
    separately deferred.
+7. `09_SHARED_WORKER_BLUEPRINT.md` — planned reusable delivery contract for
+   worker-specific charters, beginning with Front Desk Worker V1.
+8. `10_FRONT_DESK_WORKER_V1.md` — planned narrow Front Desk Worker charter for
+   greeting, approved public information, and safe routing.
+9. `11_FRONT_DESK_ROUTING_REQUEST_CONTRACT.md` — planned tenant-safe routing
+   request boundary for Front Desk Worker V1.
+10. `12_FRONT_DESK_DESTINATION_REGISTRY.md` — planned tenant-scoped registry
+    for eligible Support Worker and human-support destinations.
+11. `13_FRONT_DESK_ROUTING_API_CONTRACT.md` — versioned API boundary, with a
+    test-only tenant-scoped Support route-request slice now implemented.
 
 The set may expand only when an implementation need cannot be covered by an existing authoritative module document.
 
@@ -92,6 +102,20 @@ The Engineering implementation-planning set is complete. Documents 01–04 defin
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.21 | 2026-08-27 | Added the permission-bound test-only Front Desk destination administrator screen. |
+| 1.20 | 2026-08-27 | Added the test-only Front Desk route-offer/request control to web chat. |
+| 1.19 | 2026-08-27 | Added atomic withdrawal and offer-to-request destination revalidation. |
+| 1.18 | 2026-08-27 | Added atomic single-active Front Desk destination coordination. |
+| 1.17 | 2026-08-27 | Added optimistic concurrency for test-only Front Desk destination changes. |
+| 1.16 | 2026-08-27 | Added test-only Front Desk destination health-expiry enforcement. |
+| 1.15 | 2026-08-27 | Connected test-only Front Desk route requests to active tenant destination records. |
+| 1.14 | 2026-08-27 | Recorded the implemented test-only Front Desk destination configuration lifecycle. |
+| 1.13 | 2026-08-27 | Recorded the implemented test-only Front Desk support routing slice. |
+| 1.12 | 2026-08-27 | Added the planned Front Desk routing API contract. |
+| 1.11 | 2026-08-27 | Added the planned Front Desk destination registry. |
+| 1.10 | 2026-08-27 | Added the planned Front Desk routing-request contract. |
+| 1.9 | 2026-08-27 | Added the planned narrow Front Desk Worker V1 charter. |
+| 1.8 | 2026-08-27 | Added the planned shared Worker Blueprint for future worker-specific delivery charters. |
 | 1.7 | 2026-08-23 | Added the implemented local inbound-telephone admission contract; LiveKit worker, app-data access, and production routing remain separately deferred. |
 | 1.6 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved constrained Cloud-agent FAQ boundary. |
 | 1.5 | 2026-08-22 | Added the proposed, separately gated read-only application-data boundary for Cloud-agent support-FAQ context. |

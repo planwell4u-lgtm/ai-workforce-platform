@@ -1,0 +1,12 @@
+[project]
+name = "planwell-realtime-support-agent"
+version = "0.1.0"
+description = "Bounded OpenAI Realtime customer-support agent"
+requires-python = ">=3.12"
+dependencies = [
+  "livekit-agents[openai]>=1.5,<2",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
