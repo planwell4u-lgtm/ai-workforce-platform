@@ -59,6 +59,7 @@ class BackendApplication:
         voice_sandbox_token_api: VoiceSandboxTokenApi | None,
         voice_cloud_agent_token_api: VoiceCloudAgentTokenApi | None,
         tenant_store: TenantStore,
+        allowed_origin: str = "http://localhost:3000",
     ) -> None:
         self.api = api
         self.support_ticket_api = support_ticket_api
@@ -72,6 +73,7 @@ class BackendApplication:
         self.voice_sandbox_token_api = voice_sandbox_token_api
         self.voice_cloud_agent_token_api = voice_cloud_agent_token_api
         self.tenant_store = tenant_store
+        self.allowed_origin = allowed_origin
 
     @property
     def route_ref(self) -> str:
@@ -102,7 +104,7 @@ class BackendApplication:
         if environ.get("REQUEST_METHOD") == "OPTIONS" and (
             path_info in protected_cors_paths or front_desk_cors_path
         ):
-            if origin != "http://localhost:3000":
+            if origin != self.allowed_origin:
                 start_response("403 Forbidden", [("Content-Length", "0")])
                 return [b""]
             start_response(
@@ -128,7 +130,7 @@ class BackendApplication:
         ):
 
             def destinations_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -139,7 +141,7 @@ class BackendApplication:
         ):
 
             def routing_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -152,7 +154,7 @@ class BackendApplication:
         ):
 
             def human_sales_requests_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -163,7 +165,7 @@ class BackendApplication:
         ):
 
             def ticket_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -172,7 +174,7 @@ class BackendApplication:
             environ.get("REQUEST_METHOD") in {"GET", "POST"}
             and environ.get("PATH_INFO") == "/v1/support-answers"
         ):
-            if origin is not None and origin != "http://localhost:3000":
+            if origin is not None and origin != self.allowed_origin:
                 body = b'{"error":"forbidden"}'
                 start_response(
                     "403 Forbidden",
@@ -181,7 +183,7 @@ class BackendApplication:
                 return [body]
 
             def support_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -192,7 +194,7 @@ class BackendApplication:
             and environ.get("PATH_INFO") == SalesAnswerApi.path
         ):
             def sales_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
             return self.sales_answer_api(environ, sales_start)
@@ -202,7 +204,7 @@ class BackendApplication:
             and environ.get("PATH_INFO") == SalesLeadApi.path
         ):
             def sales_lead_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
             return self.sales_lead_api(environ, sales_lead_start)
@@ -212,7 +214,7 @@ class BackendApplication:
         ):
 
             def admin_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -224,7 +226,7 @@ class BackendApplication:
         ):
 
             def voice_token_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -236,7 +238,7 @@ class BackendApplication:
         ):
 
             def cloud_agent_token_start(status: str, headers: list[tuple[str, str]]) -> object:
-                if origin == "http://localhost:3000":
+                if origin == self.allowed_origin:
                     headers = [*headers, ("Access-Control-Allow-Origin", origin)]
                 return start_response(status, headers)
 
@@ -415,4 +417,5 @@ def create_app() -> BackendApplication:
         if all(livekit_cloud_values)
         else None,
         tenant_store,
+        os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000"),
     )
