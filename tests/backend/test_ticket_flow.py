@@ -57,6 +57,11 @@ class Action:
         return SupportTicketResult("succeeded", request.idempotency_ref, "CS-4")
 
 
+class FailedAction:
+    def request(self, request, permissions):
+        return SupportTicketResult("failed", request.idempotency_ref)
+
+
 class SupportTicketFlowTests(unittest.TestCase):
     def setUp(self) -> None:
         self.store = Store()
@@ -115,3 +120,11 @@ class SupportTicketFlowTests(unittest.TestCase):
         repeat_status, repeat_body = self.request(payload)
         self.assertEqual((repeat_status, repeat_body), ("200 OK", body))
         self.assertEqual(self.action.calls, 1)
+
+    def test_jira_rejection_is_not_reported_as_ticket_creation(self) -> None:
+        self.api._action = FailedAction()
+        status, body = self.request(
+            {"conversation_ref": "conversation-b", "idempotency_ref": "request-2", "summary": "Need help"}
+        )
+        self.assertEqual(status, "502 Bad Gateway")
+        self.assertEqual(body["outcome"], "failed")
