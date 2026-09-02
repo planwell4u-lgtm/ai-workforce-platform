@@ -1,6 +1,6 @@
 # 10_PROJECT_STATUS
 
-**Version:** 4.2
+**Version:** 4.4
 
 **Status:** Approved
 
@@ -30,7 +30,7 @@ This document represents the current reality of the project.
 |---|---|
 | Project | AI Workforce Platform |
 | Documentation Version | v2 |
-| Last Updated | 2026-08-23 |
+| Last Updated | 2026-09-02 |
 | Updated By | Architecture Owner |
 | Review Frequency | Milestone Based |
 
@@ -56,7 +56,7 @@ This document exists to:
 |---|---|
 | Project Phase | First Vertical Slice — local release baseline and gated data-boundary design |
 | Project Status | Active |
-| Development Status | B0–B9 locally implemented and verified; approved read-only data boundary implemented and rehearsed |
+| Development Status | B0–B9 locally implemented and verified; authenticated web chat and isolated Cloud-agent FAQ rehearsal complete |
 | Architecture Status | Approved |
 | Documentation Status | Complete; diagrams approved |
 
@@ -92,6 +92,8 @@ Current focus areas:
 - Preserve the verified, exact-digest signed local release baseline.
 - Preserve and monitor the approved read-only application-data boundary without
   broadening its scope.
+- Retain the successful authenticated web-chat and isolated Cloud voice-agent
+  rehearsal evidence; microphone sharing was released after the test.
 - Choose the next bounded delivery scope.
 
 ---
@@ -486,6 +488,8 @@ Change Management
 
 | Version | Date | Changes |
 |---|---|---|
+| 4.4 | 2026-09-02 | Completed local runtime reliability hardening: Supabase SSL is explicit, the local health/runtime preflight passes, and the interactive Auth0 staging runner was corrected to use `customer-support-worker` and verified with an approved FAQ response. Added the local restart and verification runbook. No capability scope changed. |
+| 4.3 | 2026-09-01 | Recorded the successful authenticated local web-chat rehearsal and owner-confirmed isolated Cloud voice-agent order-tracking rehearsal. The session ended with microphone sharing released; no telephone, recording, tool, customer-data, escalation, or outbound capability changed. |
 | 4.2 | 2026-08-23 | Recorded the owner decision to keep cloud deployment as an end-of-project release activity. |
 | 4.1 | 2026-08-23 | Recorded implementation and exact signed-image rehearsal of the approved FAQ boundary; next action is a new bounded scope decision. |
 | 4.0 | 2026-08-22 | Recorded explicit approval for the constrained read-only application-data boundary and moved the next action to implementation and tests. |

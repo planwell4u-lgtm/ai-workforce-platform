@@ -1,9 +1,9 @@
 # Current Project Status
 
-**Version:** 5.46
+**Version:** 5.48
 **Status:** Active  
 **Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
-**Last Updated:** 2026-08-27
+**Last Updated:** 2026-09-01
 
 ---
 
@@ -14,6 +14,8 @@ This is the concise operational snapshot for contributors. `10_PROJECT_STATUS.md
 # Current State
 
 The approved V2 architecture and engineering planning are complete. Auth0 JWT validation, Supabase PostgreSQL persistence, Jira ticket creation, and the protected tenant-scoped FAQ support flow are verified in staging.
+
+The local authenticated web-chat rehearsal and the isolated Cloud voice-agent FAQ rehearsal both pass. The voice rehearsal used explicit microphone consent and ended with microphone sharing released.
 
 The initial Architecture Diagrams set (01-07) has approved editable Draw.io sources, matching SVG and PNG review exports, and recorded reviewer metadata.
 
@@ -28,6 +30,9 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 - B7 Jira Service Management ticket creation, including authenticated Supabase-to-Jira verification.
 - B4 canonical conversation control with PostgreSQL-backed persistence, duplicate protection, and refresh restoration.
 - B5 Auth0-protected web chat and tenant-scoped Admin conversation history.
+- The signed-in local web chat returned both its safe-unavailable response and the approved order-tracking FAQ response after the backend database connection was restored.
+- The isolated `customer-support-realtime-v1` Cloud voice rehearsal received the approved order-tracking FAQ context, produced caller-audible audio, and ended with the microphone released. No phone routing, recording, tools, customer-data access, escalation, or outbound calling was enabled.
+- Local runtime reliability hardening is verified: the Supabase SSL requirement is explicit, the automated health/runtime preflight passes, and the interactive Auth0 staging runner now targets `customer-support-worker` and returns an approved FAQ answer. The local restart and recovery procedure is recorded.
 - B6 local Voice adapter simulation with canonical Conversation correlation and safe interrupted/disconnected turn handling.
 - Admin-to-Jira escalation verified; backend idempotency is active. The Admin view reloads the saved Jira reference from the tenant-scoped action record and disables repeat escalation.
 - B8 tenant-scoped operator status and controlled escalation journey with separate view/escalation permissions.
@@ -215,6 +220,8 @@ call without co-participant transcript traffic and was stopped afterward.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.48 | 2026-09-02 | Completed local runtime reliability hardening: documented required Supabase SSL, added and passed the health/runtime preflight, corrected the interactive staging runner to use `customer-support-worker`, and verified its Auth0-protected approved FAQ response. Added the local restart and verification runbook. No capability scope changed. |
+| 5.47 | 2026-09-01 | Recorded the successful authenticated local web-chat rehearsal and the owner-confirmed isolated Cloud voice-agent order-tracking rehearsal. The browser released the microphone after the session ended. No capability scope changed. |
 | 5.46 | 2026-08-27 | Added a fail-closed read-only FAQ-context gate to `customer-support-realtime-v1`, configured the local application to prefer the isolated LiveKit profile, and deployed version `ENnCuTZt6pHK` successfully. All 71 local tests pass (3 environment-dependent skips). No telephone routing, recording, tools, escalation, or outbound capability changed. |
 | 5.45 | 2026-08-26 | Completed and ended a private Agent Console rehearsal for `customer-support-realtime-v1`. The agent greeted and answered a generic order-tracking prompt through the OpenAI Realtime model; recording was off and no telephone route, customer data, tool, escalation, or outbound capability changed. |
 | 5.44 | 2026-08-25 | Deployed `customer-support-realtime-v1` to the second LiveKit account in `ap-south`. Startup logs confirm the OpenAI plugin loaded and the worker registered under the intended name. The deployment remains isolated with no phone routing, recording, data, tool, escalation, or outbound capability attached. |

@@ -30,7 +30,16 @@ python -m ruff check .
 python -m mypy
 python -m unittest discover -s tests -v
 python scripts/check_workspace.py
+python scripts/check_local_runtime.py
 ```
+
+`check_local_runtime.py` verifies only local backend health and frontend runtime
+configuration; it does not send customer data or use an access token. Run
+`scripts/run_staging_ticket_flow.py` separately for the interactive,
+authenticated staging check.
+
+For the verified startup, recovery, and staging-verification procedure, see
+`docs/V2/20_ENGINEERING/LOCAL_RUNTIME_RESTART_AND_VERIFICATION_RUNBOOK.md`.
 
 Do not place secrets in this repository. Copy `config/local.env.example` to `config/local.env` only for local use, then supply values through an approved secret manager when services are introduced.
 

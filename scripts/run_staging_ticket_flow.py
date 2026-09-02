@@ -188,7 +188,7 @@ def _submit_support_question(access_token: str) -> object:
     marker = uuid.uuid4().hex[:12]
     payload = json.dumps(
         {
-            "agent_ref": "support-agent",
+            "agent_ref": "customer-support-worker",
             "session_ref": f"staging-verification-{marker}",
             "event_ref": f"staging-event-{marker}",
             "sequence": 1,
