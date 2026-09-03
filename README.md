@@ -4,7 +4,18 @@ The repository implements the approved V2 AI Workforce Platform architecture.
 
 ## Current stage
 
-Engineering Foundation (B0) is complete. This baseline establishes workspace boundaries, safe configuration, automated structural checks, and CI. It intentionally contains no product behavior, provider integration, database access, or credentials. The next task is B1: tenant-aware identity and protected API entry.
+The first local vertical slice is complete and available for review. It includes protected Support and Sales chat, Front Desk route administration, controlled routing, and the local verification workflow. See the project-status record for delivery evidence and remaining roadmap choices.
+
+## Local workspace pages
+
+After starting the local frontend, open:
+
+- `/` — Planwell landing page and workspace navigation
+- `/support` — protected Support chat, controlled voice test, and support routing
+- `/sales` — protected Sales chat and consent-based lead request
+- `/front-desk-admin` — permission-bound, test-only Front Desk route administration
+
+The Support, Sales, and Front Desk pages require their appropriate Auth0 sign-in permissions. The Front Desk page does not configure live telephone or external handoff providers.
 
 ## Workspace
 

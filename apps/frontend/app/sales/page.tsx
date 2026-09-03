@@ -3,6 +3,7 @@
 import { createAuth0Client, type Auth0Client } from "@auth0/auth0-spa-js";
 import { FormEvent, useEffect, useState } from "react";
 import { loadRuntimeConfig } from "../runtime-config";
+import "./sales.css";
 
 type Message = { sender: "you" | "sales"; text: string };
 

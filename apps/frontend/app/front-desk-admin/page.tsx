@@ -3,6 +3,7 @@
 import { createAuth0Client, type Auth0Client } from "@auth0/auth0-spa-js";
 import { useEffect, useState } from "react";
 import { loadRuntimeConfig } from "../runtime-config";
+import "./front-desk.css";
 
 type Destination = {
   destination_ref: string;

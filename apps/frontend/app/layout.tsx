@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Starter Project",
-  description: "A clean starting point for building your site.",
+  title: "Planwell | Governed AI Workspace",
+  description: "Approved support, sales, and controlled routing in one practical workspace.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
