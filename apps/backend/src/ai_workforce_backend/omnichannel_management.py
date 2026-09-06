@@ -257,14 +257,34 @@ class OmnichannelApi:
     def _query_agent_for_answer(self, question_text: str) -> str:
         """Queries FaqSupportAgent for an approved answer from the published Knowledge Base."""
         try:
-            decision = self._agent.decide(question_text)
-            if hasattr(decision, "answer_text") and decision.answer_text:
-                return str(decision.answer_text)
-            if hasattr(decision, "text") and decision.text:
-                return str(decision.text)
+            if hasattr(self._agent, "decide"):
+                decision = self._agent.decide(question_text)
+                if hasattr(decision, "answer_text") and isinstance(decision.answer_text, str):
+                    return decision.answer_text
+                if hasattr(decision, "text") and isinstance(decision.text, str):
+                    return decision.text
+            if hasattr(self._agent, "answer"):
+                tenant_ref = os.getenv("SUPPORT_TENANT_REF", "staging-demo")
+                try:
+                    result = self._agent.answer(
+                        tenant_ref=tenant_ref,
+                        agent_ref="front-desk",
+                        subject_ref="sms-customer",
+                        session_ref=f"sms-{uuid.uuid4()}",
+                        question=question_text,
+                        permissions=frozenset({"knowledge.read", "platform.owner"}),
+                    )
+                    raw_ans = getattr(result, "answer", str(result))
+                    if isinstance(raw_ans, str) and raw_ans.strip():
+                        return raw_ans.strip()
+                except TypeError:
+                    result = self._agent.answer(question_text)
+                    raw_ans = getattr(result, "answer", str(result))
+                    if isinstance(raw_ans, str) and raw_ans.strip():
+                        return raw_ans.strip()
         except Exception:
             pass
-        return "Thank you for reaching out! Our team is reviewing your inquiry and will get back to you shortly."
+        return "Thank you for reaching out to Planwell Support! We are reviewing your inquiry."
 
     @staticmethod
     def _read_json(environ: Mapping[str, object]) -> dict[str, Any]:

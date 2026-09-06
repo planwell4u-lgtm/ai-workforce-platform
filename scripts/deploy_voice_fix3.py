@@ -8,7 +8,9 @@ REMOTE_DIR = "/home/opc/planwell"
 
 FILES_TO_PACK = [
     "packages/digital_channel/python/src/ai_workforce_digital_channel/voice_adapter.py",
+    "packages/digital_channel/python/src/ai_workforce_digital_channel/sms_adapter.py",
     "apps/backend/src/ai_workforce_backend/voice_management.py",
+    "apps/backend/src/ai_workforce_backend/omnichannel_management.py",
 ]
 
 def deploy():
@@ -32,11 +34,11 @@ def deploy():
         "rm -f voice_fix3.tar.gz",
         "sudo docker compose --env-file .env -f deploy/docker-compose.yml up --build -d --force-recreate backend",
         "sleep 8",
-        "echo '--- TwiML test ---'",
+        "echo '--- SMS Webhook test ---'",
         "curl -s --max-time 10 --resolve planwell.online:443:127.0.0.1 "
-        "-X POST https://planwell.online/api/v1/channels/voice/incoming "
+        "-X POST https://planwell.online/api/v1/channels/sms/webhook "
         "-H 'Content-Type: application/x-www-form-urlencoded' "
-        "-d 'From=%2B12402159529&To=%2B12406798305&CallSid=test999'",
+        "-d 'From=%2B12402159529&To=%2B12406798305&Body=hello+what+services+do+you+offer'",
     ])
     subprocess.run([
         "ssh", "-i", KEY_PATH,

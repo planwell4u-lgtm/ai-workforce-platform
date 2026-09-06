@@ -58,8 +58,8 @@ class TwilioSmsAdapter:
         """Constructs a valid TwiML XML response string."""
         response_el = ET.Element("Response")
         message_el = ET.SubElement(response_el, "Message")
-        message_el.text = text
-        return ET.tostring(response_el, encoding="utf-8").decode("utf-8")
+        message_el.text = str(text) if text is not None else ""
+        return f'<?xml version="1.0" encoding="UTF-8"?>\n{ET.tostring(response_el, encoding="unicode")}'
 
     @staticmethod
     def canonical_conversation_ref(tenant_ref: str, phone_number: str) -> str:
