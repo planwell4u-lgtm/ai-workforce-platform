@@ -55,7 +55,7 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
             api_key="cloud-key",
             api_secret="cloud-secret",
             agent_name="planwell-browser-proof",
-            knowledge=LocalKnowledgeSource((KnowledgeEntry("faq:v1", "tenant-a", "internal", True, "Q: order tracking\nA: Your order is on its way."),)),
+            knowledge=LocalKnowledgeSource((KnowledgeEntry("faq:v1", "tenant-a", "internal", True, "Q: How can I track my order?\nA: Your order is on its way."),)),
             correlation_factory=lambda: "correlation-a",
         )
         captured: dict[str, object] = {}
@@ -65,8 +65,8 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
                     "REQUEST_METHOD": "POST",
                     "PATH_INFO": token_api.path,
                     "HTTP_AUTHORIZATION": "Bearer valid",
-                    "CONTENT_LENGTH": "25",
-                    "wsgi.input": BytesIO(b'{"support_query":"order"}'),
+                    "CONTENT_LENGTH": "34",
+                    "wsgi.input": BytesIO(b'{"support_query":"order tracking"}'),
                 },
                 lambda status, headers: captured.update(status=status),
             )
@@ -82,3 +82,20 @@ class VoiceCloudAgentTokenTests(unittest.TestCase):
         metadata = json.loads(claims.room_config.agents[0].metadata)
         self.assertEqual(metadata["mode"], "support-faq")
         self.assertEqual(metadata["source_ref"], "faq:v1")
+
+    def test_accepts_a_loose_question_when_an_approved_faq_matches(self) -> None:
+        token_api = VoiceCloudAgentTokenApi(
+            Verifier(),
+            InMemoryMembershipDirectory((Membership("auth0|member", "tenant-a", "active", frozenset({"agent.context.read"})),)),
+            InMemoryAuditSink(), url="wss://project.livekit.cloud", api_key="cloud-key",
+            api_secret="cloud-secret", agent_name="planwell-browser-proof",
+            knowledge=LocalKnowledgeSource((KnowledgeEntry("faq:v1", "tenant-a", "internal", True, "Q: How can I reset my password?\nA: Use the reset page."),)),
+            correlation_factory=lambda: "correlation-a",
+        )
+        captured: dict[str, object] = {}
+        body = b"".join(token_api(
+            {"REQUEST_METHOD": "POST", "PATH_INFO": token_api.path, "HTTP_AUTHORIZATION": "Bearer valid", "CONTENT_LENGTH": "28", "wsgi.input": BytesIO(b'{"support_query":"password"}')},
+            lambda status, headers: captured.update(status=status),
+        ))
+        self.assertEqual(captured["status"], "200 OK")
+        self.assertIn("token", json.loads(body))

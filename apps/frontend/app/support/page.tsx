@@ -23,6 +23,8 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [auth, setAuth] = useState<Auth0Client>();
   const [signedIn, setSignedIn] = useState(false);
+  const [accountLabel, setAccountLabel] = useState("");
+  const [identityProvider, setIdentityProvider] = useState("");
   const [auth0Audience, setAuth0Audience] = useState("");
   const [sequence, setSequence] = useState(1);
   const [sessionRef, setSessionRef] = useState(() => {
@@ -39,7 +41,7 @@ export default function Home() {
   const [routing, setRouting] = useState(false);
   const [adminConversations, setAdminConversations] = useState<AdminConversation[] | null>(null);
   const [ticketNotice, setTicketNotice] = useState("");
-  const [apiBaseUrl, setApiBaseUrl] = useState("http://localhost:8080");
+  const [apiBaseUrl, setApiBaseUrl] = useState("/api");
   const [escalatingConversationRef, setEscalatingConversationRef] = useState<string | null>(null);
   const [voiceSandboxStatus, setVoiceSandboxStatus] = useState("");
   const [voiceConsentPending, setVoiceConsentPending] = useState(false);
@@ -60,8 +62,8 @@ export default function Home() {
         cacheLocation: "localstorage",
         authorizationParams: {
           audience: config.auth0Audience,
-          redirect_uri: window.location.origin,
-          scope: "openid profile agent.context.read operator.status.read integration.support-ticket.create",
+          redirect_uri: `${window.location.origin}/support`,
+          scope: "openid profile email agent.context.read operator.status.read integration.support-ticket.create",
         },
       });
       if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
@@ -71,7 +73,13 @@ export default function Home() {
       setApiBaseUrl(config.apiBaseUrl);
       setAuth0Audience(config.auth0Audience);
       setAuth(client);
-      setSignedIn(await client.isAuthenticated());
+      const isAuthenticated = await client.isAuthenticated();
+      setSignedIn(isAuthenticated);
+      if (isAuthenticated) {
+        const user = await client.getUser();
+        setAccountLabel(user?.email ?? user?.name ?? "");
+        setIdentityProvider(user?.sub?.startsWith("google-oauth2|") ? "Google" : "");
+      }
     });
   }, []);
   const getSupportToken = useCallback(async () => {
@@ -79,7 +87,7 @@ export default function Home() {
     return auth.getTokenSilently({
       authorizationParams: {
         audience: auth0Audience,
-        scope: "openid profile agent.context.read operator.status.read integration.support-ticket.create",
+        scope: "openid profile email agent.context.read operator.status.read integration.support-ticket.create",
       },
     });
   }, [auth, auth0Audience]);
@@ -87,8 +95,8 @@ export default function Home() {
     void auth?.loginWithRedirect({
       authorizationParams: {
         audience: auth0Audience,
-        redirect_uri: window.location.origin,
-        scope: "openid profile agent.context.read operator.status.read integration.support-ticket.create",
+        redirect_uri: `${window.location.origin}/support`,
+        scope: "openid profile email agent.context.read operator.status.read integration.support-ticket.create",
       },
     });
   }
@@ -285,7 +293,13 @@ export default function Home() {
         body: requestBody ? JSON.stringify(requestBody) : undefined,
       });
       const result = await response.json();
-      if (!response.ok || typeof result.url !== "string" || typeof result.token !== "string") throw new Error("token_request_failed");
+      if (!response.ok || typeof result.url !== "string" || typeof result.token !== "string") {
+        throw new Error(
+          voiceAgentTest && response.status === 403
+            ? "approved_context_unavailable"
+            : typeof result.error === "string" ? result.error : "token_request_failed",
+        );
+      }
       const room = new Room();
       let cloudAgentJoined = false;
       let cloudAudioReceived = false;
@@ -355,8 +369,11 @@ export default function Home() {
         : "Voice is live. Your microphone is shared only in this room; audio from other participants will play automatically.");
     } catch (error) {
       const denied = error instanceof DOMException && error.name === "NotAllowedError";
+      const unsupportedTopic = error instanceof Error && error.message === "approved_context_unavailable";
       await stopVoiceSession(denied
         ? "Microphone permission was not granted. Nothing was shared; you can try again when ready."
+        : unsupportedTopic
+          ? "That topic is not available for the voice test. Try the approved topic: order tracking. Nothing was shared."
         : "Voice could not start. Nothing is being shared; check the local services and try again.");
     }
   }
@@ -364,5 +381,5 @@ export default function Home() {
     if (voiceRoomRef.current) await stopVoiceSession("Voice session ended before signing out.");
     await auth?.logout({ logoutParams: { returnTo: window.location.origin } });
   }
-  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>Support ready</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && <button className="secondary" onClick={signInForSupport}>Sign in again for Support</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceAgentTest(false); setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn && !voiceConnected && <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setJoinVoiceRoomRef(""); setVoiceAgentTest(true); setVoiceConsentPending(true); setVoiceSandboxStatus("The configured Cloud voice agent will receive only the approved FAQ context for the support topic you provide."); }}>Test Cloud voice agent</button>}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceRoomCode && <p className="notice">Voice room code: <code>{voiceRoomCode}</code></p>}{voiceConsentPending && <div className="notice"><p>{voiceAgentTest ? "Provide a support topic, then enable your microphone. The configured Cloud voice agent receives only one matching approved FAQ excerpt; no recording or actions are enabled." : "Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled."}</p>{voiceAgentTest && <label>Support topic<input value={cloudSupportQuery} onChange={(event) => setCloudSupportQuery(event.target.value)} placeholder="For example: order tracking" aria-label="Support topic"/></label>}<label>Join an existing local room (optional)<input value={joinVoiceRoomRef} onChange={(event) => setJoinVoiceRoomRef(event.target.value)} placeholder="Paste a voice room code" aria-label="Voice room code"/></label><button disabled={voiceAgentTest && !cloudSupportQuery.trim()} onClick={() => void startVoiceSession()}>{voiceAgentTest ? "Enable microphone and start Cloud agent" : "Enable microphone"}</button>{joinVoiceRoomRef.trim() && <button className="secondary" onClick={() => void startVoiceSession(false)}>Join without microphone</button>}<button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceAgentTest(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div>{conversationRef && <div className="notice"><p>{routeNotice || "You can ask the Front Desk to check whether Support is available. This does not transfer your chat."}</p>{routeOfferRef ? <button disabled={routing} onClick={() => void requestSupportRoute()}>{routing ? "Checking…" : "Request Support route"}</button> : <button className="secondary" disabled={routing} onClick={() => void offerSupportRoute()}>{routing ? "Checking…" : "Check Support availability"}</button>}</div>}<form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
+  return <main><section className="chat-shell"><header><p>PLANWELL</p><h1>Support chat</h1><span>{signedIn ? accountLabel ? `${identityProvider ? `Signed in with ${identityProvider} as` : "Signed in as"} ${accountLabel}` : "Signed in — email unavailable. Sign in again to show it." : "Support ready"}</span><button className="secondary" onClick={startNewChat}>New chat</button>{signedIn && <button className="secondary" onClick={() => void loadAdminHistory()}>Admin</button>}{signedIn && <button className="secondary" onClick={signInForSupport}>Sign in again for Support</button>}{signedIn && (voiceConnected ? <button className="secondary" onClick={() => void stopVoiceSession()}>Stop voice</button> : <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setVoiceAgentTest(false); setVoiceConsentPending(true); setVoiceSandboxStatus("Voice uses your microphone only after you choose Enable microphone. Nothing is recorded."); }}>{voiceConnecting ? "Starting voice…" : "Start voice"}</button>)}{signedIn && !voiceConnected && <button className="secondary" disabled={voiceConnecting || voiceConsentPending} onClick={() => { setJoinVoiceRoomRef(""); setVoiceAgentTest(true); setVoiceConsentPending(true); setVoiceSandboxStatus("The configured Cloud voice agent will receive only the approved FAQ context for the support topic you provide."); }}>Test Cloud voice agent</button>}{signedIn ? <button onClick={() => void signOut()}>Sign out</button> : <button onClick={() => auth?.loginWithRedirect()}>Sign in</button>}</header><div className="notice">Do not share passwords or payment details here.</div>{voiceSandboxStatus && <p className="notice">{voiceSandboxStatus}</p>}{voiceRoomCode && <p className="notice">Voice room code: <code>{voiceRoomCode}</code></p>}{voiceConsentPending && <div className="notice"><p>{voiceAgentTest ? "Provide a support topic, then enable your microphone. The configured Cloud voice agent receives only one matching approved FAQ excerpt; no recording or actions are enabled." : "Enable your microphone to speak in this private local voice room. Other participants’ audio will play automatically. You can stop at any time; no recording is enabled."}</p>{voiceAgentTest && <label>Support topic<input value={cloudSupportQuery} onChange={(event) => setCloudSupportQuery(event.target.value)} placeholder="For example: order tracking" aria-label="Support topic"/></label>}<label>Join an existing local room (optional)<input value={joinVoiceRoomRef} onChange={(event) => setJoinVoiceRoomRef(event.target.value)} placeholder="Paste a voice room code" aria-label="Voice room code"/></label><button disabled={voiceAgentTest && !cloudSupportQuery.trim()} onClick={() => void startVoiceSession()}>{voiceAgentTest ? "Enable microphone and start Cloud agent" : "Enable microphone"}</button>{joinVoiceRoomRef.trim() && <button className="secondary" onClick={() => void startVoiceSession(false)}>Join without microphone</button>}<button className="secondary" onClick={() => { setVoiceConsentPending(false); setVoiceAgentTest(false); setVoiceSandboxStatus("Voice was not started. Nothing was shared."); }}>Cancel</button></div>}{adminConversations ? <div className="messages"><h2>Support activity</h2>{ticketNotice && <p>{ticketNotice}</p>}{adminConversations.length ? adminConversations.map((conversation) => <div className="support" key={conversation.conversation_ref}><small>Conversation {conversation.conversation_ref.slice(0, 12)} · {conversation.status}</small>{conversation.messages.map((message, index) => <p key={index}>{message.sender === "you" ? "Customer: " : "Support: "}{message.text}</p>)}{conversation.ticket_ref && <p>Saved Jira ticket: {conversation.ticket_ref}</p>}<button disabled={Boolean(conversation.ticket_ref) || escalatingConversationRef === conversation.conversation_ref} onClick={() => void escalate(conversation)}>{ticketLabel(conversation)}</button></div>) : <p>No administrator access or saved conversations yet.</p>}</div> : <><div className="messages">{messages.map((message, index) => <div className={message.sender} key={index}><small>{message.sender === "you" ? "You" : "Planwell Support"}</small><p>{message.text}</p></div>)}{sending && <div className="support"><small>Planwell Support</small><p>Sending…</p></div>}</div>{conversationRef && <div className="notice"><p>{routeNotice || "You can ask the Front Desk to check whether Support is available. This does not transfer your chat."}</p>{routeOfferRef ? <button disabled={routing} onClick={() => void requestSupportRoute()}>{routing ? "Checking…" : "Request Support route"}</button> : <button className="secondary" disabled={routing} onClick={() => void offerSupportRoute()}>{routing ? "Checking…" : "Check Support availability"}</button>}</div>}<form onSubmit={send}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a support question" aria-label="Your question"/><button disabled={!signedIn || sending}>{sending ? "Sending…" : "Send"}</button></form></>}</section></main>;
 }

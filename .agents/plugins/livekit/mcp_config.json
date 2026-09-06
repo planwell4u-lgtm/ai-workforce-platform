@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "livekit": {
+      "command": "npx",
+      "args": ["-y", "@livekit/mcp-server"],
+      "env": {
+        "LIVEKIT_URL": "${LIVEKIT_CLOUD_URL}",
+        "LIVEKIT_API_KEY": "${LIVEKIT_CLOUD_API_KEY}",
+        "LIVEKIT_API_SECRET": "${LIVEKIT_CLOUD_API_SECRET}"
+      }
+    },
+    "livekit-sse": {
+      "serverUrl": "https://mcp.livekit.io/sse"
+    }
+  }
+}

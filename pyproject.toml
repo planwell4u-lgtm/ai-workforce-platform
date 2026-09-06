@@ -13,6 +13,7 @@ dependencies = [
   "livekit-agents[openai]>=1.5,<2",
   "psycopg[binary]>=3.2,<4",
   "PyJWT[crypto]>=2.10,<3",
+  "stripe>=10.0.0",
 ]
 
 [project.optional-dependencies]
@@ -22,8 +23,9 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["apps/backend/src", "packages/agent/python/src", "packages/conversation/python/src", "packages/data/python/src", "packages/integration/python/src", "packages/voice/python/src"]
-include = ["ai_workforce_agent*", "ai_workforce_backend*", "ai_workforce_conversation*", "ai_workforce_data*", "ai_workforce_integration*", "ai_workforce_voice*"]
+where = ["apps/backend/src", "packages/agent/python/src", "packages/conversation/python/src", "packages/data/python/src", "packages/digital_channel/python/src", "packages/integration/python/src", "packages/voice/python/src"]
+include = ["ai_workforce_agent*", "ai_workforce_backend*", "ai_workforce_conversation*", "ai_workforce_data*", "ai_workforce_digital_channel*", "ai_workforce_integration*", "ai_workforce_voice*"]
+
 
 [tool.unittest]
 start-directory = "tests"

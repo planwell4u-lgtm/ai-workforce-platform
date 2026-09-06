@@ -17,8 +17,10 @@ _QUESTION_STOP_WORDS = frozenset(
         "and",
         "are",
         "can",
+        "change",
         "do",
         "for",
+        "help",
         "how",
         "i",
         "if",
@@ -38,6 +40,16 @@ _QUESTION_STOP_WORDS = frozenset(
         "your",
     }
 )
+
+
+def _search_terms(text: str) -> set[str]:
+    """Normalize simple FAQ wording variations without generating new content."""
+    terms = {
+        term
+        for term in re.findall(r"[a-z0-9]+", text.lower())
+        if term not in _QUESTION_STOP_WORDS
+    }
+    return {"track" if term == "tracking" else term for term in terms}
 
 
 class ContextDenied(PermissionError):
@@ -132,13 +144,13 @@ class LocalKnowledgeSource:
             and entry.classification == "internal"
         )
 
-    def search(self, tenant_ref: str, question: str) -> KnowledgeEntry | None:
-        """Return a high-confidence approved FAQ match, without semantic inference."""
-        terms = {
-            term
-            for term in re.findall(r"[a-z0-9]+", question.lower())
-            if term not in _QUESTION_STOP_WORDS
-        }
+    def search(
+        self, tenant_ref: str, question: str, *, minimum_match_ratio: float = 0.6
+    ) -> KnowledgeEntry | None:
+        """Return an approved same-tenant FAQ match without generating new content."""
+        if not 0 <= minimum_match_ratio <= 1:
+            raise ValueError("minimum_match_ratio must be between zero and one")
+        terms = _search_terms(question)
         if not terms:
             return None
         candidates = (
@@ -151,7 +163,7 @@ class LocalKnowledgeSource:
         ranked = sorted(
             (
                 (
-                    len(terms & set(re.findall(r"[a-z0-9]+", entry.excerpt.lower())))
+                    len(terms & _search_terms(entry.excerpt))
                     / len(terms),
                     entry,
                 )
@@ -160,9 +172,63 @@ class LocalKnowledgeSource:
             key=lambda item: item[0],
             reverse=True,
         )
-        if not ranked or ranked[0][0] < 0.6:
+        if not ranked or ranked[0][0] < minimum_match_ratio or ranked[0][0] == 0:
             return None
         return ranked[0][1]
+
+
+class DynamicKnowledgeSource(LocalKnowledgeSource):
+    """Knowledge source that dynamically loads published articles from PostgreSQL storage."""
+
+    def __init__(self, store: object, fallback_source: LocalKnowledgeSource | None = None) -> None:
+        super().__init__(())
+        self._store = store
+        self._fallback = fallback_source
+
+    def retrieve(self, tenant_ref: str) -> tuple[str, ...]:
+        if hasattr(self._store, "list_knowledge_articles"):
+            articles = self._store.list_knowledge_articles(tenant_ref, published_only=True)
+            if articles:
+                return tuple(f"Q: {a.question}\nA: {a.answer}" for a in articles)
+        if self._fallback:
+            return self._fallback.retrieve(tenant_ref)
+        return ()
+
+    def search(
+        self, tenant_ref: str, question: str, *, minimum_match_ratio: float = 0.6
+    ) -> KnowledgeEntry | None:
+        if hasattr(self._store, "list_knowledge_articles"):
+            articles = self._store.list_knowledge_articles(tenant_ref, published_only=True)
+            if articles:
+                terms = _search_terms(question)
+                if not terms:
+                    return None
+                entries = [
+                    KnowledgeEntry(
+                        source_ref=f"db:{a.article_ref}",
+                        tenant_ref=tenant_ref,
+                        classification="internal",
+                        published=True,
+                        excerpt=f"Q: {a.question}\nA: {a.answer}",
+                    )
+                    for a in articles
+                ]
+                ranked = sorted(
+                    (
+                        (
+                            len(terms & _search_terms(entry.excerpt)) / len(terms),
+                            entry,
+                        )
+                        for entry in entries
+                    ),
+                    key=lambda item: item[0],
+                    reverse=True,
+                )
+                if ranked and ranked[0][0] >= minimum_match_ratio and ranked[0][0] > 0:
+                    return ranked[0][1]
+        if self._fallback:
+            return self._fallback.search(tenant_ref, question, minimum_match_ratio=minimum_match_ratio)
+        return None
 
 
 class SessionMemoryStore:

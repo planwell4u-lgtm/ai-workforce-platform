@@ -1,14 +1,13 @@
-﻿# 02_PROJECT_ROADMAP
 
-**Version:** 2.6
+# 02_PROJECT_ROADMAP
 
-**Status:** Approved
+**Version:** 2.9
+
+**Status:** Approved (Phase 11 Twilio PSTN Telephony & Voice Agent Number Provisioning Completed & Deployed Live to Oracle Cloud VM)
 
 ---
 
 # Overview
-
-This document defines the implementation roadmap for the AI Workforce Platform.
 
 The roadmap provides a structured, phase-based approach for designing, implementing, testing, and deploying the platform while maintaining architectural consistency and minimizing project risk.
 
@@ -386,6 +385,19 @@ The platform will deliver a cohesive, self-improving, multi-channel AI workforce
 | Developer and ecosystem surface | Versioned APIs, events, webhooks, and approved agent/tool integration interfaces support external consumers without bypassing platform policy. | Integration, Conversation, Security |
 | Enterprise trust and operability | Tenant isolation, auditability, compliance controls, resilience, monitoring, and recovery are production-ready across all capabilities. | Security, Data, Operations, Deployment, Observability, Testing |
 
+---
+
+## Strategic Feature Opportunities & Next Horizon (Competitive Benchmarking)
+
+To ensure Planwell maintains architectural superiority and market competitiveness (benchmarked against platforms like WorkforceWave), the following four strategic capability initiatives are formally integrated into the upcoming delivery roadmap:
+
+| Opportunity Area | Strategic Initiative | Architecture & Implementation Scope | Target Phase |
+|---|---|---|---|
+| **1. Instant Onboarding** | **Website URL Auto-Ingestion ("Instant Agent Setup")** | Ingest public business website URLs via a backend scraper/entity extractor, auto-generating structured draft FAQ articles for tenant owner review before publication. | Phase 4 / SaaS Step 4 |
+| **2. Continuous Intelligence** | **Knowledge Health & Coverage Analytics (0–100% Index)** | Analyze incoming chat and voice transcripts against published knowledge records to calculate a real-time Coverage Index and proactively suggest missing FAQ topics. | Phase 4 / SaaS Step 4 |
+| **3. Omnichannel Expansion** | **SMS & WhatsApp Adapters** | Expand `digital_channel` abstraction to ingest Twilio SMS and Meta WhatsApp webhooks, routing all interactions into `AgentContextService` with unified conversation correlation. | Phase 8 / SaaS Step 5 |
+| **4. Post-Call Automation** | **Structured Post-Conversation Insights** | Generate deterministic structured metadata cards (Caller Intent, Sentiment, Key Action Items, CRM/Jira references) immediately upon call termination for the Admin Workspace. | Phase 9 / SaaS Step 6 |
+
 ## Delivery Guardrails
 
 - Build these capabilities only through the platform's documented ownership boundaries and approved contracts.
@@ -458,6 +470,8 @@ The roadmap is considered complete when:
 | 2.2 | 2026-08-06 | Elevated the product capability track to an active working target with outcome-based completion criteria and independent-design guardrails. |
 | 2.3 | 2026-08-06 | Added cross-phase ownership, release governance, initial vertical-slice scope, acceptance evidence, metrics, and roadmap traceability for the active working target. |
 | 2.4 | 2026-08-06 | Assigned Platform Foundation and Digital Channel ownership for previously unowned roadmap capabilities. |
-| 2.5 | 2026-08-09 | Recorded completion of the approved documentation and Engineering planning sets; set the first vertical-slice engineering foundation as the next delivery action. |
+| 2.7 | 2026-09-06 | Phase 9 Post-Conversation AI Insights completed and deployed live to Oracle Cloud VM. |
+| 2.8 | 2026-09-06 | Phase 10 Enterprise Platform & Production Hardening completed and deployed live to Oracle Cloud VM. |
+| 2.9 | 2026-09-06 | Phase 11 Twilio PSTN Telephony & Dedicated Voice Agent Number Provisioning completed and deployed live to Oracle Cloud VM. |
 
 

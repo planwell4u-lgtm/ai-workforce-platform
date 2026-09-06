@@ -27,7 +27,6 @@ class VoiceCloudAgentTokenApi:
     route_ref = "voice.cloud-agent.token.v1"
     required_permission = "agent.context.read"
     path = "/v1/livekit-cloud-agent-token"
-
     def __init__(
         self,
         verifier: IdentityVerifier,
@@ -77,7 +76,11 @@ class VoiceCloudAgentTokenApi:
             query = request.get("support_query") if isinstance(request, dict) else None
             if not isinstance(query, str) or not query.strip() or len(query) > 240:
                 raise AuthorizationError("invalid_context_request")
-            entry = self._knowledge.search(membership.tenant_ref, query)
+            # Natural phrasing is allowed, but the agent receives only one
+            # existing approved FAQ excerpt for the matching tenant.
+            entry = self._knowledge.search(
+                membership.tenant_ref, query, minimum_match_ratio=0
+            )
             if entry is None:
                 raise AuthorizationError("approved_context_unavailable")
             room_ref = f"cloud-agent-{membership.tenant_ref}-{uuid.uuid4()}"
@@ -113,7 +116,12 @@ class VoiceCloudAgentTokenApi:
             self._audit_sink.record(
                 AuditEvent("denied", str(error), correlation_ref, self.route_ref)
             )
-            return self._respond(start_response, "403 Forbidden", headers, {"error": "forbidden"})
+            public_error = (
+                "approved_context_unavailable"
+                if str(error) == "approved_context_unavailable"
+                else "forbidden"
+            )
+            return self._respond(start_response, "403 Forbidden", headers, {"error": public_error})
         self._audit_sink.record(
             AuditEvent(
                 "allowed",

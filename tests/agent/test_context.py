@@ -117,6 +117,39 @@ class AgentContextServiceTests(unittest.TestCase):
         )
         self.assertEqual(knowledge.retrieve("tenant-b"), ())
 
+    def test_password_change_uses_the_approved_reset_guidance(self) -> None:
+        knowledge = LocalKnowledgeSource.from_jsonl(
+            ROOT / "packages" / "agent" / "knowledge" / "staging-demo" / "approved-support-faqs.jsonl",
+            tenant_ref="staging-demo",
+            source_ref="support-faqs:v1",
+        )
+        service = AgentContextService(
+            (
+                AgentVersion(
+                    "customer-support-worker",
+                    "customer-support-worker:faq-v1",
+                    "staging-demo",
+                    "released",
+                    frozenset({"knowledge.retrieve"}),
+                ),
+            ),
+            knowledge,
+            SessionMemoryStore(()),
+        )
+        answer = FaqSupportAgent(service, knowledge).answer(
+            tenant_ref="staging-demo",
+            agent_ref="customer-support-worker",
+            subject_ref="subject-a",
+            session_ref="session-a",
+            question="How i can change my password",
+            permissions=frozenset({"agent.context.read"}),
+        )
+        self.assertEqual(
+            answer.answer,
+            "Select Forgot Password on the sign-in page and follow the reset instructions.",
+        )
+        self.assertFalse(answer.ticket_recommended)
+
     def test_support_agent_answers_only_from_approved_tenant_faqs(self) -> None:
         answer = self.support_agent.answer(
             tenant_ref="tenant-a",
@@ -129,6 +162,26 @@ class AgentContextServiceTests(unittest.TestCase):
         self.assertEqual(answer.answer, "Reset links expire after 15 minutes.")
         self.assertEqual(answer.source_ref, "faq-a")
         self.assertFalse(answer.ticket_recommended)
+
+        password_answer = self.support_agent.answer(
+            tenant_ref="tenant-a",
+            agent_ref="agent-1",
+            subject_ref="subject-a",
+            session_ref="session-a",
+            question="Help me change my password",
+            permissions=frozenset({"agent.context.read"}),
+        )
+        self.assertEqual(password_answer.source_ref, "faq-a")
+
+        loose_password_answer = self.support_agent.answer(
+            tenant_ref="tenant-a",
+            agent_ref="agent-1",
+            subject_ref="subject-a",
+            session_ref="session-a",
+            question="Can you help me with a password change?",
+            permissions=frozenset({"agent.context.read"}),
+        )
+        self.assertEqual(loose_password_answer.source_ref, "faq-a")
 
         no_answer = self.support_agent.answer(
             tenant_ref="tenant-a",

@@ -22,8 +22,12 @@ This is the concise delivery roadmap. `02_PROJECT_ROADMAP.md` is the detailed au
 | B4 Canonical conversation | Completed | Tenant-scoped session/turn lifecycle, correlation, duplicate/order safety, and recovery state. |
 | B7 Jira support-ticket action | Staging verified | Authenticated request, PostgreSQL record, and Jira ticket creation completed. |
 | B5–B9 vertical slice | Completed locally | Web Chat, Voice simulation, authorized operator journey, signed release artifacts, and exact-digest local rehearsal. |
-| Client Workspace and Platform Admin | Planned | Deliver the tenant-facing frontend incrementally: Support Worker control center, governed worker lifecycle, channels, analytics, and separate internal administration. |
-| Broader platform delivery | Planned | Expand channels, integrations, administration, resilience, and product capabilities only after the safe slice proves the architecture. |
+| SaaS Foundation Step 1 | Completed | Multi-Owner Access Control & Owner Workspace on Oracle Cloud. |
+| SaaS Foundation Step 2 | Completed | Dynamic Knowledge Base & FAQ Management with PostgreSQL pgvector RAG. |
+| SaaS Foundation Step 3 | Completed | Pluggable Dual-Mode SaaS Billing Engine (Mock Sandbox + Dormant Stripe Adapter). |
+| Strategic Step 4 (Planned) | Planned | Website URL Auto-Ingestion ("Instant Agent Setup") & KB Health / Coverage Index (0–100%). |
+| Strategic Step 5 (Planned) | Planned | Omnichannel Expansion (Twilio SMS & Meta WhatsApp Webhooks). |
+| Strategic Step 6 (Planned) | Planned | Automated Post-Call Structured Summaries, Sentiment & SLA Analytics Dashboard. |
 
 # Current Focus
 

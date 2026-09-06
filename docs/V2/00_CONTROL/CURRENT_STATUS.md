@@ -1,9 +1,9 @@
 # Current Project Status
 
-**Version:** 5.48
+**Version:** 5.57
 **Status:** Active  
-**Phase:** First Vertical Slice — Chat, Admin, and Jira flow active  
-**Last Updated:** 2026-09-01
+**Phase:** SaaS Foundation Step 4 — Website URL Auto-Ingestion ("Instant Agent Setup") & Knowledge Health Analytics Live  
+**Last Updated:** 2026-09-05
 
 ---
 
@@ -17,10 +17,16 @@ The approved V2 architecture and engineering planning are complete. Auth0 JWT va
 
 The local authenticated web-chat rehearsal and the isolated Cloud voice-agent FAQ rehearsal both pass. The voice rehearsal used explicit microphone consent and ended with microphone sharing released.
 
+The first controlled Oracle cloud deployment is now active at `https://planwell.online`. The frontend, protected backend, Caddy HTTPS gateway, self-hosted LiveKit server, and `customer-support-realtime-v1` worker are running. The owner completed a caller-audible browser voice-agent test using a topic-bounded approved FAQ context. No telephone route, recording, customer-data access, tools, escalation, or outbound calling was enabled.
+
 The initial Architecture Diagrams set (01-07) has approved editable Draw.io sources, matching SVG and PNG review exports, and recorded reviewer metadata.
 
 # Completed
 
+- SaaS Roadmap Step 4 (Website URL Ingestion & Knowledge Health Analytics): Implemented "Instant Agent Setup" via `WebsiteKnowledgeExtractor` (`/v1/owner/knowledge/ingest-url`) which extracts structured business overview, services, hours, and contact FAQs as drafts (`published = false`) for strict owner governance before going live. Implemented 0–100% Knowledge Health & Coverage Index (`/v1/owner/knowledge/health`) with grade classification, category breakdown, gap warnings, and recommended actions. Implemented 1-click batch publishing (`/v1/owner/knowledge/bulk-publish`). Integrated a dedicated **Knowledge Base & FAQs** workspace tab on Oracle Cloud (`https://planwell.online/local-management`) with live health gauge, filter tabs (All, Published, Drafts), draft review banner, and URL ingestion modal. Verified live on cloud with automated crawler extracting 8 draft articles and transitioning health score dynamically from 0% to 70% (`Good Coverage`). Rebuilt and deployed to Oracle Cloud (`https://planwell.online`).
+- SaaS Roadmap Step 3 (Stripe Integration & Dormant Standby Toggle): Implemented production-ready Stripe billing integration (`StripeBillingService`, Migration 10 `provider`, `stripe_customer_id`, `stripe_subscription_id`, `stripe_invoice_id`, `stripe_hosted_invoice_url`), Stripe Checkout & Customer Portal session creation, and HMAC webhook signature verification. Gated by feature toggle (`STRIPE_ENABLED=false` by default) so the system defaults seamlessly to the 100% self-contained PostgreSQL mock billing engine without third-party dependencies or API keys. Rebuilt and deployed to Oracle Cloud (`https://planwell.online`).
+- SaaS Roadmap Step 3: Self-Contained Mock SaaS Billing & Usage Metering Engine is active in the Owner Workspace (`/local-management`) under the **Billing & Usage** tab. Features PostgreSQL persistence (Migration 9 `tenant_subscriptions` and `tenant_invoices`), in-app simulated test card checkout (`4242...`), plan upgrade/downgrade (Starter, Pro, Enterprise), live usage quota progress meters (Voice/Chat minutes, Knowledge Articles, Jira Escalations), itemized invoice receipts, and renewal cancellation/resumption. Rebuilt and deployed to Oracle Cloud (`https://planwell.online`).
+- SaaS Roadmap Step 2: Dynamic Knowledge Base & FAQ Management is active in the Owner Workspace (`/local-management`) under the Operations tab with PostgreSQL persistence (Migration 8 `tenant_knowledge_articles`), full CRUD API (`/v1/owner/knowledge`), audit logging, and `DynamicKnowledgeSource` search integration with transparent static fallback. Rebuilt and deployed to Oracle Cloud (`https://planwell.online`).
 - Control, architecture, and module documentation sets through Operations, Deployment, Observability, Testing, Examples, and Engineering.
 - First vertical-slice implementation backlog, workspace/module-boundary standard, delivery workflow, and traceability standard.
 - Initial seven-diagram source/SVG set.
@@ -91,11 +97,26 @@ The initial Architecture Diagrams set (01-07) has approved editable Draw.io sour
 
 # Deployment Decision
 
-There are no active local-release gaps. Cloud deployment is an end-of-project
-release activity and remains deferred until the project is otherwise complete
-and release authority is explicitly granted.
+The owner authorized a controlled Oracle cloud pilot. `planwell.online` and
+`voice.planwell.online` use managed HTTPS certificates. LiveKit exposes only
+TCP `7881` and UDP `7882` for the browser voice test; the backend remains
+private behind the gateway. The pre-existing, differently scoped LiveKit Cloud
+configuration was not modified.
 
 # Next Action
+
+Owner Workspace checkpoint: see
+`2026-09-05_OWNER_WORKSPACE_CHECKPOINT.md`. Local browser acceptance check
+for Owner Workspace is verified (`planwell4u@gmail.com` authenticated with
+Front Desk fallback, and all 4 section tabs rendered cleanly). Next step is
+to decide on dedicated multi-user Owner permissions vs compatibility check
+before any cloud rollout.
+
+Cloud-pilot access validation and the targeted deployment/recovery procedure
+are complete. The non-owner test user received the approved password-reset FAQ
+answer and was denied Access Management owner controls. Continue to keep
+telephony, recording, customer data, tools, escalation, and outbound calling
+out of the cloud voice agent unless separately approved.
 
 The Customer Support Worker V1 web-chat configuration is implemented with an
 explicit versioned identity and a safe-unavailable response that offers human
@@ -220,6 +241,11 @@ call without co-participant transcript traffic and was stopped afterward.
 
 | Version | Date | Changes |
 |---|---|---|
+| 5.53 | 2026-09-05 | Synchronized and deployed Multiple Dedicated Owners access management, last-owner safeguards, and Owner Workspace (`/local-management`) to Oracle Cloud (`planwell.online`). Synchronized remote PostgreSQL migration ledger (versions 1–7), configured Auth0 application settings, and completed live browser authentication verification as `planwell4u@gmail.com` with confirmed access and interactive navigation across all 4 tabs. |
+| 5.52 | 2026-09-05 | Implemented Multiple Dedicated Owners (`platform.owner`) support with last-owner lockout safeguards across backend access management, PostgreSQL store, and frontend UI. Added permission queries, last-owner validation (`cannot_remove_last_owner`), responsive workspace viewports, and comprehensive unit tests (93 tests passing). |
+| 5.51 | 2026-09-05 | Completed local browser acceptance check for Owner Workspace (`/local-management`): verified authentication with designated administrator, confirmed Front Desk authorization fallback, and tested tab navigation across Overview, People & access, Operations, and Governance. Python tests (88) and frontend production build pass. |
+| 5.50 | 2026-09-05 | Added the local Owner Workspace foundation and recorded the resumable owner-access checkpoint. The designated administrator has matching Auth0 and tenant permissions; the local backend was restarted from project configuration and is healthy. Local Access Management remains intentionally unavailable without protected Management API settings, so Owner Workspace uses a Front Desk authorization fallback pending local browser acceptance. No cloud deployment or capability expansion occurred. |
+| 5.49 | 2026-09-04 | Authorized and completed the first controlled Oracle cloud pilot: `planwell.online` frontend, private backend, HTTPS gateway, self-hosted LiveKit, and `customer-support-realtime-v1` are running. Added minimal WebRTC access (TCP 7881 and UDP 7882), topic-bounded agent dispatch, shared navigation, and the Support sign-in return-path correction. The owner confirmed a caller-audible browser voice-agent test. No phone route, recording, customer-data access, tools, escalation, or outbound calling changed. |
 | 5.48 | 2026-09-02 | Completed local runtime reliability hardening: documented required Supabase SSL, added and passed the health/runtime preflight, corrected the interactive staging runner to use `customer-support-worker`, and verified its Auth0-protected approved FAQ response. Added the local restart and verification runbook. No capability scope changed. |
 | 5.47 | 2026-09-01 | Recorded the successful authenticated local web-chat rehearsal and the owner-confirmed isolated Cloud voice-agent order-tracking rehearsal. The browser released the microphone after the session ended. No capability scope changed. |
 | 5.46 | 2026-08-27 | Added a fail-closed read-only FAQ-context gate to `customer-support-realtime-v1`, configured the local application to prefer the isolated LiveKit profile, and deployed version `ENnCuTZt6pHK` successfully. All 71 local tests pass (3 environment-dependent skips). No telephone routing, recording, tools, escalation, or outbound capability changed. |

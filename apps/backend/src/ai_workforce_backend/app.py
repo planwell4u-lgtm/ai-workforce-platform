@@ -11,6 +11,7 @@ from typing import cast
 from ai_workforce_agent.context import (
     AgentContextService,
     AgentVersion,
+    DynamicKnowledgeSource,
     LocalKnowledgeSource,
     SessionMemoryStore,
 )
@@ -21,6 +22,7 @@ from ai_workforce_integration.support_ticket import create_jira_support_ticket_a
 from ai_workforce_integration.hubspot_lead import HubSpotClient, HubSpotSettings
 
 from .admin_conversations import AdminConversationsApi
+from .access_management import AccessManagementApi, Auth0ManagementClient
 from .auth0 import Auth0JwtVerifier
 from .b1 import (
     ProtectedApi,
@@ -28,6 +30,16 @@ from .b1 import (
 from .persistent_conversation import PersistentConversationService
 from .front_desk_routing import ActiveDestinationRegistry, FrontDeskHumanSalesRequestsApi, FrontDeskRoutingApi
 from .front_desk_destinations import FrontDeskDestinationsApi
+from .knowledge_management import KnowledgeManagementApi
+from .omnichannel_management import OmnichannelApi
+from .voice_management import VoiceManagementApi
+from .conversation_insights import ConversationInsightsApi
+from .system_health import SystemHealthApi
+from .redis_cache import RedisCacheManager
+
+
+from .billing_management import BillingManagementApi
+from .stripe_billing import StripeBillingService
 from .runtime import (
     PostgresAuditSink,
     PostgresMembershipDirectory,
@@ -56,9 +68,16 @@ class BackendApplication:
         front_desk_routing_api: FrontDeskRoutingApi,
         front_desk_human_sales_requests_api: FrontDeskHumanSalesRequestsApi,
         front_desk_destinations_api: FrontDeskDestinationsApi,
-        voice_sandbox_token_api: VoiceSandboxTokenApi | None,
-        voice_cloud_agent_token_api: VoiceCloudAgentTokenApi | None,
-        tenant_store: TenantStore,
+        access_management_api: AccessManagementApi | None,
+        knowledge_management_api: KnowledgeManagementApi | None,
+        billing_management_api: BillingManagementApi | None,
+        omnichannel_api: OmnichannelApi | None = None,
+        voice_management_api: VoiceManagementApi | None = None,
+        conversation_insights_api: ConversationInsightsApi | None = None,
+        system_health_api: SystemHealthApi | None = None,
+        voice_sandbox_token_api: VoiceSandboxTokenApi | None = None,
+        voice_cloud_agent_token_api: VoiceCloudAgentTokenApi | None = None,
+        tenant_store: TenantStore = None,  # type: ignore[assignment]
         allowed_origin: str = "http://localhost:3000",
     ) -> None:
         self.api = api
@@ -70,6 +89,13 @@ class BackendApplication:
         self.front_desk_routing_api = front_desk_routing_api
         self.front_desk_human_sales_requests_api = front_desk_human_sales_requests_api
         self.front_desk_destinations_api = front_desk_destinations_api
+        self.access_management_api = access_management_api
+        self.knowledge_management_api = knowledge_management_api
+        self.billing_management_api = billing_management_api
+        self.omnichannel_api = omnichannel_api
+        self.voice_management_api = voice_management_api
+        self.conversation_insights_api = conversation_insights_api
+        self.system_health_api = system_health_api
         self.voice_sandbox_token_api = voice_sandbox_token_api
         self.voice_cloud_agent_token_api = voice_cloud_agent_token_api
         self.tenant_store = tenant_store
@@ -95,23 +121,33 @@ class BackendApplication:
             "/v1/support-tickets",
             "/v1/voice-sandbox-token",
             "/v1/livekit-cloud-agent-token",
+            "/v1/access-management",
+            "/v1/owner/knowledge",
+            "/v1/owner/billing",
         }
         front_desk_cors_path = (
             path_info == "/v1/conversation-routing-requests"
             or path_info.startswith(FrontDeskHumanSalesRequestsApi.path)
             or path_info.startswith(FrontDeskDestinationsApi.path)
+            or path_info.startswith("/v1/owner/knowledge")
+            or path_info.startswith("/v1/owner/billing")
+            or path_info.startswith("/v1/owner/channels")
+            or path_info.startswith("/v1/owner/insights")
+            or path_info.startswith("/v1/owner/system-health")
+            or path_info.startswith("/v1/owner/phone-numbers")
+            or path_info.startswith("/v1/channels")
         )
         if environ.get("REQUEST_METHOD") == "OPTIONS" and (
             path_info in protected_cors_paths or front_desk_cors_path
         ):
-            if origin != self.allowed_origin:
+            if origin is not None and origin != self.allowed_origin:
                 start_response("403 Forbidden", [("Content-Length", "0")])
                 return [b""]
             start_response(
                 "204 No Content",
                 [
-                    ("Access-Control-Allow-Origin", origin),
-                    ("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
+                    ("Access-Control-Allow-Origin", origin or self.allowed_origin),
+                    ("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS"),
                     ("Access-Control-Allow-Headers", "Authorization, Content-Type"),
                     ("Content-Length", "0"),
                 ],
@@ -125,6 +161,71 @@ class BackendApplication:
             )
             return [body]
         if (
+            self.system_health_api is not None
+            and environ.get("REQUEST_METHOD") == "GET"
+            and cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/system-health")
+        ):
+            def health_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin or origin is None:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin or self.allowed_origin)]
+                return start_response(status, headers)
+            return self.system_health_api(environ, health_start)
+        if (
+            self.conversation_insights_api is not None
+            and environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/insights")
+        ):
+            def insights_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin or origin is None:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin or self.allowed_origin)]
+                return start_response(status, headers)
+            return self.conversation_insights_api(environ, insights_start)
+        if (
+            self.voice_management_api is not None
+            and (
+                cast(str, environ.get("PATH_INFO", "")).startswith("/v1/channels/voice")
+                or cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/phone-numbers")
+            )
+        ):
+            def voice_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin or origin is None:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin or self.allowed_origin)]
+                return start_response(status, headers)
+            return self.voice_management_api(environ, voice_start)
+        if (
+            self.omnichannel_api is not None
+            and environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and (
+                cast(str, environ.get("PATH_INFO", "")).startswith("/v1/channels/")
+                or cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/channels")
+            )
+        ):
+            def omnichannel_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+            return self.omnichannel_api(environ, omnichannel_start)
+        if (
+            self.billing_management_api is not None
+            and environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/billing")
+        ):
+            def billing_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+            return self.billing_management_api(environ, billing_start)
+        if (
+            self.knowledge_management_api is not None
+            and environ.get("REQUEST_METHOD") in {"GET", "POST", "DELETE"}
+            and cast(str, environ.get("PATH_INFO", "")).startswith("/v1/owner/knowledge")
+        ):
+            def knowledge_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+            return self.knowledge_management_api(environ, knowledge_start)
+        if (
             environ.get("REQUEST_METHOD") in {"GET", "POST"}
             and cast(str, environ.get("PATH_INFO", "")).startswith(FrontDeskDestinationsApi.path)
         ):
@@ -135,6 +236,16 @@ class BackendApplication:
                 return start_response(status, headers)
 
             return self.front_desk_destinations_api(environ, destinations_start)
+        if (
+            self.access_management_api is not None
+            and environ.get("REQUEST_METHOD") in {"GET", "POST"}
+            and environ.get("PATH_INFO") == AccessManagementApi.path
+        ):
+            def access_start(status: str, headers: list[tuple[str, str]]) -> object:
+                if origin == self.allowed_origin:
+                    headers = [*headers, ("Access-Control-Allow-Origin", origin)]
+                return start_response(status, headers)
+            return self.access_management_api(environ, access_start)
         if (
             environ.get("REQUEST_METHOD") == "POST"
             and environ.get("PATH_INFO") == FrontDeskRoutingApi.path
@@ -262,6 +373,12 @@ def create_app() -> BackendApplication:
     livekit_cloud_api_key = os.environ.get("LIVEKIT_CLOUD_API_KEY")
     livekit_cloud_api_secret = os.environ.get("LIVEKIT_CLOUD_API_SECRET")
     livekit_cloud_agent_name = os.environ.get("LIVEKIT_CLOUD_AGENT_NAME")
+    livekit_self_hosted_url = os.environ.get("LIVEKIT_SELF_HOSTED_URL")
+    livekit_self_hosted_api_key = os.environ.get("LIVEKIT_SELF_HOSTED_API_KEY")
+    livekit_self_hosted_api_secret = os.environ.get("LIVEKIT_SELF_HOSTED_API_SECRET")
+    livekit_self_hosted_agent_name = (
+        os.environ.get("LIVEKIT_SELF_HOSTED_AGENT_NAME") or "customer-support-realtime-v1"
+    )
     livekit_isolation_url = os.environ.get("LIVEKIT_ISOLATION_URL")
     livekit_isolation_api_key = os.environ.get("LIVEKIT_ISOLATION_API_KEY")
     livekit_isolation_api_secret = os.environ.get("LIVEKIT_ISOLATION_API_SECRET")
@@ -291,7 +408,16 @@ def create_app() -> BackendApplication:
         livekit_isolation_api_key,
         livekit_isolation_api_secret,
     )
-    if any(isolation_values):
+    management_client_id = os.environ.get("AUTH0_MANAGEMENT_CLIENT_ID")
+    management_client_secret = os.environ.get("AUTH0_MANAGEMENT_CLIENT_SECRET")
+    self_hosted_values = (
+        livekit_self_hosted_url,
+        livekit_self_hosted_api_key,
+        livekit_self_hosted_api_secret,
+    )
+    if any(self_hosted_values):
+        livekit_cloud_values = (*self_hosted_values, livekit_self_hosted_agent_name)
+    elif any(isolation_values):
         livekit_cloud_values = (*isolation_values, livekit_isolation_agent_name)
     else:
         livekit_cloud_values = (
@@ -313,6 +439,10 @@ def create_app() -> BackendApplication:
         tenant_ref=cast(str, support_tenant_ref),
         source_ref="support-faqs:v1",
     )
+    dynamic_knowledge = DynamicKnowledgeSource(
+        tenant_store,
+        fallback_source=knowledge,
+    )
     support_agent = FaqSupportAgent(
         AgentContextService(
             (
@@ -324,10 +454,10 @@ def create_app() -> BackendApplication:
                     frozenset({"knowledge.retrieve"}),
                 ),
             ),
-            knowledge,
+            dynamic_knowledge,
             SessionMemoryStore(()),
         ),
-        knowledge,
+        dynamic_knowledge,
     )
     sales_agent = None
     if sales_catalog_path:
@@ -394,7 +524,49 @@ def create_app() -> BackendApplication:
         ),
         FrontDeskHumanSalesRequestsApi(verifier, memberships, audit_sink, tenant_store),
         FrontDeskDestinationsApi(verifier, memberships, audit_sink, tenant_store),
-        VoiceSandboxTokenApi(
+        AccessManagementApi(
+            verifier, memberships, audit_sink, cast(PostgresTenantStore, tenant_store),
+            Auth0ManagementClient(cast(str, domain), management_client_id, management_client_secret), cast(str, audience),
+        ) if management_client_id and management_client_secret else None,
+        KnowledgeManagementApi(
+            verifier, memberships, cast(PostgresTenantStore, tenant_store), audit_sink,
+            cache=RedisCacheManager(),
+        ),
+        BillingManagementApi(
+            verifier,
+            memberships,
+            audit_sink,
+            cast(PostgresTenantStore, tenant_store),
+            stripe_service=StripeBillingService(cast(PostgresTenantStore, tenant_store)),
+        ),
+        omnichannel_api=OmnichannelApi(
+            verifier,
+            memberships,
+            cast(PostgresTenantStore, tenant_store),
+            audit_sink,
+            support_agent,
+        ),
+        voice_management_api=VoiceManagementApi(
+            verifier,
+            memberships,
+            cast(PostgresTenantStore, tenant_store),
+            audit_sink,
+            agent=support_agent,
+        ),
+        conversation_insights_api=ConversationInsightsApi(
+            verifier,
+            memberships,
+            cast(PostgresTenantStore, tenant_store),
+            audit_sink,
+        ),
+        system_health_api=SystemHealthApi(
+            verifier,
+            memberships,
+            cast(PostgresTenantStore, tenant_store),
+            audit_sink,
+            cache=RedisCacheManager(),
+        ),
+        voice_sandbox_token_api=VoiceSandboxTokenApi(
             verifier,
             memberships,
             audit_sink,
@@ -404,7 +576,7 @@ def create_app() -> BackendApplication:
         )
         if all(livekit_values)
         else None,
-        VoiceCloudAgentTokenApi(
+        voice_cloud_agent_token_api=VoiceCloudAgentTokenApi(
             verifier,
             memberships,
             audit_sink,
@@ -412,10 +584,10 @@ def create_app() -> BackendApplication:
             api_key=cast(str, livekit_cloud_api_key),
             api_secret=cast(str, livekit_cloud_api_secret),
             agent_name=cast(str, livekit_cloud_agent_name),
-            knowledge=knowledge,
+            knowledge=dynamic_knowledge,
         )
         if all(livekit_cloud_values)
         else None,
-        tenant_store,
-        os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000"),
+        tenant_store=tenant_store,
+        allowed_origin=os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000"),
     )

@@ -1,0 +1,31 @@
+- main [ref=f1e3]:
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e7] [cursor=pointer]
+      - generic [ref=f1e8]:
+        - generic [ref=f1e9]:
+          - img "dev-h2h8kguiy88hhun1" [ref=f1e10]
+          - heading "Welcome" [level=1] [ref=f1e11]
+          - paragraph [ref=f1e13]: Log in to dev-h2h8kguiy88hhun1 to continue to AI Workforce Web Chat.
+        - generic [ref=f1e14]:
+          - generic [ref=f1e15]:
+            - generic [ref=f1e18]:
+              - generic [ref=f1e20]:
+                - generic [ref=f1e21]: Email address *
+                - textbox "Email address" [active] [ref=f1e22]
+              - generic [ref=f1e24]:
+                - generic [ref=f1e25]: Password *
+                - textbox "Password" [ref=f1e26]
+                - switch "Show password" [ref=f1e27] [cursor=pointer]
+            - paragraph [ref=f1e28]:
+              - link "Reset password" [ref=f1e29] [cursor=pointer]:
+                - /url: /u/login/password-reset-start/Username-Password-Authentication?state=hKFo2SAxdHd3a0xBQTNuNWtDR1dmRFJxRUZxZE44OF81VEN3VaFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHJ2SlI1SXExLWhWVXl4UWFkQmxhZXo3bTZGMm1UcGNYo2NpZNkgeGpQU1FFbVpNUjFGYW1sdFdYSmo4S0psWDl1VDJ1NkQ
+            - button "Continue" [ref=f1e31] [cursor=pointer]
+          - paragraph [ref=f1e33]:
+            - text: Don't have an account?
+            - link "Sign up" [ref=f1e34] [cursor=pointer]:
+              - /url: /u/signup?state=hKFo2SAxdHd3a0xBQTNuNWtDR1dmRFJxRUZxZE44OF81VEN3VaFur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHJ2SlI1SXExLWhWVXl4UWFkQmxhZXo3bTZGMm1UcGNYo2NpZNkgeGpQU1FFbVpNUjFGYW1sdFdYSmo4S0psWDl1VDJ1NkQ
+          - generic [ref=f1e35]: Or
+          - button "Continue with Google" [ref=f1e39] [cursor=pointer]
+    - link "Link to the Auth0 website" [ref=f1e42] [cursor=pointer]:
+      - /url: https://auth0.com/?utm_source=lock&utm_campaign=badge&utm_medium=widget

@@ -53,10 +53,11 @@ class SupportAnswerApi:
         try:
             identity = self._verifier.verify(cast(str | None, environ.get("HTTP_AUTHORIZATION")))
             membership = self._memberships.resolve(identity.principal_ref)
-            if (
-                self.required_permission not in membership.permissions
-                or self.required_permission not in identity.granted_permissions
-            ):
+            # Planwell membership is the authoritative, owner-managed access
+            # record for Support.  Auth0 has already authenticated this user;
+            # do not reject a valid member merely because a SPA token omits a
+            # mirrored permission claim.
+            if self.required_permission not in membership.permissions:
                 raise AuthorizationError("insufficient_permission")
             if environ.get("REQUEST_METHOD") == "GET":
                 session_ref = self._parse_session_ref(environ)

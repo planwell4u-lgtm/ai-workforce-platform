@@ -1,0 +1,29 @@
+- generic [active] [ref=f7e1]:
+  - navigation "Planwell navigation" [ref=f7e2]:
+    - link "PLANWELL" [ref=f7e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f7e4]:
+      - link "Home" [ref=f7e5] [cursor=pointer]:
+        - /url: /
+      - link "Support" [ref=f7e6] [cursor=pointer]:
+        - /url: /support
+      - link "Sales" [ref=f7e7] [cursor=pointer]:
+        - /url: /sales
+      - link "Front Desk" [ref=f7e8] [cursor=pointer]:
+        - /url: /front-desk-admin
+  - main [ref=f7e9]:
+    - generic [ref=f7e10]:
+      - link "PLANWELL" [ref=f7e11] [cursor=pointer]:
+        - /url: /
+      - navigation [ref=f7e12]:
+        - link "Support" [ref=f7e13] [cursor=pointer]:
+          - /url: /support
+        - link "Front Desk" [ref=f7e14] [cursor=pointer]:
+          - /url: /front-desk-admin
+      - button "Sign in as owner" [disabled] [ref=f7e15]
+    - generic [ref=f7e16]:
+      - paragraph [ref=f7e17]: WORKSPACE GOVERNANCE
+      - heading "Owner Workspace" [level=1] [ref=f7e18]
+      - paragraph [ref=f7e19]: Review the health, people, operations, and governance of your Planwell workspace. Infrastructure credentials and raw customer records remain outside this area.
+      - paragraph [ref=f7e20]: Sign in with a workspace owner account to view Owner Workspace.
+      - paragraph [ref=f7e21]: Checking workspace access…

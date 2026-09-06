@@ -2,3 +2,12 @@
 psycopg[binary]>=3.2,<4
 # Auth0 access-token signature validation through the tenant JWKS endpoint.
 PyJWT[crypto]>=2.10,<3
+# Stripe client for subscription & payment processing (dormant by default).
+stripe>=10.0.0
+# Lightweight PDF text extractor for knowledge base document ingestion (~2 MB).
+pypdf>=4.0,<5
+# YouTube auto-transcript fetcher for knowledge base media ingestion (~150 KB, no API key required).
+youtube-transcript-api>=0.6,<1
+# Redis client for fast in-memory caching & session management (~100 KB).
+redis>=5.0.0,<6
+
