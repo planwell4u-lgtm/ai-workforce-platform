@@ -54,12 +54,12 @@ class VoiceManagementApi:
         path = str(environ.get("PATH_INFO", "")).rstrip("/")
         method = str(environ.get("REQUEST_METHOD", "GET")).upper()
 
-        # 1a. Twilio Incoming Call Webhook (POST /v1/channels/voice/incoming)
-        if path == "/v1/channels/voice/incoming" and method == "POST":
+        # 1a. Twilio Incoming Call Webhook (POST/GET /v1/channels/voice/incoming)
+        if path == "/v1/channels/voice/incoming" and method in ("POST", "GET"):
             return self._handle_incoming_call(environ, start_response, correlation_ref)
 
-        # 1b. Twilio Voice Gather Speech Response (POST /v1/channels/voice/respond)
-        if path == "/v1/channels/voice/respond" and method == "POST":
+        # 1b. Twilio Voice Gather Speech Response (POST/GET /v1/channels/voice/respond)
+        if path == "/v1/channels/voice/respond" and method in ("POST", "GET"):
             return self._handle_voice_respond(environ, start_response, correlation_ref)
 
         # 1c. Public Test Dial Webhook (POST /v1/channels/voice/public-test-dial)
@@ -90,6 +90,8 @@ class VoiceManagementApi:
             stream = cast(Any, environ.get("wsgi.input"))
             raw_body = stream.read(length).decode("utf-8") if stream and length > 0 else ""
             form_data = parse_qs(raw_body)
+            if not form_data:
+                form_data = parse_qs(str(environ.get("QUERY_STRING", "")))
         except Exception:
             form_data = {}
 
@@ -131,19 +133,23 @@ class VoiceManagementApi:
             stream = cast(Any, environ.get("wsgi.input"))
             raw_body = stream.read(length).decode("utf-8") if stream and length > 0 else ""
             form_data = parse_qs(raw_body)
+            if not form_data:
+                form_data = parse_qs(str(environ.get("QUERY_STRING", "")))
         except Exception:
             form_data = {}
 
         speech_result = form_data.get("SpeechResult", [""])[0].strip()
+        digits = form_data.get("Digits", [""])[0].strip()
+        user_input = speech_result or (f"Option {digits} selected." if digits else "")
 
-        if speech_result and self._agent is not None:
+        if user_input and self._agent is not None:
             try:
-                answer_result = self._agent.answer(speech_result)
+                answer_result = self._agent.answer(user_input)
                 reply_text = getattr(answer_result, "answer", str(answer_result))
             except Exception:
                 reply_text = "I am having trouble looking up that information right now. Please hold while I connect you to a support representative."
-        elif speech_result:
-            reply_text = f"Thank you for asking about {speech_result}. We are processing your request."
+        elif user_input:
+            reply_text = f"Thank you for asking about {user_input}. We are processing your request."
         else:
             reply_text = "I didn't quite catch that. Could you please repeat your question?"
 
@@ -304,15 +310,19 @@ class VoiceManagementApi:
             status="outbound-initiated",
         )
 
+        twiml_url = os.getenv("TWILIO_OUTBOUND_PILOT_TWIML_URL", "https://planwell.online/api/v1/channels/voice/incoming")
+        twiml_instruction = TwilioVoiceAdapter.build_twiml_gather_response(say_text=greeting)
+
         twilio_payload = TwilioVoiceAdapter.build_outbound_call_payload(
             to_number=to_number,
             from_number=from_number,
+            twiml_url=twiml_url,
+            twiml=twiml_instruction,
         )
 
         account_sid = os.getenv("TWILIO_ACCOUNT_SID")
         api_key = os.getenv("TWILIO_API_KEY")
         api_secret = os.getenv("TWILIO_API_SECRET") or os.getenv("TWILIO_AUTH_TOKEN")
-        twiml_url = os.getenv("TWILIO_OUTBOUND_PILOT_TWIML_URL", "https://planwell.online/api/v1/channels/voice/incoming")
 
         twilio_response = None
         if account_sid and api_secret:
@@ -323,6 +333,7 @@ class VoiceManagementApi:
                 to_number=to_number,
                 from_number=from_number,
                 twiml_url=twiml_url,
+                twiml=twiml_instruction,
             )
 
         return self._json_response(
@@ -354,7 +365,7 @@ class VoiceManagementApi:
         to_number = str(body.get("to_number") or "").strip()
         default_from = os.getenv("TWILIO_PHONE_NUMBER") or os.getenv("TWILIO_FROM_NUMBER") or "+12406798305"
         from_number = str(body.get("from_number") or default_from).strip()
-        greeting = str(body.get("greeting") or "Outbound AI Voice Agent call initialized.").strip()
+        greeting = str(body.get("greeting") or "Hello! Thank you for calling Planwell AI Voice Support. How can I help you today?").strip()
 
         if not to_number:
             return self._json_response(
@@ -370,15 +381,19 @@ class VoiceManagementApi:
             status="outbound-initiated",
         )
 
+        twiml_url = os.getenv("TWILIO_OUTBOUND_PILOT_TWIML_URL", "https://planwell.online/api/v1/channels/voice/incoming")
+        twiml_instruction = TwilioVoiceAdapter.build_twiml_gather_response(say_text=greeting)
+
         twilio_payload = TwilioVoiceAdapter.build_outbound_call_payload(
             to_number=to_number,
             from_number=from_number,
+            twiml_url=twiml_url,
+            twiml=twiml_instruction,
         )
 
         account_sid = os.getenv("TWILIO_ACCOUNT_SID")
         api_key = os.getenv("TWILIO_API_KEY")
         api_secret = os.getenv("TWILIO_API_SECRET") or os.getenv("TWILIO_AUTH_TOKEN")
-        twiml_url = os.getenv("TWILIO_OUTBOUND_PILOT_TWIML_URL", "https://planwell.online/api/v1/channels/voice/incoming")
 
         twilio_response = None
         if account_sid and api_secret:
@@ -389,6 +404,7 @@ class VoiceManagementApi:
                 to_number=to_number,
                 from_number=from_number,
                 twiml_url=twiml_url,
+                twiml=twiml_instruction,
             )
 
         return self._json_response(

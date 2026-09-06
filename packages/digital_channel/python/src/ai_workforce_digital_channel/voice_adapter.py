@@ -46,7 +46,7 @@ class TwilioVoiceAdapter:
         stream = ET.SubElement(connect, "Stream", url=stream_url)
         stream.set("name", "PlanwellLiveKitVoiceStream")
 
-        return f'<?xml version="1.0" encoding="UTF-8"?>\n{ET.tostring(response, encoding="utf-8").decode("utf-8")}'
+        return f'<?xml version="1.0" encoding="UTF-8"?>\n{ET.tostring(response, encoding="unicode")}'
 
     @staticmethod
     def build_twiml_gather_response(
@@ -58,18 +58,19 @@ class TwilioVoiceAdapter:
         gather = ET.SubElement(
             response,
             "Gather",
-            input="speech",
+            input="speech dtmf",
             action=action_url,
             method="POST",
+            timeout="5",
             speechTimeout="auto",
         )
-        say = ET.SubElement(gather, "Say", voice="Polly.Joanna")
+        say = ET.SubElement(gather, "Say", voice="Polly.Joanna", language="en-US")
         say.text = say_text
 
-        goodbye = ET.SubElement(response, "Say", voice="Polly.Joanna")
+        goodbye = ET.SubElement(response, "Say", voice="Polly.Joanna", language="en-US")
         goodbye.text = "Thank you for calling Planwell AI Voice Support. Have a great day! Goodbye."
 
-        return f'<?xml version="1.0" encoding="UTF-8"?>\n{ET.tostring(response, encoding="utf-8").decode("utf-8")}'
+        return f'<?xml version="1.0" encoding="UTF-8"?>\n{ET.tostring(response, encoding="unicode")}'
 
     @staticmethod
     def calculate_billable_minutes(duration_seconds: int) -> int:
@@ -83,15 +84,20 @@ class TwilioVoiceAdapter:
         to_number: str,
         from_number: str,
         twiml_url: str = "https://planwell.online/api/v1/channels/voice/incoming",
+        twiml: str | None = None,
     ) -> dict[str, str]:
         """Builds Twilio REST API payload for initiating an outbound PSTN call."""
-        return {
+        payload: dict[str, str] = {
             "To": to_number,
             "From": from_number,
-            "Url": twiml_url,
-            "Method": "POST",
-            "StatusCallback": twiml_url,
         }
+        if twiml:
+            payload["Twiml"] = twiml
+        else:
+            payload["Url"] = twiml_url
+            payload["Method"] = "POST"
+            payload["StatusCallback"] = twiml_url
+        return payload
 
     @staticmethod
     def dispatch_outbound_call(
@@ -99,7 +105,8 @@ class TwilioVoiceAdapter:
         auth_secret: str,
         to_number: str,
         from_number: str,
-        twiml_url: str = "https://planwell.online/api/v1/channels/voice/incoming",
+        twiml_url: str | None = "https://planwell.online/api/v1/channels/voice/incoming",
+        twiml: str | None = None,
         api_key: str | None = None,
     ) -> dict[str, Any]:
         """Dispatches a live PSTN voice call via Twilio REST API."""
@@ -109,12 +116,17 @@ class TwilioVoiceAdapter:
         import urllib.request
 
         url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Calls.json"
-        data = urllib.parse.urlencode({
+        params: dict[str, str] = {
             "To": to_number,
             "From": from_number,
-            "Url": twiml_url,
-            "Method": "POST",
-        }).encode("utf-8")
+        }
+        if twiml:
+            params["Twiml"] = twiml
+        elif twiml_url:
+            params["Url"] = twiml_url
+            params["Method"] = "POST"
+
+        data = urllib.parse.urlencode(params).encode("utf-8")
 
         username = api_key or account_sid
         auth_bytes = f"{username}:{auth_secret}".encode("utf-8")
