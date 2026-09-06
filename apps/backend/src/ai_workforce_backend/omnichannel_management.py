@@ -268,11 +268,11 @@ class OmnichannelApi:
                 try:
                     result = self._agent.answer(
                         tenant_ref=tenant_ref,
-                        agent_ref="front-desk",
+                        agent_ref="customer-support-worker",
                         subject_ref="sms-customer",
                         session_ref=f"sms-{uuid.uuid4()}",
                         question=question_text,
-                        permissions=frozenset({"knowledge.read", "platform.owner"}),
+                        permissions=frozenset({"agent.context.read", "knowledge.read", "knowledge.retrieve", "platform.owner"}),
                     )
                     raw_ans = getattr(result, "answer", str(result))
                     if isinstance(raw_ans, str) and raw_ans.strip():

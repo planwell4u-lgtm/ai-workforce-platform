@@ -143,9 +143,29 @@ class VoiceManagementApi:
         user_input = speech_result or (f"Option {digits} selected." if digits else "")
 
         if user_input and self._agent is not None:
+            tenant_ref = os.getenv("SUPPORT_TENANT_REF", "staging-demo")
             try:
-                answer_result = self._agent.answer(user_input)
-                reply_text = getattr(answer_result, "answer", str(answer_result))
+                if hasattr(self._agent, "answer"):
+                    try:
+                        answer_result = self._agent.answer(
+                            tenant_ref=tenant_ref,
+                            agent_ref="customer-support-worker",
+                            subject_ref="voice-customer",
+                            session_ref=f"voice-{uuid.uuid4()}",
+                            question=user_input,
+                            permissions=frozenset({"agent.context.read", "knowledge.read", "knowledge.retrieve", "platform.owner"}),
+                        )
+                        raw_ans = getattr(answer_result, "answer", str(answer_result))
+                        reply_text = raw_ans if raw_ans and isinstance(raw_ans, str) else "I am processing your inquiry."
+                    except TypeError:
+                        answer_result = self._agent.answer(user_input)
+                        raw_ans = getattr(answer_result, "answer", str(answer_result))
+                        reply_text = raw_ans if raw_ans and isinstance(raw_ans, str) else "I am processing your inquiry."
+                elif hasattr(self._agent, "decide"):
+                    decision = self._agent.decide(user_input)
+                    reply_text = getattr(decision, "answer_text", getattr(decision, "text", str(decision)))
+                else:
+                    reply_text = f"Thank you for asking about {user_input}. We are processing your request."
             except Exception:
                 reply_text = "I am having trouble looking up that information right now. Please hold while I connect you to a support representative."
         elif user_input:
@@ -182,8 +202,8 @@ class VoiceManagementApi:
         if not numbers:
             default_num = self._store.assign_tenant_phone_number(
                 tenant_ref=tenant_ref,
-                phone_number="+1 (800) 555-0199",
-                friendly_name="Primary Voice Support Line",
+                phone_number=os.getenv("TWILIO_PHONE_NUMBER", "+12406798305"),
+                friendly_name="Twilio Dedicated PSTN Line",
                 twiml_url="https://planwell.online/api/v1/channels/voice/incoming",
             )
             numbers = [default_num]
@@ -293,7 +313,8 @@ class VoiceManagementApi:
 
         to_number = str(body.get("to_number") or "").strip()
         default_from = os.getenv("TWILIO_PHONE_NUMBER") or os.getenv("TWILIO_FROM_NUMBER") or "+12406798305"
-        from_number = str(body.get("from_number") or default_from).strip()
+        raw_from = str(body.get("from_number") or "").strip()
+        from_number = default_from if not raw_from or "555-0199" in raw_from else raw_from
         greeting = str(body.get("greeting") or "Outbound AI Voice Agent call initialized.").strip()
 
         if not to_number:
@@ -364,7 +385,8 @@ class VoiceManagementApi:
 
         to_number = str(body.get("to_number") or "").strip()
         default_from = os.getenv("TWILIO_PHONE_NUMBER") or os.getenv("TWILIO_FROM_NUMBER") or "+12406798305"
-        from_number = str(body.get("from_number") or default_from).strip()
+        raw_from = str(body.get("from_number") or "").strip()
+        from_number = default_from if not raw_from or "555-0199" in raw_from else raw_from
         greeting = str(body.get("greeting") or "Hello! Thank you for calling Planwell AI Voice Support. How can I help you today?").strip()
 
         if not to_number:

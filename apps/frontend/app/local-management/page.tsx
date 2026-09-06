@@ -2227,7 +2227,7 @@ function OmnichannelManager({ apiBaseUrl, token }: { apiBaseUrl: string; token: 
 
   // Outbound PSTN Call Tester state
   const [outboundToNumber, setOutboundToNumber] = useState("");
-  const [outboundFromNumber, setOutboundFromNumber] = useState("+1 (800) 555-0199");
+  const [outboundFromNumber, setOutboundFromNumber] = useState("+1 (240) 679-8305");
   const [outboundGreeting, setOutboundGreeting] = useState("Hello! This is Planwell AI Voice Support calling on behalf of your account.");
   const [dialingOutbound, setDialingOutbound] = useState(false);
   const [outboundResult, setOutboundResult] = useState<any>(null);
@@ -2244,7 +2244,7 @@ function OmnichannelManager({ apiBaseUrl, token }: { apiBaseUrl: string; token: 
         },
         body: JSON.stringify({
           to_number: outboundToNumber,
-          from_number: outboundFromNumber || "+1 (800) 555-0199",
+          from_number: outboundFromNumber || "+1 (240) 679-8305",
           greeting: outboundGreeting,
         }),
       });
@@ -2630,7 +2630,7 @@ function OmnichannelManager({ apiBaseUrl, token }: { apiBaseUrl: string; token: 
                     </option>
                   ))
                 ) : (
-                  <option value="+1 (800) 555-0199">+1 (800) 555-0199 (Primary Voice Support Line)</option>
+                  <option value="+1 (240) 679-8305">+1 (240) 679-8305 (Twilio Dedicated PSTN Line)</option>
                 )}
               </select>
             </div>
