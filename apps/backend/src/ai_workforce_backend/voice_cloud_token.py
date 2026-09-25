@@ -149,7 +149,7 @@ class VoiceCloudAgentTokenApi:
                 if articles:
                     # Priority-aware assembly: job/careers articles first so they are
                     # never crowded out when truncation is needed.
-                    _KB_CHAR_LIMIT = 23_500
+                    _KB_CHAR_LIMIT = 78_000
                     job_keywords = ("job", "career", "position", "hiring", "opening", "vacancy", "role", "employment")
                     priority_articles = [
                         a for a in articles
