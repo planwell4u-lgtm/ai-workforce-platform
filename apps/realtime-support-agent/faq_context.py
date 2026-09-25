@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Final
 
-MAX_CONTEXT_CHARACTERS: Final = 4_000
+MAX_CONTEXT_CHARACTERS: Final = 24_000
 
 
 def approved_faq_context(metadata: str) -> str | None:
